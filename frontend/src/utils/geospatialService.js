@@ -2,18 +2,29 @@ import { Loader } from '@googlemaps/js-api-loader';
 import * as THREE from 'three';
 
 class GeospatialService {
-  constructor(apiKey) {
-    this.apiKey = apiKey;
+  constructor() {
+    this.apiKey = (import.meta?.env?.VITE_GOOGLE_MAPS_API_KEY) || '';
     this.map = null;
     this.buildings = [];
     this.roads = [];
     this.isInitialized = false;
+    this.useFallback = false;
+    this.origin = { lat: 0, lng: 0 };
   }
 
   async initialize() {
     if (this.isInitialized) return;
 
     try {
+      const useMaps = (import.meta?.env?.VITE_USE_MAPS === 'true');
+      if (!useMaps || !this.apiKey) {
+        // No API key provided; use fallback mock data
+        this.useFallback = true;
+        this.isInitialized = true;
+        console.warn('Using fallback geospatial data (Maps disabled or API key missing).');
+        return;
+      }
+
       // Load Google Maps API
       const loader = new Loader({
         apiKey: this.apiKey,
@@ -25,8 +36,9 @@ class GeospatialService {
       this.isInitialized = true;
       console.log('Google Maps API loaded successfully');
     } catch (error) {
-      console.error('Error initializing GeospatialService:', error);
-      throw error;
+      console.warn('Error initializing GeospatialService, switching to fallback:', error);
+      this.useFallback = true;
+      this.isInitialized = true;
     }
   }
 
@@ -37,6 +49,14 @@ class GeospatialService {
     }
 
     try {
+      this.origin = { lat: latitude, lng: longitude };
+
+      if (this.useFallback) {
+        const buildings = this.mockBuildingsNear(latitude, longitude);
+        this.buildings = buildings;
+        return buildings;
+      }
+
       // Create a map instance if not already created
       if (!this.map) {
         const mapDiv = document.createElement('div');
@@ -47,17 +67,19 @@ class GeospatialService {
           center: { lat: latitude, lng: longitude },
           zoom: 18,
           mapTypeId: 'satellite',
-          disableDefaultUI: true
+          disableDefaultUI: true,
+          gestureHandling: 'none',
+          zoomControl: false,
+          minZoom: 18,
+          maxZoom: 18
         });
       } else {
         this.map.setCenter({ lat: latitude, lng: longitude });
       }
 
-      // Use the Buildings API to get building data
+      // Use the Buildings API to get building data (placeholder; still using mock extraction)
       return new Promise((resolve) => {
-        // We need to wait for the map to load
         google.maps.event.addListenerOnce(this.map, 'idle', () => {
-          // Extract building data from the map
           const buildings = this.extractBuildingsFromMap();
           this.buildings = buildings;
           resolve(buildings);
@@ -73,29 +95,63 @@ class GeospatialService {
   extractBuildingsFromMap() {
     // In a real implementation, we would use the Google Maps API to extract building data
     // For now, we'll return mock data
+    const cLat = this.map ? this.map.getCenter().lat() : this.origin.lat;
+    const cLng = this.map ? this.map.getCenter().lng() : this.origin.lng;
     return [
       {
         id: 'building-1',
         name: 'Building 1',
-        position: { lat: this.map.getCenter().lat() + 0.0005, lng: this.map.getCenter().lng() + 0.0003 },
+        position: { lat: cLat + 0.0005, lng: cLng + 0.0003 },
         height: 30,
         footprint: [
-          { lat: this.map.getCenter().lat() + 0.0005, lng: this.map.getCenter().lng() + 0.0003 },
-          { lat: this.map.getCenter().lat() + 0.0005, lng: this.map.getCenter().lng() + 0.0008 },
-          { lat: this.map.getCenter().lat() + 0.0010, lng: this.map.getCenter().lng() + 0.0008 },
-          { lat: this.map.getCenter().lat() + 0.0010, lng: this.map.getCenter().lng() + 0.0003 }
+          { lat: cLat + 0.0005, lng: cLng + 0.0003 },
+          { lat: cLat + 0.0005, lng: cLng + 0.0008 },
+          { lat: cLat + 0.0010, lng: cLng + 0.0008 },
+          { lat: cLat + 0.0010, lng: cLng + 0.0003 }
         ]
       },
       {
         id: 'building-2',
         name: 'Building 2',
-        position: { lat: this.map.getCenter().lat() - 0.0008, lng: this.map.getCenter().lng() - 0.0005 },
+        position: { lat: cLat - 0.0008, lng: cLng - 0.0005 },
         height: 20,
         footprint: [
-          { lat: this.map.getCenter().lat() - 0.0008, lng: this.map.getCenter().lng() - 0.0005 },
-          { lat: this.map.getCenter().lat() - 0.0008, lng: this.map.getCenter().lng() - 0.0010 },
-          { lat: this.map.getCenter().lat() - 0.0012, lng: this.map.getCenter().lng() - 0.0010 },
-          { lat: this.map.getCenter().lat() - 0.0012, lng: this.map.getCenter().lng() - 0.0005 }
+          { lat: cLat - 0.0008, lng: cLng - 0.0005 },
+          { lat: cLat - 0.0008, lng: cLng - 0.0010 },
+          { lat: cLat - 0.0012, lng: cLng - 0.0010 },
+          { lat: cLat - 0.0012, lng: cLng - 0.0005 }
+        ]
+      }
+    ];
+  }
+
+  // Fallback mock buildings near origin
+  mockBuildingsNear(latitude, longitude) {
+    const cLat = latitude;
+    const cLng = longitude;
+    return [
+      {
+        id: 'building-1',
+        name: 'Building 1',
+        position: { lat: cLat + 0.0004, lng: cLng + 0.0002 },
+        height: 28,
+        footprint: [
+          { lat: cLat + 0.0004, lng: cLng + 0.0002 },
+          { lat: cLat + 0.0004, lng: cLng + 0.0006 },
+          { lat: cLat + 0.0008, lng: cLng + 0.0006 },
+          { lat: cLat + 0.0008, lng: cLng + 0.0002 }
+        ]
+      },
+      {
+        id: 'building-2',
+        name: 'Building 2',
+        position: { lat: cLat - 0.0006, lng: cLng - 0.0004 },
+        height: 22,
+        footprint: [
+          { lat: cLat - 0.0006, lng: cLng - 0.0004 },
+          { lat: cLat - 0.0006, lng: cLng - 0.0009 },
+          { lat: cLat - 0.0010, lng: cLng - 0.0009 },
+          { lat: cLat - 0.0010, lng: cLng - 0.0004 }
         ]
       }
     ];
@@ -108,6 +164,14 @@ class GeospatialService {
     }
 
     try {
+      this.origin = { lat: latitude, lng: longitude };
+
+      if (this.useFallback) {
+        const roads = this.mockRoadsNear(latitude, longitude);
+        this.roads = roads;
+        return roads;
+      }
+
       // Ensure map is initialized
       if (!this.map) {
         await this.detectBuildings(latitude, longitude, radius);
@@ -115,11 +179,9 @@ class GeospatialService {
         this.map.setCenter({ lat: latitude, lng: longitude });
       }
 
-      // Use the Roads API to get road data
+      // Use the Roads API to get road data (placeholder; still using mock extraction)
       return new Promise((resolve) => {
-        // We need to wait for the map to load
         google.maps.event.addListenerOnce(this.map, 'idle', () => {
-          // Extract road data from the map
           const roads = this.extractRoadsFromMap();
           this.roads = roads;
           resolve(roads);
@@ -135,14 +197,16 @@ class GeospatialService {
   extractRoadsFromMap() {
     // In a real implementation, we would use the Google Maps API to extract road data
     // For now, we'll return mock data
+    const cLat = this.map ? this.map.getCenter().lat() : this.origin.lat;
+    const cLng = this.map ? this.map.getCenter().lng() : this.origin.lng;
     return [
       {
         id: 'road-1',
         name: 'Main Street',
         type: 'major',
         path: [
-          { lat: this.map.getCenter().lat() + 0.001, lng: this.map.getCenter().lng() - 0.002 },
-          { lat: this.map.getCenter().lat() + 0.001, lng: this.map.getCenter().lng() + 0.002 }
+          { lat: cLat + 0.001, lng: cLng - 0.002 },
+          { lat: cLat + 0.001, lng: cLng + 0.002 }
         ]
       },
       {
@@ -150,8 +214,34 @@ class GeospatialService {
         name: 'Side Road',
         type: 'minor',
         path: [
-          { lat: this.map.getCenter().lat() - 0.001, lng: this.map.getCenter().lng() - 0.001 },
-          { lat: this.map.getCenter().lat() + 0.001, lng: this.map.getCenter().lng() - 0.001 }
+          { lat: cLat - 0.001, lng: cLng - 0.001 },
+          { lat: cLat + 0.001, lng: cLng - 0.001 }
+        ]
+      }
+    ];
+  }
+
+  // Fallback mock roads near origin
+  mockRoadsNear(latitude, longitude) {
+    const cLat = latitude;
+    const cLng = longitude;
+    return [
+      {
+        id: 'road-1',
+        name: 'Main Street',
+        type: 'major',
+        path: [
+          { lat: cLat + 0.001, lng: cLng - 0.0015 },
+          { lat: cLat + 0.001, lng: cLng + 0.0015 }
+        ]
+      },
+      {
+        id: 'road-2',
+        name: 'Side Road',
+        type: 'minor',
+        path: [
+          { lat: cLat - 0.001, lng: cLng - 0.001 },
+          { lat: cLat + 0.001, lng: cLng - 0.001 }
         ]
       }
     ];
@@ -167,9 +257,9 @@ class GeospatialService {
       
       // Position the mesh based on the building's position
       mesh.position.set(
-        building.position.lng - this.map.getCenter().lng(),
+        building.position.lng - (this.map ? this.map.getCenter().lng() : this.origin.lng),
         building.height / 2,
-        building.position.lat - this.map.getCenter().lat()
+        building.position.lat - (this.map ? this.map.getCenter().lat() : this.origin.lat)
       );
       
       return {
@@ -187,9 +277,9 @@ class GeospatialService {
       // Create a line for each road
       const points = road.path.map(point => 
         new THREE.Vector3(
-          point.lng - this.map.getCenter().lng(),
+          point.lng - (this.map ? this.map.getCenter().lng() : this.origin.lng),
           0.1, // Slightly above ground
-          point.lat - this.map.getCenter().lat()
+          point.lat - (this.map ? this.map.getCenter().lat() : this.origin.lat)
         )
       );
       
@@ -228,5 +318,5 @@ class GeospatialService {
 }
 
 // Create and export a singleton instance
-const geospatialService = new GeospatialService(process.env.GOOGLE_MAPS_API_KEY || '');
+const geospatialService = new GeospatialService();
 export default geospatialService;

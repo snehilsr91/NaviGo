@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import ARPage from "./pages/ARPage";
 import MapPage from "./pages/MapPage";
+import AIAssistant from "./components/AIAssistant";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Route path="/ar" element={<ARPage />} />
         <Route path="/map" element={<MapPage />} />
       </Routes>
+      <AIAssistant />
     </Router>
   );
 }

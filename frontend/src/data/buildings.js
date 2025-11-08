@@ -15,7 +15,7 @@ export const BUILDINGS = [
   { id: 'food-court', name: 'Food Court', position: { lat: 12.3729257, lng: 76.5853903 } },
   { id: 'gym', name: 'Gym', position: { lat: 12.3729309, lng: 76.5857017 } },
   { id: 'girls-hostel', name: 'Girls Hostel', position: { lat: 12.3724600, lng: 76.5859012 } },
-  { id: 'library', name: 'Library', position: { lat: 12.3712958, lng: 76.5869701 } },
+  { id: 'madhavacharya-bhavan', name: 'Madhavacharya Bhavan', position: { lat: 12.3712958, lng: 76.5869701 } },
   { id: 'canteen-gopis-kitchen', name: "Canteen - Gopi's Kitchen", position: { lat: 12.3709814, lng: 76.5866680 } },
   { id: 'ramanujacharya-bhavan', name: 'Ramanujacharya Bhavan', position: { lat: 12.3713315, lng: 76.5853249 } },
   { id: 'shankaracharya-bhavan', name: 'Shankaracharya Bhavan', position: { lat: 12.3714658, lng: 76.5847791 } },

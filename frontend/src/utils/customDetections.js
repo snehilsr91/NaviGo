@@ -2,7 +2,7 @@
 const customDetections = {
   // Map standard COCO-SSD classes to custom labels
   // Format: 'standard-class': 'custom-label'
-  'person': 'Alex',  // Replace with actual name
+  'person': 'Person',  // Replace with actual name
   'laptop': 'MacBook Pro',
   'cell phone': 'iPhone',
   'backpack': 'Campus Backpack',

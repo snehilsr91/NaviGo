@@ -1,12 +1,10 @@
-import "aframe";
-import "ar.js";
+import "@ar-js-org/ar.js";
 import React, { useState, useEffect, useRef } from "react";
 import ARLabel from "./ARLabel";
 import ObjectDetector from "./ObjectDetector";
 import GeospatialControls from "./GeospatialControls";
 import { usePOIs } from "../../hooks/usePOIs";
 import geospatialService from "../../utils/geospatialService";
-import * as THREE from "three";
 
 const ARScene = () => {
   const { pois, addPOI } = usePOIs();
@@ -21,18 +19,30 @@ const ARScene = () => {
 
   // Initialize geolocation tracking
   useEffect(() => {
-    const watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        setUserLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        });
-      },
-      (error) => console.error("Error getting geolocation:", error),
-      { enableHighAccuracy: true }
-    );
+    let watchId = null;
+    if (navigator.geolocation && window.isSecureContext) {
+      watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.error("Error getting geolocation:", error);
+          // Fallback to a default location (e.g., Bangalore)
+          setUserLocation({ lat: 12.9716, lng: 77.5946 });
+        },
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+      );
+    } else {
+      // Non-secure context (http on non-localhost): use fallback
+      setUserLocation({ lat: 12.9716, lng: 77.5946 });
+    }
 
-    return () => navigator.geolocation.clearWatch(watchId);
+    return () => {
+      if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+    };
   }, []);
 
   // Detect buildings and roads when in geospatial mode and location changes
@@ -197,17 +207,6 @@ const ARScene = () => {
     });
   };
 
-  // Effect to render geospatial models when in AR mode
-  useEffect(() => {
-    if (mode === "ar" && buildings.length > 0 && roads.length > 0) {
-      // Wait for the scene to be ready
-      const timer = setTimeout(() => {
-        renderGeospatialModels();
-      }, 1000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [mode, buildings, roads]);
 
   return (
     <div className="relative w-full h-screen">
@@ -220,7 +219,7 @@ const ARScene = () => {
           style={{ width: "100%", height: "100vh" }}
         >
           {/* Camera setup */}
-          <a-camera gps-camera rotation-reader></a-camera>
+          <a-camera gps-camera></a-camera>
 
           {/* Render POIs */}
           {pois.map((poi, idx) => (

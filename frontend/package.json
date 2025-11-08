@@ -10,9 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@react-google-maps/api": "^2.20.6",
     "@ar-js-org/ar.js": "^3.4.7",
     "@googlemaps/js-api-loader": "^2.0.2",
+    "@react-google-maps/api": "^2.20.6",
     "@tensorflow-models/coco-ssd": "^2.2.3",
     "@tensorflow/tfjs": "^4.22.0",
     "aframe": "^1.7.1",
