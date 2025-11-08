@@ -1,7 +1,24 @@
 import { useState } from 'react';
 
 async function askBackend(q) {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/assistant/ask?q=${encodeURIComponent(q)}`);
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const url = `${apiUrl}/assistant/ask?q=${encodeURIComponent(q)}`;
+  
+  const res = await fetch(url);
+  
+  // Check if response is OK
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`);
+  }
+  
+  // Check if response is JSON
+  const contentType = res.headers.get('content-type');
+  if (!contentType || !contentType.includes('application/json')) {
+    const text = await res.text();
+    console.error('Expected JSON but got:', text.substring(0, 200));
+    throw new Error('Server returned non-JSON response. Make sure the backend is running on port 5000.');
+  }
+  
   return await res.json(); // { matches: [...] } or { reply: string }
 }
 
@@ -15,10 +32,22 @@ export default function AIAssistant() {
     const q = question.trim();
     if (!q) return;
     setLoading(true);
-    const data = await askBackend(q);
-    setHistory(h => [...h, { q, data }]);
-    setQuestion('');
-    setLoading(false);
+    try {
+      const data = await askBackend(q);
+      setHistory(h => [...h, { q, data }]);
+      setQuestion('');
+    } catch (error) {
+      console.error('AI Assistant error:', error);
+      const errorMessage = error.message.includes('JSON') 
+        ? 'Backend server is not responding. Please make sure the backend is running on port 5000.'
+        : error.message || 'Failed to get response from server.';
+      setHistory(h => [...h, { 
+        q, 
+        data: { reply: `Error: ${errorMessage}` } 
+      }]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -26,7 +55,15 @@ export default function AIAssistant() {
       {/* floating trigger */}
       <button
         onClick={() => setOpen(v => !v)}
-        className="fixed bottom-6 right-6 z-[9999] w-14 h-14 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 flex items-center justify-center border-2 border-white"
+        style={{ 
+          position: 'fixed', 
+          bottom: '24px', 
+          right: '24px', 
+          zIndex: 99999,
+          width: '56px',
+          height: '56px',
+        }}
+        className="rounded-full bg-indigo-600 text-white shadow-2xl hover:bg-indigo-700 flex items-center justify-center border-2 border-white transition-all hover:scale-110"
         aria-label="Open AI assistant"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -36,7 +73,17 @@ export default function AIAssistant() {
 
       {/* chat panel */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-[9999] w-80 max-h-[28rem] bg-white rounded-xl shadow-2xl flex flex-col">
+        <div 
+          style={{ 
+            position: 'fixed', 
+            bottom: '96px', 
+            right: '24px', 
+            zIndex: 99999,
+            width: '320px',
+            maxHeight: '28rem',
+          }}
+          className="bg-white rounded-xl shadow-2xl flex flex-col"
+        >
           <header className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
             <h3 className="font-semibold text-gray-800">Campus Assistant</h3>
             <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600">✕</button>

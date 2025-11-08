@@ -3,7 +3,7 @@ import cors from "cors";
 import placesRoutes from "./routes/places.routes.js";
 import reviewsRoutes from "./routes/reviews.routes.js";
 import detectionsRoutes from "./routes/detections.routes.js";
-import assistantRoutes from "./routes/assistant.routes.js";
+import { ask } from "./controllers/assistantController.js"; 
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -17,6 +17,7 @@ app.use(express.json());
 app.use("/api/places", placesRoutes);
 app.use("/api/reviews", reviewsRoutes);
 app.use("/api/detections", detectionsRoutes);
-app.use("/api/assistant", assistantRoutes);
+
+app.get("/api/assistant/ask", ask);
 
 export default app;

@@ -1,90 +1,221 @@
-import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+// import fetch from "node-fetch";
+// import dotenv from "dotenv";
+// import { readFileSync, existsSync } from "fs";
+// import { join, dirname } from "path";
+// import { fileURLToPath } from "url";
+
+// dotenv.config();
+
+// const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// // Path to campus file
+// const campusFilePath = join(__dirname, "../../../frontend/Campus_Building_Details.txt");
+
+// // Check if file exists and read
+// let campusText = "";
+// if (existsSync(campusFilePath)) {
+//   campusText = readFileSync(campusFilePath, "utf-8");
+//   console.log("✅ Campus file loaded successfully.");
+// } else {
+//   console.warn("⚠️ Campus_Building_Details.txt not found at:", campusFilePath);
+// }
+
+// const GEMINI_URL =
+//   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+
+
+// export async function ask(req, res) {
+//   const { q } = req.query;
+//   if (!q || !q.trim()) {
+//     return res.status(400).json({ reply: "Missing question." });
+//   }
+
+//   const apiKey = process.env.GEMINI_API_KEY;
+//   if (!apiKey) {
+//     return res.status(500).json({ reply: "Missing GEMINI_API_KEY in backend." });
+//   }
+
+//   const lowerQ = q.toLowerCase();
+//   const isCampusQuery =
+//     lowerQ.includes("campus") ||
+//     lowerQ.includes("building") ||
+//     lowerQ.includes("department") ||
+//     lowerQ.includes("library") ||
+//     lowerQ.includes("canteen") ||
+//     lowerQ.includes("hostel") ||
+//     lowerQ.includes("bhavan") ||
+//     lowerQ.includes("college") ||
+//     lowerQ.includes("lab");
+
+//   // Adjusted prompt
+//   const prompt = isCampusQuery && campusText.trim().length > 0
+//     ? `
+// You are an AI campus assistant for the National Institute of Engineering, Mysore.
+
+// Here is the official campus information:
+// ---
+// ${campusText}
+// ---
+
+// Answer this question based on the above details.
+// If relevant, mention the building name or facilities.
+// If you truly cannot find any matching info, then say:
+// "I could not find this in the campus records."
+
+// Question: "${q}"
+// `
+//     : `You are a friendly AI assistant. Respond naturally and helpfully to this message: "${q}"`;
+
+//   try {
+//     const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({
+//         contents: [{ parts: [{ text: prompt }] }],
+//       }),
+//     });
+
+//     const data = await response.json();
+
+//     // Log response structure for debugging
+//     console.log("Gemini raw response:", JSON.stringify(data, null, 2));
+
+//     const answer =
+//       data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+//       data?.candidates?.[0]?.content?.[0]?.parts?.[0]?.text ||
+//       "I could not find this in the campus records.";
+
+//     res.json({ reply: answer });
+//   } catch (error) {
+//     console.error("Gemini API error:", error);
+//     res.status(500).json({
+//       reply: "Failed to contact Gemini API. Try again later.",
+//     });
+//   }
+// }
+
+
+
+// controllers/assistantController.js
+import fetch from "node-fetch";
+import dotenv from "dotenv";
+import { readFileSync, existsSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+
+dotenv.config();
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const campusText = readFileSync(join(__dirname, '../../../frontend/Campus_Building_Details.txt'), 'utf-8');
 
-// Map building names to POI labels & rough centre coords
-const buildingMeta = {
-  'Ramanujacharya Bhavan': { label: 'Ramanujacharya Bhavan', coords: { lat: 12.9716, lng: 77.5946 } },
-  'Madhavacharya Bhavan': { label: 'Madhavacharya Bhavan', coords: { lat: 12.97155, lng: 77.59455 } },
-  'Shankaracharya Bhavan': { label: 'Shankaracharya Bhavan', coords: { lat: 12.9715, lng: 77.5945 } }
-};
+const campusFilePath = join(__dirname, "../../../frontend/Campus_Building_Details.txt");
 
-// Regex to extract building name from new heading format "1. Name …"
-const BUILDING_REGEX = /^\d+\.\s+([^.]+?)(?:\s*\(.*\))?\s*$/;
-
-function normalize(text) {
-  return text.toLowerCase().replace(/[^\w\s]/g, ' ').split(/\s+/);
+let campusText = "";
+if (existsSync(campusFilePath)) {
+  campusText = readFileSync(campusFilePath, "utf-8");
+  console.log("✅ Campus file loaded successfully.");
+} else {
+  console.warn("⚠️ Campus_Building_Details.txt not found at:", campusFilePath);
 }
 
-function score(passage, questionWords) {
-  const passWords = normalize(passage);
-  let hits = 0;
-  for (const w of questionWords) if (passWords.includes(w)) hits++;
-  return hits;
+const GEMINI_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+
+// In-memory chat history
+let conversationHistory = [];
+
+// Function to call Gemini API
+async function callGemini(apiKey, prompt) {
+  const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+    }),
+  });
+
+  const data = await response.json();
+  const answer =
+    data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+    data?.candidates?.[0]?.content?.[0]?.parts?.[0]?.text ||
+    null;
+
+  return answer;
 }
 
-export function ask(req, res) {
+export async function ask(req, res) {
   const { q } = req.query;
-  if (!q || !q.trim()) return res.status(400).json({ reply: 'Missing question.' });
-
-  const questionWords = normalize(q);
-  const lines = campusText.split('\n').map(l => l.trim()).filter(Boolean);
-  const hits = [];               // collect raw matches
-  const seen = new Set();        // avoid duplicate lines
-
-  let currentBuilding = 'Campus';
-  let currentMeta = { label: 'Campus', coords: { lat: 12.9716, lng: 77.5946 } };
-
-  for (const rawLine of lines) {
-    const line = rawLine.replace(/^-\s*/, '');
-
-    // Detect new heading format "1. Name …" or old plain heading
-    const m = rawLine.match(BUILDING_REGEX);
-    if (m) {
-      const name = m[1].trim();
-      if (buildingMeta[name]) {
-        currentBuilding = name;
-        currentMeta = buildingMeta[name];
-      }
-      continue;
-    }
-    // Fallback: old plain heading (first word matches key)
-    if (!rawLine.startsWith('-')) {
-      const head = line.split(' ')[0];
-      if (buildingMeta[head]) {
-        currentBuilding = head;
-        currentMeta = buildingMeta[head];
-      }
-    }
-
-    // Detail lines (start with dash) inherit the current building
-    const s = score(line, questionWords);
-    if (s > 0) {
-      const key = `${currentBuilding}|${line}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        hits.push({ building: currentBuilding, snippet: line, ...currentMeta });
-      }
-    }
+  if (!q || !q.trim()) {
+    return res.status(400).json({ reply: "Missing question." });
   }
 
-  if (hits.length === 0) {
-    return res.json({ reply: 'I could not find an answer in the campus data. Try rephrasing or ask about specific buildings, labs, or rooms.' });
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ reply: "Missing GEMINI_API_KEY in backend." });
   }
-  // Merge snippets per building
-  const merged = {};
-  for (const h of hits) {
-    if (!merged[h.building]) {
-      merged[h.building] = { building: h.building, label: h.label, coords: h.coords, snippets: [] };
+
+  try {
+    // 🧠 1. Ask Gemini to classify the intent
+    const classifierPrompt = `
+Classify the following question into one of these categories:
+- "campus" if it asks about buildings, facilities, departments, hostels, library, or college locations.
+- "general" if it's about greetings, conversation, or other topics.
+
+Question: "${q}"
+
+Only respond with one word: campus or general.
+`;
+
+    const classification = await callGemini(apiKey, classifierPrompt);
+    const intent = classification?.toLowerCase().includes("campus") ? "campus" : "general";
+
+    // 💬 2. Add the current question to conversation memory
+    conversationHistory.push({ role: "user", text: q });
+    if (conversationHistory.length > 6) conversationHistory.shift(); // keep last 6 exchanges
+
+    // 🧠 3. Build contextual prompt
+    let prompt;
+    if (intent === "campus") {
+      prompt = `
+You are an AI campus assistant for the National Institute of Engineering, Mysore.
+
+Here is the official campus information:
+---
+${campusText}
+---
+
+Recent conversation history:
+${conversationHistory.map(m => `${m.role}: ${m.text}`).join("\n")}
+
+Use only the campus information above to answer the following question:
+"${q}"
+
+If you cannot find relevant info, say: "I could not find this in the campus records."
+`;
+    } else {
+      prompt = `
+You are a friendly, helpful AI assistant. Continue the conversation naturally.
+
+Recent conversation history:
+${conversationHistory.map(m => `${m.role}: ${m.text}`).join("\n")}
+
+User: "${q}"
+`;
     }
-    merged[h.building].snippets.push(h.snippet);
+
+    // 🧩 4. Get Gemini’s response
+    const aiReply = await callGemini(apiKey, prompt);
+
+    // Add Gemini's reply to memory
+    conversationHistory.push({ role: "assistant", text: aiReply });
+
+    // 🧹 Trim to last 6 messages
+    if (conversationHistory.length > 6) conversationHistory = conversationHistory.slice(-6);
+
+    res.json({ reply: aiReply || "I could not generate a response." });
+  } catch (error) {
+    console.error("Gemini API error:", error);
+    res.status(500).json({
+      reply: "Failed to contact the Gemini API. Try again later.",
+    });
   }
-  const matches = Object.values(merged).map(m => ({
-    ...m,
-    snippet: m.snippets.join('  \n• ')   // show as bullet list
-  }));
-  res.json({ matches });
 }
