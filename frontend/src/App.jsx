@@ -3,6 +3,7 @@ import HomePage from "./pages/HomePage";
 import ARPage from "./pages/ARPage";
 import MapPage from "./pages/MapPage";
 import AIAssistant from "./components/AIAssistant";
+import AIFullScreenChat from "./components/AIFullScreenChat";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/ar" element={<ARPage />} />
         <Route path="/map" element={<MapPage />} />
+        <Route path="/ai-chat" element={<AIFullScreenChat />} />
       </Routes>
       <AIAssistant />
     </Router>

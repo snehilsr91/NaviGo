@@ -39,7 +39,7 @@ const HomePage = () => {
             View Map
           </button>
           <button
-            onClick={() => document.querySelector('[aria-label="Open AI assistant"]').click()}
+            onClick={() => navigate("/ai-chat")}
             className="px-8 py-4 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-lg shadow-md transition-all duration-200"
           >
             AI Assistant

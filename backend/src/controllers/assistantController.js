@@ -211,7 +211,117 @@ User: "${q}"
     // 🧹 Trim to last 6 messages
     if (conversationHistory.length > 6) conversationHistory = conversationHistory.slice(-6);
 
-    res.json({ reply: aiReply || "I could not generate a response." });
+    // Extract buildings mentioned in the response for structured data
+    const mentionedBuildings = [];
+    const buildingNames = [
+      // Main Academic Buildings
+      'Ramanujacharya Bhavan',
+      'Madhavacharya Bhavan', 
+      'Shankaracharya Bhavan',
+      'Main Building',
+      'Central Library',
+      'Library',
+      
+      // Hostels and Accommodation
+      'Boys Hostel',
+      'Girls Hostel',
+      'Hostel',
+      
+      // Food and Dining
+      'Food Court',
+      'Canteen',
+      'Canteen - Gopi\'s Kitchen',
+      'Bakery and Cake',
+      'Coffee Shop',
+      
+      // Sports and Recreation
+      'Gym',
+      'Sports Complex',
+      'Auditorium',
+      'Seminar Hall',
+      
+      // Facilities and Services
+      'Parking',
+      'Main Gate',
+      'Training & Placement Cell',
+      'T&P Cell',
+      
+      // Academic Departments and Labs
+      'Department of Computer Science and Engineering',
+      'CSE Department',
+      'Department of Information Science and Engineering',
+      'ISE Department',
+      'Department of MCA',
+      'MCA Department',
+      'Department of Mechanical Engineering',
+      'Mechanical Department',
+      'Department of Physics',
+      'Physics Department',
+      'Department of Mathematics',
+      'Mathematics Department',
+      
+      // Specific Labs
+      'AIML Labs',
+      'AIML Lab 1',
+      'AIML Lab 2',
+      'AIML Lab 3',
+      'AIML Lab 4',
+      'MCA Labs',
+      'MCA Lab 1',
+      'MCA Lab 2',
+      'MCA Lab 3',
+      'CSE Labs',
+      'CSE Lab 1',
+      'CSE Lab 2',
+      'CSE Lab 3',
+      'CSE Lab 4',
+      'CSE Lab 5',
+      'CSE Lab 6',
+      'CSE Lab 7',
+      'CSE Lab 8',
+      'IS Labs',
+      'IS Lab 1',
+      'IS Lab 2',
+      'IS Lab 3',
+      'IS Lab 4',
+      'IS Lab 5',
+      'IS Lab 6',
+      'IS Lab 7',
+      'IS Lab 8',
+      'CAED Lab',
+      'Chemistry Laboratory',
+      'Chemistry Lab',
+      
+      // Classrooms and Rooms
+      'MB1', 'MB2', 'MB3', 'MB4', 'MB5',
+      'Principal\'s Room',
+      'Vice Principal\'s Room',
+      'College Office',
+      'Boardroom',
+      'Autonomous Cell',
+      'Exam Control Room',
+      'Reading Rooms',
+      'Staff Room',
+      'CSE Staff Room 1',
+      'CSE Staff Room 2',
+      'ISE Staff Room 1',
+      'ISE Staff Room 2',
+      'Gents Staff Room',
+      'General Staff Room',
+      'IT Cell'
+    ];
+    
+    buildingNames.forEach(building => {
+      const regex = new RegExp(`\\b${building}\\b`, 'gi');
+      if (aiReply && aiReply.match(regex)) {
+        mentionedBuildings.push(building);
+      }
+    });
+
+    res.json({ 
+      reply: aiReply || "I could not generate a response.",
+      buildings: mentionedBuildings.length > 0 ? mentionedBuildings : undefined
+    });
   } catch (error) {
     console.error("Gemini API error:", error);
     res.status(500).json({
