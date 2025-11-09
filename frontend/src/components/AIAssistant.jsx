@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { askBackend } from '../utils/askBackend';
 import { parseMarkdown, extractLocations } from '../utils/parseMarkdown';
+import { filterBuildingsWithCoordinates } from '../utils/buildingUtils';
 
 export default function AIAssistant() {
   const navigate = useNavigate();
@@ -119,7 +120,7 @@ export default function AIAssistant() {
                      />
                      {(h.data.buildings && h.data.buildings.length > 0) && (
                        <div className="flex flex-wrap gap-1 mt-2">
-                         {h.data.buildings.map((building, idx) => (
+                         {filterBuildingsWithCoordinates(h.data.buildings).map((building, idx) => (
                            <button
                               key={idx}
                               onClick={() => {

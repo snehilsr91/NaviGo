@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { askBackend } from '../utils/askBackend';
 import { parseMarkdown, extractLocations } from '../utils/parseMarkdown';
+import { filterBuildingsWithCoordinates } from '../utils/buildingUtils';
 
 export default function AIFullScreenChat() {
   const navigate = useNavigate();
@@ -122,7 +123,7 @@ export default function AIFullScreenChat() {
                       />
                       {(h.data.buildings && h.data.buildings.length > 0) && (
                         <div className="flex flex-wrap gap-2">
-                          {h.data.buildings.map((building, idx) => (
+                          {filterBuildingsWithCoordinates(h.data.buildings).map((building, idx) => (
                             <button
                               key={idx}
                               onClick={() => {
