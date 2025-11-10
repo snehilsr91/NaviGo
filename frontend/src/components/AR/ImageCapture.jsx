@@ -11,6 +11,16 @@ const ImageCapture = ({ onSave, onClose }) => {
 
   // Start camera when component mounts
   useEffect(() => {
+    // Check if we're in a secure context (HTTPS or localhost)
+    if (!window.isSecureContext && window.location.protocol !== 'https:') {
+      setError(
+        'Camera access requires HTTPS. ' +
+        'Please use the ngrok HTTPS URL shown in the terminal when you started the dev server. ' +
+        'HTTP URLs will not work for camera access on mobile devices.'
+      );
+      return;
+    }
+
     const startCamera = async () => {
       try {
         const mediaStream = await navigator.mediaDevices.getUserMedia({ 
@@ -28,7 +38,18 @@ const ImageCapture = ({ onSave, onClose }) => {
         }
       } catch (err) {
         console.error('Error accessing camera:', err);
-        setError('Failed to access camera. Please ensure camera permissions are granted.');
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+          setError('Camera permission denied. Please allow camera access in your browser settings.');
+        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+          setError('No camera found. Please connect a camera device.');
+        } else if (!window.isSecureContext) {
+          setError(
+            'Camera access requires HTTPS. ' +
+            'Please use the ngrok HTTPS URL shown in the terminal when you started the dev server.'
+          );
+        } else {
+          setError('Failed to access camera. Please ensure camera permissions are granted.');
+        }
       }
     };
     

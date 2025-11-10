@@ -105,11 +105,11 @@ export default function AIAssistant() {
                         <div>{m.snippet}</div>
                         <button
                           onClick={() => {
-                            // Open map page and pass label via query param
-                            window.open(`/map?label=${encodeURIComponent(m.label)}`, '_blank');
+                            // Open map page and pass label via query param with directions
+                            window.open(`/map?label=${encodeURIComponent(m.label)}&directions=true`, '_blank');
                           }}
                           className="mt-2 text-xs text-white bg-blue-600 hover:bg-blue-700 rounded px-2 py-1"
-                        >Show on map</button>
+                        >Get Directions</button>
                       </div>
                     ))}
                   </div>
@@ -125,11 +125,11 @@ export default function AIAssistant() {
                               key={idx}
                               onClick={() => {
                                 const chatState = encodeURIComponent(JSON.stringify(history));
-                                window.open(`/map?label=${encodeURIComponent(building)}&chat=${chatState}`, '_blank');
+                                window.open(`/map?label=${encodeURIComponent(building)}&directions=true&chat=${chatState}`, '_blank');
                               }}
                               className="text-xs text-white bg-blue-600 hover:bg-blue-700 rounded px-2 py-1"
                             >
-                              Show {building} on map
+                              Get Directions to {building}
                             </button>
                          ))}
                        </div>

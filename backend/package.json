@@ -16,7 +16,6 @@
     "express": "^5.1.0",
     "mongoose": "^8.19.2",
     "multer": "^2.0.2",
-    "ngrok": "^5.0.0-beta.2",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {

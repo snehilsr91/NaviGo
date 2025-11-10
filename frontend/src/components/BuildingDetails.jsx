@@ -10,7 +10,7 @@ const getBaseUrl = () => {
 
 const API_URL = getBaseUrl();
 
-const BuildingDetails = ({ building }) => {
+const BuildingDetails = ({ building, onGetDirections, userLocation, locationError }) => {
   const [reviews, setReviews] = useState([]);
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -144,6 +144,31 @@ const BuildingDetails = ({ building }) => {
           </div>
         )}
       </div>
+
+      {/* Get Directions Button */}
+      {onGetDirections && (
+        <div className="mb-3">
+          {locationError ? (
+            <div className="text-xs text-red-600 mb-2 p-2 bg-red-50 rounded">
+              {locationError}
+            </div>
+          ) : userLocation ? (
+            <button
+              onClick={() => onGetDirections(building)}
+              className="w-full bg-green-500 text-white text-sm py-2 px-3 rounded hover:bg-green-600 transition font-semibold"
+            >
+              🧭 Get Directions
+            </button>
+          ) : (
+            <button
+              disabled
+              className="w-full bg-gray-400 text-white text-sm py-2 px-3 rounded cursor-not-allowed"
+            >
+              Getting your location...
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Add Review Form */}
       {!showAddForm ? (

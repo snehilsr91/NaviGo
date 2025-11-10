@@ -1,6 +1,5 @@
-import Review from "../models/Review.js";
+import Review from "../models/reviewModel.js"; // assuming this is your Mongoose model
 
-// Get reviews for a place
 export const getReviews = async (req, res) => {
   try {
     const reviews = await Review.find({ placeId: req.params.placeId });
@@ -9,6 +8,7 @@ export const getReviews = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Add a review
 export const createReview = async (req, res) => {

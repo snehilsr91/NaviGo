@@ -106,11 +106,11 @@ export default function AIFullScreenChat() {
                           <button
                             onClick={() => {
                               const chatState = encodeURIComponent(JSON.stringify(history));
-                              window.open(`/map?label=${encodeURIComponent(m.label)}&chat=${chatState}`, '_blank');
+                              window.open(`/map?label=${encodeURIComponent(m.label)}&directions=true&chat=${chatState}`, '_blank');
                             }}
                             className="text-sm text-white bg-blue-600 hover:bg-blue-700 rounded px-3 py-1 transition-colors"
                           >
-                            Show on map
+                            Get Directions
                           </button>
                         </div>
                       ))}
@@ -128,11 +128,11 @@ export default function AIFullScreenChat() {
                               key={idx}
                               onClick={() => {
                                 const chatState = encodeURIComponent(JSON.stringify(history));
-                                window.open(`/map?label=${encodeURIComponent(building)}&chat=${chatState}`, '_blank');
+                                window.open(`/map?label=${encodeURIComponent(building)}&directions=true&chat=${chatState}`, '_blank');
                               }}
                               className="text-sm text-white bg-blue-600 hover:bg-blue-700 rounded px-3 py-1 transition-colors"
                             >
-                              Show {building} on map
+                              Get Directions to {building}
                             </button>
                           ))}
                         </div>
