@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import Navbar from "../components/Layout/Navbar";
 import { GoogleMap, Marker, InfoWindow, useLoadScript } from "@react-google-maps/api";
 import { COLLEGE_CENTER, COLLEGE_ZOOM, CAMPUS_BOUNDS, BUILDINGS } from "../data/buildings";
+import BuildingDetails from "../components/BuildingDetails";
 
 const containerStyle = { width: "100%", height: "calc(100vh - 80px)" };
 
@@ -96,7 +97,7 @@ const MapPage = () => {
               position={selected.position}
               onCloseClick={() => setSelected(null)}
             >
-              <div className="text-sm font-semibold text-gray-800">{selected.name}</div>
+              <BuildingDetails building={selected} />
             </InfoWindow>
           )}
         </GoogleMap>
