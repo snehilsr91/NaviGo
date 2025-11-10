@@ -1,4 +1,4 @@
-import Review from "../models/reviewModel.js"; // assuming this is your Mongoose model
+import Review from "../models/Review.js";
 
 export const getReviews = async (req, res) => {
   try {

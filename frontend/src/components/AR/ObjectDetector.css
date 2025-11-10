@@ -19,6 +19,8 @@
   height: 100%;
   object-fit: cover;
   z-index: 10;
+  background-color: #000;
+  transform: scaleX(1); /* Fix mirroring on some devices */
 }
 
 .canvas {
@@ -33,27 +35,80 @@
 
 .controls {
   position: absolute;
-  bottom: 20px;
+  bottom: 80px;
   left: 0;
   right: 0;
   display: flex;
   justify-content: center;
   gap: 10px;
   z-index: 30;
+  padding: 0 10px;
+  flex-wrap: wrap;
+}
+
+.secondary-controls {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  z-index: 30;
+  padding: 0 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .controls {
+    bottom: 100px;
+    gap: 8px;
+  }
+  
+  .secondary-controls {
+    bottom: 5px;
+    gap: 6px;
+  }
 }
 
 .control-button {
-  padding: 10px 16px;
+  padding: 12px 20px;
   background-color: #4285f4;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  min-height: 44px; /* Better touch target for mobile */
+  touch-action: manipulation; /* Prevent double-tap zoom */
+  transition: background-color 0.2s, transform 0.1s;
+  user-select: none;
+}
+
+.control-button:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 768px) {
+  .control-button {
+    padding: 14px 18px;
+    font-size: 16px;
+    min-height: 48px;
+  }
 }
 
 .control-button:hover {
+  background-color: #3367d6;
+}
+
+.control-button.primary {
+  background-color: #4285f4;
+  min-width: 100px;
+}
+
+.control-button.primary:hover {
   background-color: #3367d6;
 }
 
@@ -65,25 +120,42 @@
   background-color: #d33426;
 }
 
-.control-button.customize {
-  background-color: #34a853;
+.control-button.switch {
+  background-color: #ff9800;
+  min-width: 100px;
 }
 
-.control-button.customize:hover {
-  background-color: #2d9249;
+.control-button.switch:hover {
+  background-color: #f57c00;
 }
 
-.control-button.capture {
-  background-color: #9C27B0;
+.control-button.secondary {
+  background-color: rgba(66, 133, 244, 0.9);
+  padding: 10px 16px;
+  font-size: 12px;
+  min-height: 40px;
 }
 
-.control-button.capture:hover {
-  background-color: #7B1FA2;
+.control-button.secondary:hover {
+  background-color: rgba(51, 103, 214, 0.9);
+}
+
+@media (max-width: 768px) {
+  .control-button.secondary {
+    padding: 12px 14px;
+    font-size: 14px;
+    min-height: 44px;
+  }
 }
 
 .control-button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.control-button:disabled:active {
+  transform: none;
 }
 
 .error {
@@ -102,10 +174,63 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.7);
   color: white;
-  padding: 5px 10px;
-  border-radius: 4px;
+  padding: 8px 12px;
+  border-radius: 6px;
   font-size: 14px;
   z-index: 30;
+  font-weight: bold;
+}
+
+.loading-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  z-index: 40;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-indicator p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.training-indicator {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(156, 39, 176, 0.9);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  z-index: 40;
+  font-weight: bold;
+  font-size: 14px;
 }

@@ -275,20 +275,22 @@ const ARScene = () => {
       )}
 
       {/* Mode toggle button */}
-      <div className="absolute top-4 right-4 z-50">
+      <div className="absolute top-4 right-4 z-50 flex flex-col gap-2">
         <button
           onClick={handleModeToggle}
-          className="px-4 py-2 bg-purple-600 text-white rounded-lg shadow-lg"
+          className="px-4 py-2 bg-purple-600 text-white rounded-lg shadow-lg text-sm font-bold min-h-[44px] touch-manipulation"
+          style={{ touchAction: 'manipulation' }}
         >
-          {mode === "ar" ? "Switch to Detection" : mode === "detection" ? "Switch to Geospatial" : "Switch to AR"}
+          {mode === "ar" ? "🔍 Detection" : mode === "detection" ? "🌍 Geospatial" : "📱 AR"}
         </button>
         
         {mode === "detection" && detectedObjects.length > 0 && (
           <button
             onClick={convertDetectionsToPOIs}
-            className="ml-2 px-4 py-2 bg-green-600 text-white rounded-lg shadow-lg"
+            className="px-4 py-2 bg-green-600 text-white rounded-lg shadow-lg text-sm font-bold min-h-[44px] touch-manipulation"
+            style={{ touchAction: 'manipulation' }}
           >
-            Add as POIs
+            ✅ Add POIs
           </button>
         )}
       </div>
