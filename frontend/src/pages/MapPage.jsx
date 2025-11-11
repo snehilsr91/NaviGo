@@ -5,10 +5,10 @@ import { GoogleMap, Marker, InfoWindow, DirectionsRenderer, useLoadScript } from
 import { COLLEGE_CENTER, COLLEGE_ZOOM, CAMPUS_BOUNDS, BUILDINGS } from "../data/buildings";
 import BuildingDetails from "../components/BuildingDetails";
 
-const containerStyle = { width: "100%", height: "calc(100vh - 80px)", borderRadius: "0" };
+const containerStyle = { width: "100%", height: "100%", borderRadius: "0" };
 
 const MapPage = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const mapRef = useRef();
   const [selected, setSelected] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
@@ -161,6 +161,14 @@ const MapPage = () => {
     }
   }, [searchParams, userLocation, calculateDirections]);
 
+  const handleCloseDetails = () => {
+    setSelected(null);
+    setShowDirections(false);
+    setDirections(null);
+    // Remove query params from URL
+    setSearchParams({});
+  };
+
   if (loadError)
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white relative">
@@ -204,7 +212,7 @@ const MapPage = () => {
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white overflow-hidden relative">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white overflow-hidden relative flex flex-col">
       {/* Background Image with reduced opacity */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
@@ -215,7 +223,7 @@ const MapPage = () => {
       
       <Navbar />
 
-      <div className="pt-20 h-screen relative z-10">
+      <div className="pt-20 flex-1 relative">
         <GoogleMap
           mapContainerStyle={containerStyle}
           options={options}
@@ -241,6 +249,7 @@ const MapPage = () => {
                 setSelected(b);
                 setShowDirections(false);
                 setDirections(null);
+                setSearchParams({ label: b.name });
               }}
             />
           ))}
@@ -255,26 +264,25 @@ const MapPage = () => {
               }}
             />
           )}
-          
-          {selected && (
-            <InfoWindow
-              position={selected.position}
-              onCloseClick={() => {
-                setSelected(null);
-                setShowDirections(false);
-                setDirections(null);
-              }}
-            >
-              <BuildingDetails 
-                building={selected} 
-                onGetDirections={handleGetDirections}
-                onGoToPlace={handleGoToPlace}
-                userLocation={userLocation}
-                locationError={locationError}
-              />
-            </InfoWindow>
-          )}
         </GoogleMap>
+        
+        {/* Building Details Panel */}
+        <div 
+          className={`absolute top-0 left-0 h-full w-full md:w-[400px] bg-transparent transition-transform duration-300 ease-in-out z-20 ${
+            selected ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          {selected && (
+            <BuildingDetails 
+              building={selected} 
+              onGetDirections={handleGetDirections}
+              onGoToPlace={handleGoToPlace}
+              userLocation={userLocation}
+              locationError={locationError}
+              onClose={handleCloseDetails}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

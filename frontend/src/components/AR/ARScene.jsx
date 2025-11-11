@@ -228,14 +228,14 @@ const ARScene = () => {
           ></div>
           <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-gray-900/80 to-black/80"></div>
           <div className="relative z-10 w-full">
-          <div className="text-center max-w-lg mx-auto p-12">
+          <div className="text-center max-w-lg mx-auto p-4 sm:p-12">
             <div className="space-y-6">
               <button
                 onClick={handleStartDetection}
-                className="w-full px-8 py-6 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:via-blue-500 hover:to-indigo-500 text-white rounded-2xl shadow-2xl text-xl font-bold transition-all duration-300 transform hover:scale-105 hover:shadow-cyan-500/25 active:scale-95 backdrop-blur-sm border border-cyan-500/20"
+                className="w-full px-6 py-5 sm:px-8 sm:py-6 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:via-blue-500 hover:to-indigo-500 text-white rounded-2xl shadow-2xl text-lg sm:text-xl font-bold transition-all duration-300 transform hover:scale-105 hover:shadow-cyan-500/25 active:scale-95 backdrop-blur-sm border border-cyan-500/20"
               >
                 <div className="flex items-center justify-center space-x-3">
-                  <span className="text-2xl">🎯</span>
+                  <span className="text-xl sm:text-2xl">🎯</span>
                   <span>Start Detection</span>
                 </div>
               </button>
@@ -253,9 +253,9 @@ const ARScene = () => {
       )}
       
       {mode === "detection" && (
-        <div className="detection-container w-full h-full bg-gradient-to-br from-slate-900 via-gray-900 to-black pt-20 pb-6">
-          <div className="detection-wrapper w-full max-w-6xl mx-auto h-full flex flex-col">
-            <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/30 shadow-2xl flex-1 flex flex-col overflow-hidden">
+        <div className="detection-container w-full h-full bg-gradient-to-br from-slate-900 via-gray-900 to-black pt-24 sm:pt-28 pb-4 sm:pb-6">
+          <div className="detection-wrapper w-full max-w-6xl mx-auto h-full flex flex-col px-4">
+            <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-2 sm:p-6 border border-gray-700/30 shadow-2xl flex-1 flex flex-col overflow-hidden">
               <ObjectDetectorSimple onDetection={handleDetection} />
             </div>
           </div>
@@ -264,10 +264,10 @@ const ARScene = () => {
 
       {/* Back to Menu button */}
       {mode !== "menu" && (
-        <div className="absolute top-24 left-4 z-50">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-xs px-4">
           <button
             onClick={() => setMode("menu")}
-            className="px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-white rounded-xl shadow-xl text-base font-semibold min-h-[44px] touch-manipulation transition-all duration-200 transform hover:scale-105 active:scale-95 border border-gray-500/30 backdrop-blur-sm"
+            className="w-full px-5 py-3 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-white rounded-xl shadow-xl text-base font-semibold min-h-[44px] touch-manipulation transition-all duration-200 transform hover:scale-105 active:scale-95 border border-gray-500/30 backdrop-blur-sm"
             style={{ touchAction: 'manipulation' }}
           >
             ← Back to Menu

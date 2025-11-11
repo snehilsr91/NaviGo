@@ -397,49 +397,48 @@ const PillNav = ({
           onClick={toggleMobileMenu}
           aria-label="Toggle menu"
           aria-expanded={isMobileMenuOpen}
-          className="md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1 cursor-pointer p-0 relative"
+          className="md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1 cursor-pointer p-0 relative bg-white/10 backdrop-blur-md border-white/20 shadow-lg"
           style={{
             width: "var(--nav-h)",
             height: "var(--nav-h)",
-            background: "var(--base, #000)",
+            background: "transparent",
           }}
         >
           <span
             className="hamburger-line w-4 h-0.5 rounded origin-center transition-all duration-[10ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]"
-            style={{ background: "var(--pill-bg, #fff)" }}
+            style={{ background: "var(--pill-text, #fff)" }}
           />
           <span
             className="hamburger-line w-4 h-0.5 rounded origin-center transition-all duration-[10ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]"
-            style={{ background: "var(--pill-bg, #fff)" }}
+            style={{ background: "var(--pill-text, #fff)" }}
           />
         </button>
       </nav>
 
       <div
         ref={mobileMenuRef}
-        className="md:hidden absolute top-[3em] left-4 right-4 rounded-[27px] shadow-[0_8px_32px_rgba(0,0,0,0.12)] z-[998] origin-top"
+        className="md:hidden absolute top-[calc(var(--nav-h)_+_10px)] left-4 right-4 rounded-3xl shadow-xl z-[998] origin-top border border-white/20 overflow-hidden bg-white/10 backdrop-blur-md"
         style={{
           ...cssVars,
-          background: "var(--base, #f0f0f0)",
+          background: "rgba(17, 24, 39, 0.7)", // A semi-transparent dark background
         }}
       >
-        <ul className="list-none m-0 p-[3px] flex flex-col gap-[3px]">
+        <ul className="list-none m-0 p-2 flex flex-col gap-1">
           {items.map((item) => {
             const defaultStyle = {
-              background: "var(--pill-bg, #fff)",
-              color: "var(--pill-text, #fff)",
+              color: "var(--pill-bg, #fff)",
             };
             const hoverIn = (e) => {
-              e.currentTarget.style.background = "var(--base)";
-              e.currentTarget.style.color = "var(--hover-text, #fff)";
+              e.currentTarget.style.background = "var(--pill-bg, #fff)";
+              e.currentTarget.style.color = "var(--pill-text, #000)";
             };
             const hoverOut = (e) => {
-              e.currentTarget.style.background = "var(--pill-bg, #fff)";
-              e.currentTarget.style.color = "var(--pill-text, #fff)";
+              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.color = "var(--pill-bg, #fff)";
             };
 
             const linkClasses =
-              "block py-3 px-4 text-[16px] font-medium rounded-[50px] transition-all duration-200 ease-[cubic-bezier(0.25,0.1,0.25,1)]";
+              "block py-3 px-4 text-base font-semibold rounded-full transition-all duration-200 ease-in-out text-center";
 
             return (
               <li key={item.href}>
@@ -450,7 +449,10 @@ const PillNav = ({
                     style={defaultStyle}
                     onMouseEnter={hoverIn}
                     onMouseLeave={hoverOut}
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={() => {
+                      toggleMobileMenu();
+                      setIsMobileMenuOpen(false);
+                    }}
                   >
                     {item.label}
                   </Link>
@@ -461,7 +463,10 @@ const PillNav = ({
                     style={defaultStyle}
                     onMouseEnter={hoverIn}
                     onMouseLeave={hoverOut}
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={() => {
+                      toggleMobileMenu();
+                      setIsMobileMenuOpen(false);
+                    }}
                   >
                     {item.label}
                   </a>
