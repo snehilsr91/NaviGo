@@ -1,44 +1,29 @@
 import React, { useState, useEffect, useCallback } from "react";
+import imageCompression from 'browser-image-compression';
 import { buildingReviewsApi } from "../services/api";
-
-// Get base URL for static file serving (uploads are served directly, not through /api)
-const getBaseUrl = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-  // Remove /api suffix if present to get base URL
-  return apiUrl.replace(/\/api$/, "");
-};
-
-const API_URL = getBaseUrl();
 
 const BuildingDetails = ({ building, onGetDirections, onGoToPlace, userLocation, locationError }) => {
   const [reviews, setReviews] = useState([]);
-  const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [comment, setComment] = useState("");
-  const [selectedPhotos, setSelectedPhotos] = useState([]);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!building || building.id === "main-gate") {
       setLoading(false);
       setReviews([]);
-      setPhotos([]);
       return;
     }
 
     try {
       setLoading(true);
-      const [reviewsData, photosData] = await Promise.all([
-        buildingReviewsApi.getReviews(building.id),
-        buildingReviewsApi.getPhotos(building.id),
-      ]);
+      const reviewsData = await buildingReviewsApi.getReviews(building.id);
       setReviews(reviewsData);
-      setPhotos(photosData);
     } catch (error) {
       console.error("Error loading building data:", error);
       setReviews([]);
-      setPhotos([]);
     } finally {
       setLoading(false);
     }
@@ -49,26 +34,48 @@ const BuildingDetails = ({ building, onGetDirections, onGoToPlace, userLocation,
   }, [loadData]);
 
   const handlePhotoSelect = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length > 5) {
-      alert("You can only upload up to 5 photos");
-      return;
+    const file = e.target.files[0];
+    if (file) {
+      // Sanity check for excessively large files before processing
+      if (file.size > 30 * 1024 * 1024) { // 30 MB
+        alert("This file is very large. Please select a smaller image.");
+        e.target.value = null; // Clear the file input
+        setSelectedPhoto(null);
+        return;
+      }
+      setSelectedPhoto(file);
     }
-    setSelectedPhotos(files);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!comment.trim() && selectedPhotos.length === 0) {
-      alert("Please add a comment or at least one photo");
+    if (!comment.trim() && !selectedPhoto) {
+      alert("Please add a comment or a photo");
       return;
     }
 
     try {
       setSubmitting(true);
-      await buildingReviewsApi.addReview(building.id, comment, selectedPhotos);
+      let photoBase64 = null;
+
+      if (selectedPhoto) {
+        console.log(`Original image size: ${selectedPhoto.size / 1024 / 1024} MB`);
+        const options = {
+          maxSizeMB: 3, // Increased from 1MB to 3MB
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+        };
+
+        const compressedFile = await imageCompression(selectedPhoto, options);
+        console.log(`Compressed image size: ${compressedFile.size / 1024 / 1024} MB`);
+
+        photoBase64 = await imageCompression.getDataUrlFromFile(compressedFile);
+      }
+      
+      await buildingReviewsApi.addReview(building.id, comment, photoBase64);
+
       setComment("");
-      setSelectedPhotos([]);
+      setSelectedPhoto(null);
       setShowAddForm(false);
       await loadData();
     } catch (error) {
@@ -108,41 +115,25 @@ const BuildingDetails = ({ building, onGetDirections, onGoToPlace, userLocation,
     <div className="p-4 max-w-sm w-80 max-h-[500px] overflow-y-auto bg-gradient-to-br from-slate-800 to-purple-900 rounded-xl border border-purple-400/20 shadow-2xl">
       <h3 className="text-xl font-bold text-white mb-4 bg-gradient-to-r from-cyan-300 to-purple-300 bg-clip-text text-transparent">{building.name}</h3>
 
-      {/* Photos Section */}
-      <div className="mb-4">
-        <h4 className="text-sm font-bold text-cyan-300 mb-3 flex items-center gap-2">
-          <span>📸</span> Photos
-        </h4>
-        {photos.length === 0 ? (
-          <p className="text-xs text-gray-400 mb-2 bg-white/5 rounded-lg p-2 text-center">None yet</p>
-        ) : (
-          <div className="grid grid-cols-2 gap-2 mb-2">
-            {photos.map((photo, idx) => (
-              <img
-                key={idx}
-                src={`${API_URL}${photo.url}`}
-                alt={`Building photo ${idx + 1}`}
-                className="w-full h-24 object-cover rounded-lg border border-white/20 hover:border-cyan-400/50 transition-colors"
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
       {/* Comments Section */}
       <div className="mb-4">
         <h4 className="text-sm font-bold text-purple-300 mb-3 flex items-center gap-2">
-          <span>💬</span> Comments
+          <span>💬</span> Comments & Photos
         </h4>
-        {reviews.filter((r) => r.comment && r.comment.trim()).length === 0 ? (
+        {reviews.length === 0 ? (
           <p className="text-xs text-gray-400 mb-2 bg-white/5 rounded-lg p-2 text-center">None yet</p>
         ) : (
           <div className="space-y-2 mb-2">
-            {reviews
-              .filter((r) => r.comment && r.comment.trim())
-              .map((review, idx) => (
+            {reviews.map((review, idx) => (
                 <div key={idx} className="bg-white/10 backdrop-blur-sm p-3 rounded-lg text-xs text-gray-200 border border-white/10">
-                  <p className="leading-relaxed">{review.comment}</p>
+                  {review.comment && <p className="leading-relaxed">{review.comment}</p>}
+                  {review.photo && (
+                    <img
+                      src={review.photo}
+                      alt="Review photo"
+                      className={`w-full h-24 object-cover rounded-lg ${review.comment ? 'mt-2' : ''} border border-white/20`}
+                    />
+                  )}
                   <p className="text-gray-400 text-xs mt-2">
                     {new Date(review.createdAt).toLocaleDateString()}
                   </p>
@@ -209,18 +200,17 @@ const BuildingDetails = ({ building, onGetDirections, onGoToPlace, userLocation,
           />
           <div>
             <label className="block text-xs text-cyan-300 mb-2 font-semibold">
-              Add photos (up to 5)
+              Add a photo (optional, max 1MB)
             </label>
             <input
               type="file"
               accept="image/*"
-              multiple
               onChange={handlePhotoSelect}
               className="w-full text-xs text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500"
             />
-            {selectedPhotos.length > 0 && (
+            {selectedPhoto && (
               <p className="text-xs text-cyan-300 mt-2 font-semibold">
-                {selectedPhotos.length} photo(s) selected
+                {selectedPhoto.name} selected
               </p>
             )}
           </div>
@@ -237,7 +227,7 @@ const BuildingDetails = ({ building, onGetDirections, onGoToPlace, userLocation,
               onClick={() => {
                 setShowAddForm(false);
                 setComment("");
-                setSelectedPhotos([]);
+                setSelectedPhoto(null);
               }}
               className="flex-1 bg-gray-600/50 hover:bg-gray-600 text-white text-sm py-3 px-4 rounded-lg transition-all duration-200 font-semibold"
             >

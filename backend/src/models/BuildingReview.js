@@ -10,10 +10,10 @@ const buildingReviewSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  photos: [{
-    url: String,
-    filename: String,
-  }],
+  photo: {
+    type: String, // To store Base64 string
+    required: false,
+  },
   createdAt: { 
     type: Date, 
     default: Date.now 

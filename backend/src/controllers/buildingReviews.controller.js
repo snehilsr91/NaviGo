@@ -1,16 +1,4 @@
 import BuildingReview from "../models/BuildingReview.js";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, "../../uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
 
 // Get all reviews for a building
 export const getBuildingReviews = async (req, res) => {
@@ -19,7 +7,8 @@ export const getBuildingReviews = async (req, res) => {
     
     // Exclude main-gate
     if (buildingId === "main-gate") {
-      return res.status(403).json({ error: "Reviews not available for main gate" });
+      // Return empty array for main-gate to be consistent
+      return res.json([]);
     }
 
     const reviews = await BuildingReview.find({ buildingId })
@@ -36,68 +25,37 @@ export const getBuildingReviews = async (req, res) => {
 export const createBuildingReview = async (req, res) => {
   try {
     const { buildingId } = req.params;
-    const { comment } = req.body;
+    const { comment, photo } = req.body; // Expect comment and Base64 photo string
+
+    // --- DEBUGGING LOG ---
+    console.log("--- New Review Request ---");
+    console.log("Building ID (from params):", buildingId);
+    console.log("Request Body:", JSON.stringify(req.body, null, 2));
+    console.log("Has Comment:", !!comment);
+    console.log("Has Photo:", !!photo, "(Photo length:", photo ? photo.length : 0, ")");
+    console.log("--------------------------");
 
     // Exclude main-gate
     if (buildingId === "main-gate") {
       return res.status(403).json({ error: "Reviews not available for main gate" });
     }
 
-    const photos = [];
-    if (req.files && req.files.length > 0) {
-      req.files.forEach((file) => {
-        photos.push({
-          url: `/uploads/${file.filename}`,
-          filename: file.filename,
-        });
-      });
+    // Basic validation
+    if (!comment && !photo) {
+      return res.status(400).json({ error: "A comment or a photo is required." });
     }
 
     const newReview = new BuildingReview({
       buildingId,
       comment: comment || "",
-      photos,
+      photo: photo || null,
     });
 
     await newReview.save();
     res.status(201).json(newReview);
   } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-// Get all photos for a building
-export const getBuildingPhotos = async (req, res) => {
-  try {
-    const { buildingId } = req.params;
-    
-    // Exclude main-gate
-    if (buildingId === "main-gate") {
-      return res.status(403).json({ error: "Photos not available for main gate" });
-    }
-
-    const reviews = await BuildingReview.find({ 
-      buildingId,
-      photos: { $exists: true, $ne: [] }
-    })
-      .select("photos createdAt")
-      .sort({ createdAt: -1 })
-      .exec();
-    
-    // Flatten all photos from all reviews
-    const allPhotos = [];
-    reviews.forEach((review) => {
-      review.photos.forEach((photo) => {
-        allPhotos.push({
-          ...photo.toObject(),
-          createdAt: review.createdAt,
-        });
-      });
-    });
-    
-    res.json(allPhotos);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error creating building review:", err);
+    res.status(500).json({ error: "Failed to create review.", details: err.message });
   }
 };
 

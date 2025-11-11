@@ -70,34 +70,16 @@ export const buildingReviewsApi = {
     }
   },
 
-  // Get all photos for a building
-  getPhotos: async (buildingId) => {
+  // Add a review with optional photo (as Base64 string)
+  addReview: async (buildingId, comment, photo) => {
     try {
-      const response = await api.get(`/buildings/${buildingId}/photos`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching building photos:', error);
-      throw error;
-    }
-  },
+      const payload = {
+        buildingId,
+        comment: comment || '',
+        photo: photo || null,
+      };
 
-  // Add a review with optional photos
-  addReview: async (buildingId, comment, photos) => {
-    try {
-      const formData = new FormData();
-      formData.append('comment', comment || '');
-      
-      if (photos && photos.length > 0) {
-        photos.forEach((photo) => {
-          formData.append('photos', photo);
-        });
-      }
-
-      const response = await api.post(`/buildings/${buildingId}/reviews`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await api.post(`/buildings/${buildingId}/reviews`, payload);
       return response.data;
     } catch (error) {
       console.error('Error adding building review:', error);

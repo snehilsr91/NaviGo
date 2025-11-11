@@ -3,7 +3,6 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import placesRoutes from "./routes/places.routes.js";
-import reviewsRoutes from "./routes/reviews.routes.js";
 import detectionsRoutes from "./routes/detections.routes.js";
 import buildingReviewsRoutes from "./routes/buildingReviews.routes.js";
 import { ask } from "./controllers/assistantController.js"; 
@@ -17,14 +16,13 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 app.use(cors({ origin: "*" }));
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 // Serve uploaded files statically
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Routes
 app.use("/api/places", placesRoutes);
-app.use("/api/reviews", reviewsRoutes);
 app.use("/api/detections", detectionsRoutes);
 app.use("/api/buildings", buildingReviewsRoutes);
 
