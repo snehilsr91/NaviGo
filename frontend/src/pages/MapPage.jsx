@@ -40,8 +40,22 @@ const MapPage = () => {
     []
   );
 
-  const handleMapLoad = (map) => {
+  const handleMapLoad = useCallback((map) => {
     mapRef.current = map;
+    
+    // Check if we have a building in URL params when map loads
+    const label = new URLSearchParams(window.location.search).get('label');
+    if (label) {
+      const b = BUILDINGS.find(b => b.name.toLowerCase() === label.toLowerCase());
+      if (b) {
+        map.panTo(b.position);
+        map.setZoom(19);
+        setSelected(b);
+        return; // Don't fit bounds if we're showing a specific building
+      }
+    }
+    
+    // Default: fit to campus bounds
     if (CAMPUS_BOUNDS) {
       const bounds = new window.google.maps.LatLngBounds(
         { lat: CAMPUS_BOUNDS.south, lng: CAMPUS_BOUNDS.west },
@@ -49,7 +63,7 @@ const MapPage = () => {
       );
       map.fitBounds(bounds);
     }
-  };
+  }, []);
 
   // Get user's current location
   useEffect(() => {
@@ -149,17 +163,19 @@ const MapPage = () => {
     const b = BUILDINGS.find(b => b.name.toLowerCase() === label.toLowerCase());
     if (b) {
       setSelected(b);
-      if (mapRef.current) {
+      
+      // Wait for map to be loaded before panning
+      if (mapRef.current && isLoaded) {
         mapRef.current.panTo(b.position);
         mapRef.current.setZoom(19);
       }
       
       // If directions parameter is set and we have user location, show directions
-      if (showDir && userLocation) {
+      if (showDir && userLocation && mapRef.current && isLoaded) {
         setTimeout(() => calculateDirections(b), 500);
       }
     }
-  }, [searchParams, userLocation, calculateDirections]);
+  }, [searchParams, userLocation, calculateDirections, isLoaded]);
 
   const handleCloseDetails = () => {
     setSelected(null);
@@ -223,11 +239,13 @@ const MapPage = () => {
       
       <Navbar />
 
-      <div className="pt-20 flex-1 relative">
+      <div className="pt-20 relative overflow-hidden" style={{ height: "calc(100vh - 80px)" }}>
         <GoogleMap
           mapContainerStyle={containerStyle}
           options={options}
           onLoad={handleMapLoad}
+          center={COLLEGE_CENTER}
+          zoom={COLLEGE_ZOOM}
         >
           {/* User location marker */}
           {userLocation && (
@@ -268,19 +286,21 @@ const MapPage = () => {
         
         {/* Building Details Panel */}
         <div 
-          className={`absolute top-0 left-0 h-full w-full md:w-[400px] bg-transparent transition-transform duration-300 ease-in-out z-20 ${
+          className={`absolute top-0 left-0 h-full w-full md:w-[400px] pointer-events-none transition-transform duration-300 ease-in-out z-20 ${
             selected ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
           {selected && (
-            <BuildingDetails 
-              building={selected} 
-              onGetDirections={handleGetDirections}
-              onGoToPlace={handleGoToPlace}
-              userLocation={userLocation}
-              locationError={locationError}
-              onClose={handleCloseDetails}
-            />
+            <div className="pointer-events-auto h-full">
+              <BuildingDetails 
+                building={selected} 
+                onGetDirections={handleGetDirections}
+                onGoToPlace={handleGoToPlace}
+                userLocation={userLocation}
+                locationError={locationError}
+                onClose={handleCloseDetails}
+              />
+            </div>
           )}
         </div>
       </div>
