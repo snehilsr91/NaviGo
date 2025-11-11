@@ -35,9 +35,9 @@
 
 .controls {
   position: absolute;
-  bottom: 80px;
-  left: 0;
-  right: 0;
+  bottom: 50%;
+  left: 50%;
+  transform: translate(-50%, 50%);
   display: flex;
   justify-content: center;
   gap: 10px;
@@ -105,7 +105,11 @@
 
 .control-button.primary {
   background-color: #4285f4;
-  min-width: 100px;
+  min-width: 120px;
+  font-size: 16px;
+  padding: 16px 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
 }
 
 .control-button.primary:hover {

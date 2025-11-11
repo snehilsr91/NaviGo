@@ -1,33 +1,32 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import PillNav from "./PillNav";
 
 const Navbar = () => {
+  const location = useLocation();
+  const logo = "/Gemini_Generated_Image_lk7w0olk7w0olk7w.png";
+
+  const navItems = [
+    { label: "Home", href: "/" },
+    { label: "Map", href: "/map" },
+    { label: "Start AR", href: "/ar" },
+    { label: "AI Assistant", href: "/ai-chat" },
+  ];
+
   return (
-    <nav className="w-full bg-white shadow-md px-6 py-4 flex justify-between items-center fixed top-0 z-50">
-      <Link to="/" className="text-2xl font-bold text-purple-700">
-        NaviGo
-      </Link>
-      <div className="space-x-4">
-        <Link
-          to="/"
-          className="text-gray-700 hover:text-purple-600 font-medium transition-colors"
-        >
-          Home
-        </Link>
-        <Link
-          to="/ar"
-          className="text-white bg-orange-500 hover:bg-orange-400 px-4 py-2 rounded-lg font-medium transition-colors"
-        >
-          Start AR
-        </Link>
-        <Link
-          to="/map"
-          className="text-purple-700 hover:text-purple-900 font-medium transition-colors"
-        >
-          Map
-        </Link>
-      </div>
-    </nav>
+    <PillNav
+      logo={logo}
+      logoAlt="NaviGo Logo"
+      items={navItems}
+      activeHref={location.pathname}
+      className="navi-go-navbar"
+      ease="power2.out"
+      baseColor="transparent"
+      pillColor="#ffffff"
+      hoveredPillTextColor="#ffffff"
+      pillTextColor="#7c3aed"
+      initialLoadAnimation={true}
+    />
   );
 };
 

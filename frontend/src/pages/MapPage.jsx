@@ -5,7 +5,7 @@ import { GoogleMap, Marker, InfoWindow, DirectionsRenderer, useLoadScript } from
 import { COLLEGE_CENTER, COLLEGE_ZOOM, CAMPUS_BOUNDS, BUILDINGS } from "../data/buildings";
 import BuildingDetails from "../components/BuildingDetails";
 
-const containerStyle = { width: "100%", height: "calc(100vh - 80px)" };
+const containerStyle = { width: "100%", height: "calc(100vh - 80px)", borderRadius: "0" };
 
 const MapPage = () => {
   const [searchParams] = useSearchParams();
@@ -122,6 +122,19 @@ const MapPage = () => {
     calculateDirections(building);
   }, [userLocation, calculateDirections]);
 
+  // Handle go to place request from BuildingDetails
+  const handleGoToPlace = useCallback((building) => {
+    if (!mapRef.current || !building) {
+      return;
+    }
+    // Clear any existing directions
+    setShowDirections(false);
+    setDirections(null);
+    // Pan and zoom to the building
+    mapRef.current.panTo(building.position);
+    mapRef.current.setZoom(19);
+  }, []);
+
   useEffect(() => {
     const label = searchParams.get('label');
     const showDir = searchParams.get('directions') === 'true';
@@ -150,23 +163,59 @@ const MapPage = () => {
 
   if (loadError)
     return (
-      <div className="min-h-screen bg-white text-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white relative">
+        {/* Background Image with reduced opacity */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25"
+          style={{ backgroundImage: 'url(/unnamed.jpg)' }}
+        ></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-purple-900/80 to-indigo-900/80"></div>
+        
         <Navbar />
-        <div className="pt-24 px-6">Failed to load map.</div>
+
+        <div className="pt-24 px-6 flex items-center justify-center h-screen relative z-10">
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
+            <p className="text-xl font-semibold text-red-400">Failed to load map. Please check your connection.</p>
+          </div>
+        </div>
       </div>
     );
   if (!isLoaded)
     return (
-      <div className="min-h-screen bg-white text-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white relative">
+        {/* Background Image with reduced opacity */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25"
+          style={{ backgroundImage: 'url(/unnamed.jpg)' }}
+        ></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-purple-900/80 to-indigo-900/80"></div>
+        
         <Navbar />
-        <div className="pt-24 px-6">Loading map…</div>
+
+        <div className="pt-24 px-6 flex items-center justify-center h-screen relative z-10">
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
+            <div className="flex items-center gap-4">
+              <div className="w-8 h-8 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-xl font-semibold">Loading map…</p>
+            </div>
+          </div>
+        </div>
       </div>
     );
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white overflow-hidden relative">
+      {/* Background Image with reduced opacity */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+        style={{ backgroundImage: 'url(/unnamed.jpg)' }}
+      ></div>
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-purple-900/80 to-indigo-900/80"></div>
+      
       <Navbar />
-      <div className="pt-20">
+
+      <div className="pt-20 h-screen relative z-10">
         <GoogleMap
           mapContainerStyle={containerStyle}
           options={options}
@@ -219,6 +268,7 @@ const MapPage = () => {
               <BuildingDetails 
                 building={selected} 
                 onGetDirections={handleGetDirections}
+                onGoToPlace={handleGoToPlace}
                 userLocation={userLocation}
                 locationError={locationError}
               />

@@ -1,14 +1,14 @@
 import "@ar-js-org/ar.js";
 import React, { useState, useEffect, useRef } from "react";
 import ARLabel from "./ARLabel";
-import ObjectDetector from "./ObjectDetector";
+import ObjectDetectorSimple from "./ObjectDetectorSimple";
 import GeospatialControls from "./GeospatialControls";
 import { usePOIs } from "../../hooks/usePOIs";
 import geospatialService from "../../utils/geospatialService";
 
 const ARScene = () => {
   const { pois, addPOI } = usePOIs();
-  const [mode, setMode] = useState("ar"); // "ar", "detection", or "geospatial"
+  const [mode, setMode] = useState("menu"); // "menu", "ar", "detection", or "geospatial"
   const [detectedObjects, setDetectedObjects] = useState([]);
   const [buildings, setBuildings] = useState([]);
   const [roads, setRoads] = useState([]);
@@ -29,7 +29,10 @@ const ARScene = () => {
           });
         },
         (error) => {
-          console.error("Error getting geolocation:", error);
+          // Only log geolocation errors in development mode
+          if (import.meta.env.DEV) {
+            console.warn("Geolocation access denied or unavailable, using fallback location");
+          }
           // Fallback to a default location (e.g., Bangalore)
           setUserLocation({ lat: 12.9716, lng: 77.5946 });
         },
@@ -46,24 +49,30 @@ const ARScene = () => {
   }, []);
 
   // Detect buildings and roads when in geospatial mode and location changes
-  useEffect(() => {
-    if (mode === "geospatial" && userLocation) {
-      detectBuildingsAndRoads();
-    }
-  }, [mode, userLocation]);
+  // NOTE: This functionality is currently disabled due to hardcoded/mock data issues
+  // useEffect(() => {
+  //   if (mode === "geospatial" && userLocation) {
+  //     detectBuildingsAndRoads();
+  //   }
+  // }, [mode, userLocation]);
 
   const handleDetection = (objects) => {
     setDetectedObjects(objects);
   };
 
   const handleModeToggle = () => {
+    // Simplified mode switching - only AR and Detection modes
     if (mode === "ar") {
       setMode("detection");
-    } else if (mode === "detection") {
-      setMode("geospatial");
     } else {
       setMode("ar");
     }
+  };
+
+
+
+  const handleStartDetection = () => {
+    setMode("detection");
   };
 
   // Detect buildings and roads using GeospatialService
@@ -209,112 +218,61 @@ const ARScene = () => {
 
 
   return (
-    <div className="relative w-full h-screen">
-      {mode === "ar" ? (
-        <a-scene
-          ref={sceneRef}
-          vr-mode-ui="enabled: false"
-          embedded
-          arjs="sourceType: webcam; debugUIEnabled: false;"
-          style={{ width: "100%", height: "100vh" }}
-        >
-          {/* Camera setup */}
-          <a-camera gps-camera></a-camera>
-
-          {/* Render POIs */}
-          {pois.map((poi, idx) => (
-            <ARLabel key={idx} poi={poi} />
-          ))}
-        </a-scene>
-      ) : mode === "detection" ? (
-        <ObjectDetector onDetection={handleDetection} />
-      ) : (
-        <div className="flex flex-col items-center justify-center h-full bg-gray-900 text-white p-4">
-          <h2 className="text-2xl mb-4">Geospatial Detection</h2>
-          {userLocation ? (
-            <div className="w-full max-w-md">
-              <p className="mb-2">Current Location: {userLocation.lat.toFixed(6)}, {userLocation.lng.toFixed(6)}</p>
-              
-              <div className="mb-4">
-                <h3 className="text-xl mb-2">Buildings ({buildings.length})</h3>
-                <div className="max-h-40 overflow-y-auto bg-gray-800 p-2 rounded">
-                  {buildings.map((building, idx) => (
-                    <div key={idx} className="mb-1 p-1 border-b border-gray-700">
-                      {building.name || `Building ${idx + 1}`}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="mb-4">
-                <h3 className="text-xl mb-2">Roads ({roads.length})</h3>
-                <div className="max-h-40 overflow-y-auto bg-gray-800 p-2 rounded">
-                  {roads.map((road, idx) => (
-                    <div key={idx} className="mb-1 p-1 border-b border-gray-700">
-                      {road.name || `Road ${idx + 1}`}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
+    <div className="relative w-full h-full overflow-hidden">
+      {mode === "menu" && (
+        <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-900 via-gray-900 to-black pt-20 relative">
+          {/* Background Image with reduced opacity for menu mode */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25"
+            style={{ backgroundImage: 'url(/unnamed.jpg)' }}
+          ></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-gray-900/80 to-black/80"></div>
+          <div className="relative z-10 w-full">
+          <div className="text-center max-w-lg mx-auto p-12">
+            <div className="space-y-6">
               <button
-                onClick={() => convertGeospatialToPOIs(buildings, roads)}
-                className="w-full px-4 py-2 bg-green-600 text-white rounded-lg shadow-lg mb-2"
-                disabled={buildings.length === 0 && roads.length === 0}
+                onClick={handleStartDetection}
+                className="w-full px-8 py-6 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:via-blue-500 hover:to-indigo-500 text-white rounded-2xl shadow-2xl text-xl font-bold transition-all duration-300 transform hover:scale-105 hover:shadow-cyan-500/25 active:scale-95 backdrop-blur-sm border border-cyan-500/20"
               >
-                Add Buildings & Roads as POIs
+                <div className="flex items-center justify-center space-x-3">
+                  <span className="text-2xl">🎯</span>
+                  <span>Start Detection</span>
+                </div>
               </button>
+              
+              <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50">
+                <p className="text-gray-300 text-sm flex items-center justify-center space-x-2">
+                  <span className="text-cyan-400">📹</span>
+                  <span>Camera access will be requested when you start</span>
+                </p>
+              </div>
             </div>
-          ) : (
-            <div className="text-center">
-              <p>Waiting for location data...</p>
-              <div className="mt-4 w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          </div>
+          </div>
+        </div>
+      )}
+      
+      {mode === "detection" && (
+        <div className="detection-container w-full h-full bg-gradient-to-br from-slate-900 via-gray-900 to-black pt-20 pb-6">
+          <div className="detection-wrapper w-full max-w-6xl mx-auto h-full flex flex-col">
+            <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/30 shadow-2xl flex-1 flex flex-col overflow-hidden">
+              <ObjectDetectorSimple onDetection={handleDetection} />
             </div>
-          )}
+          </div>
         </div>
       )}
 
-      {/* Mode toggle button */}
-      <div className="absolute top-4 right-4 z-50 flex flex-col gap-2">
-        <button
-          onClick={handleModeToggle}
-          className="px-4 py-2 bg-purple-600 text-white rounded-lg shadow-lg text-sm font-bold min-h-[44px] touch-manipulation"
-          style={{ touchAction: 'manipulation' }}
-        >
-          {mode === "ar" ? "🔍 Detection" : mode === "detection" ? "🌍 Geospatial" : "📱 AR"}
-        </button>
-        
-        {mode === "detection" && detectedObjects.length > 0 && (
+      {/* Back to Menu button */}
+      {mode !== "menu" && (
+        <div className="absolute top-24 left-4 z-50">
           <button
-            onClick={convertDetectionsToPOIs}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg shadow-lg text-sm font-bold min-h-[44px] touch-manipulation"
+            onClick={() => setMode("menu")}
+            className="px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-white rounded-xl shadow-xl text-base font-semibold min-h-[44px] touch-manipulation transition-all duration-200 transform hover:scale-105 active:scale-95 border border-gray-500/30 backdrop-blur-sm"
             style={{ touchAction: 'manipulation' }}
           >
-            ✅ Add POIs
+            ← Back to Menu
           </button>
-        )}
-      </div>
-
-      {/* Geospatial Controls in AR mode */}
-      {mode === "ar" && showGeospatialControls && (
-        <GeospatialControls
-          buildings={buildings}
-          roads={roads}
-          onAddAsPOIs={() => convertGeospatialToPOIs(buildings, roads)}
-          onRefresh={detectBuildingsAndRoads}
-          isLoading={isLoading}
-        />
-      )}
-
-      {/* Scan button in AR mode when controls are not shown */}
-      {mode === "ar" && !showGeospatialControls && userLocation && (
-        <button
-          onClick={detectBuildingsAndRoads}
-          className="absolute bottom-4 left-4 z-50 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-lg"
-          disabled={isLoading}
-        >
-          {isLoading ? "Scanning..." : "Scan for Buildings & Roads"}
-        </button>
+        </div>
       )}
     </div>
   );

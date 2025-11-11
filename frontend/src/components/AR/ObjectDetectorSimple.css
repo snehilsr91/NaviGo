@@ -1,0 +1,298 @@
+/* Modern Object Detector Styles */
+.object-detector {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  box-sizing: border-box;
+  border-radius: 0;
+  box-shadow: none;
+  overflow-y: auto;
+}
+
+/* Camera Frame - Modern design */
+.camera-frame {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  aspect-ratio: 16/9;
+  background: #000;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
+  border: 2px solid rgba(6, 182, 212, 0.3);
+  margin-bottom: 24px;
+  flex-shrink: 0;
+}
+
+/* Video Container inside frame */
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+
+.canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* External Controls Container */
+.external-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  z-index: 10;
+  margin-top: 20px;
+}
+
+/* Modern Control Buttons */
+.controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.control-button {
+  padding: 16px 28px;
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(6, 182, 212, 0.3);
+  min-width: 140px;
+  touch-action: manipulation;
+  transition: all 0.2s ease;
+  user-select: none;
+  backdrop-filter: blur(10px);
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.control-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(6, 182, 212, 0.4);
+}
+
+.control-button:active {
+  transform: scale(0.98);
+}
+
+.control-button:disabled {
+  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.control-button.stop {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+}
+
+.control-button.stop:hover {
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+}
+
+/* Overlays inside frame */
+.fps-counter {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #06b6d4;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 10;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  font-family: 'Courier New', monospace;
+}
+
+.error {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  z-index: 10;
+  text-align: center;
+  font-weight: 500;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 0 20px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Placeholder when camera not active */
+.camera-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  z-index: 3;
+}
+
+.placeholder-content {
+  text-align: center;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.placeholder-icon-wrapper {
+  margin-bottom: 20px;
+}
+
+.placeholder-icon {
+  font-size: 48px;
+  opacity: 0.8;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 0.4; }
+}
+
+.placeholder-text {
+  font-size: 24px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.placeholder-subtext {
+  font-size: 16px;
+  color: #888;
+  opacity: 0.8;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .object-detector {
+    padding: 15px;
+    justify-content: flex-start;
+  }
+  
+  .camera-frame {
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 16/9;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+  }
+  
+  .external-controls {
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+    width: 100%;
+  }
+  
+  .controls {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: none;
+  }
+  
+  .control-button {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 16px;
+    min-width: auto;
+  }
+  
+  .placeholder-content {
+    padding: 30px 20px;
+  }
+  
+  .placeholder-icon {
+    font-size: 36px;
+  }
+  
+  .placeholder-text {
+    font-size: 20px;
+  }
+  
+  .placeholder-subtext {
+    font-size: 14px;
+  }
+  
+  .fps-counter {
+    top: 8px;
+    right: 8px;
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  
+  .error {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    margin: 0 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .camera-frame {
+    aspect-ratio: 4/3;
+  }
+  
+  .object-detector {
+    padding: 10px;
+  }
+  
+  .control-button {
+    padding: 12px 16px;
+    font-size: 15px;
+  }
+  
+  .placeholder-content {
+    padding: 25px 15px;
+  }
+}

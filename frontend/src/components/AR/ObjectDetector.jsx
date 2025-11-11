@@ -22,7 +22,7 @@ const ObjectDetector = ({ onDetection, onAddPOI }) => {
   const [showImageCapture, setShowImageCapture] = useState(false);
   const [isTraining, setIsTraining] = useState(false);
   const [facingMode, setFacingMode] = useState('environment'); // 'user' (front) or 'environment' (back)
-  const [isInitializing, setIsInitializing] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(false); // Start as false to show button immediately
   const requestRef = useRef();
   const previousTimeRef = useRef();
   
@@ -66,9 +66,11 @@ const ObjectDetector = ({ onDetection, onAddPOI }) => {
         const loadedModel = await cocossd.load(modelConfig);
         setModel(loadedModel);
         console.log('COCO-SSD model loaded successfully');
+        // Don't set isInitializing false here - let the user control when to start
       } catch (err) {
         console.error('Error loading COCO-SSD model:', err);
         setError('Failed to load object detection model');
+        // Don't set isInitializing false here - error state is handled separately
       }
     };
     
@@ -89,6 +91,7 @@ const ObjectDetector = ({ onDetection, onAddPOI }) => {
   
   // Start camera with optimized settings
   const startCamera = async (facing = facingMode) => {
+    setIsInitializing(true); // Start initialization when user clicks start
     // Check if we're in a secure context (HTTPS or localhost)
     if (!window.isSecureContext && window.location.protocol !== 'https:') {
       setError(
@@ -96,7 +99,6 @@ const ObjectDetector = ({ onDetection, onAddPOI }) => {
         'Please use the ngrok HTTPS URL shown in the terminal when you started the dev server. ' +
         'HTTP URLs will not work for camera access on mobile devices.'
       );
-      setIsInitializing(false);
       return;
     }
 
@@ -151,7 +153,6 @@ const ObjectDetector = ({ onDetection, onAddPOI }) => {
             await videoRef.current.play();
             
             setCameraActive(true);
-            setIsInitializing(false);
             setError(null);
             
             // Auto-start detection when camera is ready
@@ -165,13 +166,11 @@ const ObjectDetector = ({ onDetection, onAddPOI }) => {
                 try {
                   await videoRef.current.play();
                   setCameraActive(true);
-                  setIsInitializing(false);
                   setError(null);
                   setIsDetecting(true);
                 } catch (retryErr) {
                   console.error('Retry failed:', retryErr);
                   setError('Failed to start camera video. Please try refreshing the page.');
-                  setIsInitializing(false);
                 }
               }
             }, 300);
@@ -183,7 +182,6 @@ const ObjectDetector = ({ onDetection, onAddPOI }) => {
       }
     } catch (err) {
       console.error('Error accessing camera:', err);
-      setIsInitializing(false);
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
         setError('Camera permission denied. Please allow camera access in your browser settings.');
       } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
@@ -230,16 +228,16 @@ const ObjectDetector = ({ onDetection, onAddPOI }) => {
     }
   };
 
-  // Auto-start camera when component mounts and model is loaded
+  // Handle camera errors gracefully
   useEffect(() => {
-    if (model && !cameraActive && !error && isInitializing) {
-      // Small delay to ensure everything is ready
-      const timer = setTimeout(() => {
-        startCamera();
-      }, 100);
-      return () => clearTimeout(timer);
+    if (error && !cameraActive) {
+      // If there's an error and camera is not active, ensure we're not stuck in initializing state
+      setIsInitializing(false);
     }
-  }, [model]); // Only depend on model to avoid loops
+  }, [error, cameraActive]);
+
+  // Remove auto-start to prevent button from disappearing immediately
+  // User must manually click the start button to begin camera access
   
   // Send detections to backend
   const sendDetectionsToBackend = async () => {
@@ -379,7 +377,8 @@ const ObjectDetector = ({ onDetection, onAddPOI }) => {
         {isInitializing && (
           <div className="loading-indicator">
             <div className="loading-spinner"></div>
-            <p>Initializing camera...</p>
+            <p>Starting camera...</p>
+            <p style={{ fontSize: '12px', marginTop: '8px' }}>Please wait...</p>
           </div>
         )}
         
