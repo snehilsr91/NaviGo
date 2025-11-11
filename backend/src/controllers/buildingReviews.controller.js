@@ -5,9 +5,11 @@ export const getBuildingReviews = async (req, res) => {
   try {
     const { buildingId } = req.params;
     
+    console.log(`📥 GET /buildings/${buildingId}/reviews`);
+    
     // Exclude main-gate
     if (buildingId === "main-gate") {
-      // Return empty array for main-gate to be consistent
+      console.log(`ℹ️ Main gate requested, returning empty array`);
       return res.json([]);
     }
 
@@ -15,9 +17,14 @@ export const getBuildingReviews = async (req, res) => {
       .sort({ createdAt: -1 })
       .exec();
     
+    console.log(`✅ Found ${reviews.length} reviews for building: ${buildingId}`);
     res.json(reviews);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(`❌ Error fetching reviews for ${req.params.buildingId}:`, err);
+    res.status(500).json({ 
+      error: 'Failed to fetch reviews', 
+      details: err.message 
+    });
   }
 };
 

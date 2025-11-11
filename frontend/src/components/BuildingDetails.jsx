@@ -27,10 +27,20 @@ const BuildingDetails = ({
 
     try {
       setLoading(true);
+      console.log(
+        `🔄 Loading reviews for building: ${building.id} (${building.name})`
+      );
       const reviewsData = await buildingReviewsApi.getReviews(building.id);
-      setReviews(reviewsData);
+      console.log(
+        `✅ Loaded ${reviewsData.length} reviews for ${building.name}`
+      );
+      setReviews(Array.isArray(reviewsData) ? reviewsData : []);
     } catch (error) {
-      console.error("Error loading building data:", error);
+      console.error("❌ Error loading building data:", error);
+      // Don't show error to user if it's just a 404 (no reviews yet)
+      if (error.message && !error.message.includes("404")) {
+        console.warn("⚠️ Could not load reviews:", error.message);
+      }
       setReviews([]);
     } finally {
       setLoading(false);
