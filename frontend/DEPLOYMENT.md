@@ -1,6 +1,7 @@
 # Vercel Deployment Guide
 
 > 📚 **New Documentation Available:**
+>
 > - See `DEPLOYMENT_CHECKLIST.md` in the root folder for a comprehensive troubleshooting guide
 > - See `FIX_SUMMARY.md` in the root folder for recent fixes to map/directions issues
 

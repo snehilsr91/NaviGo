@@ -11,6 +11,7 @@ const Navbar = () => {
     { label: "Map", href: "/map" },
     { label: "Start AR", href: "/ar" },
     { label: "AI Assistant", href: "/ai-chat" },
+    { label: "Find", href: "/find-teacher" },
   ];
 
   return (

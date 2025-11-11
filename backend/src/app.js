@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import placesRoutes from "./routes/places.routes.js";
 import detectionsRoutes from "./routes/detections.routes.js";
 import buildingReviewsRoutes from "./routes/buildingReviews.routes.js";
+import teacherLocationRoutes from "./routes/teacherLocation.routes.js";
 import { ask } from "./controllers/assistantController.js"; 
 import { connectDB, isConnected } from "./utils/connectDB.js";
 import dotenv from "dotenv";
@@ -25,8 +26,8 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 // MongoDB connection middleware - ensures DB is connected before API routes
 // This runs before all routes and ensures MongoDB is connected for database operations
 app.use(async (req, res, next) => {
-  // Skip DB connection for health check, root, and assistant endpoints (assistant doesn't use DB)
-  if (req.path === '/health' || req.path === '/' || req.path === '/api/assistant/ask') {
+  // Skip DB connection for health check, root, assistant, and teacher endpoints (they don't use DB)
+  if (req.path === '/health' || req.path === '/' || req.path === '/api/assistant/ask' || req.path.startsWith('/api/teachers')) {
     return next();
   }
 
@@ -57,6 +58,7 @@ app.use(async (req, res, next) => {
 app.use("/api/places", placesRoutes);
 app.use("/api/detections", detectionsRoutes);
 app.use("/api/buildings", buildingReviewsRoutes);
+app.use("/api/teachers", teacherLocationRoutes);
 
 app.get("/api/assistant/ask", ask);
 

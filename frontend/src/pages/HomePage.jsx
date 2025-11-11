@@ -9,7 +9,7 @@ const HomePage = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white overflow-hidden relative">
       {/* Background Image with reduced opacity */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
         style={{ backgroundImage: 'url(/unnamed.jpg)' }}
       ></div>
       {/* Gradient overlay */}
@@ -34,7 +34,7 @@ const HomePage = () => {
             </div>
 
             {/* Feature Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 md:mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 md:mb-12">
               <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl">
                 <div className="text-3xl md:text-4xl mb-4">🎯</div>
                 <h3 className="text-lg md:text-xl font-bold mb-2 text-cyan-300">AR Navigation</h3>
@@ -50,13 +50,18 @@ const HomePage = () => {
                 <h3 className="text-lg md:text-xl font-bold mb-2 text-indigo-300">AI Assistant</h3>
                 <p className="text-gray-400 text-sm">Get instant answers about campus facilities, buildings, and locations.</p>
               </div>
+              <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl">
+                <div className="text-3xl md:text-4xl mb-4">👨‍🏫</div>
+                <h3 className="text-lg md:text-xl font-bold mb-2 text-emerald-300">Find Teacher</h3>
+                <p className="text-gray-400 text-sm">Locate your teachers instantly based on their current schedule and location.</p>
+              </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
               <button
                 onClick={() => navigate("/ar")}
-                className="group w-full sm:w-auto relative px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-bold rounded-xl shadow-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-orange-500/50"
+                className="group relative px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-bold rounded-xl shadow-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-orange-500/50"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   <span className="text-lg sm:text-xl">🚀</span>
@@ -66,7 +71,7 @@ const HomePage = () => {
               </button>
               <button
                 onClick={() => navigate("/map")}
-                className="group w-full sm:w-auto relative px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-purple-500/50"
+                className="group relative px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-purple-500/50"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   <span className="text-lg sm:text-xl">🗺️</span>
@@ -76,13 +81,23 @@ const HomePage = () => {
               </button>
               <button
                 onClick={() => navigate("/ai-chat")}
-                className="group w-full sm:w-auto relative px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl shadow-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-cyan-500/50"
+                className="group relative px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl shadow-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-cyan-500/50"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   <span className="text-lg sm:text-xl">🤖</span>
                   <span>AI Assistant</span>
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              </button>
+              <button
+                onClick={() => navigate("/find-teacher")}
+                className="group relative px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-bold rounded-xl shadow-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-emerald-500/50"
+              >
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  <span className="text-lg sm:text-xl">👨‍🏫</span>
+                  <span>Find Teacher</span>
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-green-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </button>
             </div>
 

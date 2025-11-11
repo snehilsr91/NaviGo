@@ -172,4 +172,44 @@ export const buildingReviewsApi = {
   },
 };
 
+// Teacher Location API endpoints
+export const teacherLocationApi = {
+  // Find teacher location
+  findTeacher: async (teacherName) => {
+    try {
+      if (!teacherName || !teacherName.trim()) {
+        throw new Error('Teacher name is required');
+      }
+      
+      const response = await api.get(`/teachers/find`, {
+        params: { teacher: teacherName }
+      });
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        // Server responded with error
+        if (error.response.status === 404) {
+          throw new Error(`Teacher "${teacherName}" not found in our records.`);
+        }
+        throw new Error(error.response.data?.message || `Failed to find teacher: ${error.response.status}`);
+      } else if (error.request) {
+        throw new Error('Unable to connect to server. Please check your internet connection.');
+      } else {
+        throw new Error(`Error finding teacher: ${error.message}`);
+      }
+    }
+  },
+
+  // Get all teachers list
+  getAllTeachers: async () => {
+    try {
+      const response = await api.get('/teachers/list');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching teachers list:', error);
+      throw error;
+    }
+  },
+};
+
 export default api;
