@@ -1,11 +1,18 @@
 import Place from "../models/Place.js";
+import { connectDB, isConnected } from "../utils/connectDB.js";
 
 // Get all places
 export const getPlaces = async (req, res) => {
   try {
+    // Ensure MongoDB is connected
+    if (!isConnected()) {
+      await connectDB();
+    }
+    
     const places = await Place.find();
     res.json(places);
   } catch (err) {
+    console.error('❌ Error fetching places:', err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -17,6 +24,11 @@ export const getNearbyPlaces = async (req, res) => {
     return res.status(400).json({ error: "lat & lng required" });
 
   try {
+    // Ensure MongoDB is connected
+    if (!isConnected()) {
+      await connectDB();
+    }
+    
     const places = await Place.find({
       location: {
         $geoWithin: {
@@ -29,6 +41,7 @@ export const getNearbyPlaces = async (req, res) => {
     });
     res.json(places);
   } catch (err) {
+    console.error('❌ Error fetching nearby places:', err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -36,10 +49,16 @@ export const getNearbyPlaces = async (req, res) => {
 // Add a new place
 export const createPlace = async (req, res) => {
   try {
+    // Ensure MongoDB is connected
+    if (!isConnected()) {
+      await connectDB();
+    }
+    
     const newPlace = new Place(req.body);
     await newPlace.save();
     res.status(201).json(newPlace);
   } catch (err) {
+    console.error('❌ Error creating place:', err);
     res.status(500).json({ error: err.message });
   }
 };
