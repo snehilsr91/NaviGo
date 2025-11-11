@@ -96,7 +96,9 @@ export default function AIFullScreenChat() {
                           <button
                             onClick={() => {
                               const chatState = encodeURIComponent(JSON.stringify(history));
-                              window.open(`/map?label=${encodeURIComponent(m.label)}&directions=true&chat=${chatState}`, '_blank');
+                              const url = `/map?label=${encodeURIComponent(m.label)}&directions=true&chat=${chatState}`;
+                              console.log('🚀 Opening map with directions:', { label: m.label, url });
+                              window.open(url, '_blank');
                             }}
                             className="text-sm text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-lg px-4 py-2 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
                           >
@@ -118,7 +120,9 @@ export default function AIFullScreenChat() {
                               key={idx}
                               onClick={() => {
                                 const chatState = encodeURIComponent(JSON.stringify(history));
-                                window.open(`/map?label=${encodeURIComponent(building)}&directions=true&chat=${chatState}`, '_blank');
+                                const url = `/map?label=${encodeURIComponent(building)}&directions=true&chat=${chatState}`;
+                                console.log('🚀 Opening map with directions:', { building, url });
+                                window.open(url, '_blank');
                               }}
                               className="text-sm text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-lg px-4 py-2 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
                             >

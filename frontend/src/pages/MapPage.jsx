@@ -15,9 +15,21 @@ const MapPage = () => {
   const [directions, setDirections] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const [showDirections, setShowDirections] = useState(false);
+  const [isMapReady, setIsMapReady] = useState(false);
+  const [directionsRequested, setDirectionsRequested] = useState(false);
+
+  const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+  
+  // Check if API key is missing
+  useEffect(() => {
+    if (!googleMapsApiKey) {
+      console.error('❌ VITE_GOOGLE_MAPS_API_KEY is not set!');
+      console.error('💡 Please set VITE_GOOGLE_MAPS_API_KEY in your Vercel environment variables.');
+    }
+  }, [googleMapsApiKey]);
 
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    googleMapsApiKey: googleMapsApiKey,
   });
 
   const options = useMemo(
@@ -41,17 +53,23 @@ const MapPage = () => {
   );
 
   const handleMapLoad = useCallback((map) => {
+    console.log('🗺️ Map loaded successfully');
     mapRef.current = map;
+    setIsMapReady(true);
     
     // Check if we have a building in URL params when map loads
     const label = new URLSearchParams(window.location.search).get('label');
     if (label) {
+      console.log('🏢 Building label from URL:', label);
       const b = BUILDINGS.find(b => b.name.toLowerCase() === label.toLowerCase());
       if (b) {
+        console.log('✅ Found building:', b.name);
         map.panTo(b.position);
         map.setZoom(19);
         setSelected(b);
         return; // Don't fit bounds if we're showing a specific building
+      } else {
+        console.warn('⚠️ Building not found in BUILDINGS data:', label);
       }
     }
     
@@ -95,10 +113,29 @@ const MapPage = () => {
 
   // Calculate directions
   const calculateDirections = useCallback((destination) => {
-    if (!userLocation || !destination || !mapRef.current) {
+    if (!userLocation) {
+      console.warn('⚠️ Cannot calculate directions: User location not available');
+      setLocationError("Please enable location permissions to get directions.");
+      return;
+    }
+    
+    if (!destination) {
+      console.warn('⚠️ Cannot calculate directions: No destination provided');
+      return;
+    }
+    
+    if (!mapRef.current) {
+      console.warn('⚠️ Cannot calculate directions: Map not ready');
+      return;
+    }
+    
+    if (!window.google || !window.google.maps) {
+      console.warn('⚠️ Cannot calculate directions: Google Maps API not loaded');
       return;
     }
 
+    console.log('🧭 Calculating directions from', userLocation, 'to', destination.name, destination.position);
+    
     const directionsService = new window.google.maps.DirectionsService();
     
     directionsService.route(
@@ -109,8 +146,10 @@ const MapPage = () => {
       },
       (result, status) => {
         if (status === "OK") {
+          console.log('✅ Directions calculated successfully');
           setDirections(result);
           setShowDirections(true);
+          setDirectionsRequested(false);
           
           // Fit map to show the entire route
           const bounds = new window.google.maps.LatLngBounds();
@@ -120,8 +159,9 @@ const MapPage = () => {
           });
           mapRef.current.fitBounds(bounds);
         } else {
-          console.error("Directions request failed:", status);
-          alert("Unable to calculate directions. Please try again.");
+          console.error("❌ Directions request failed:", status);
+          setDirectionsRequested(false);
+          alert(`Unable to calculate directions. Status: ${status}\nPlease try again or check your location settings.`);
         }
       }
     );
@@ -149,33 +189,84 @@ const MapPage = () => {
     mapRef.current.setZoom(19);
   }, []);
 
+  // Handle URL parameters and directions request
   useEffect(() => {
     const label = searchParams.get('label');
     const showDir = searchParams.get('directions') === 'true';
+    
+    console.log('🔄 URL params changed:', { 
+      label, 
+      showDir, 
+      isMapReady, 
+      isLoaded, 
+      hasUserLocation: !!userLocation,
+      buildingsCount: BUILDINGS.length 
+    });
     
     if (!label) { 
       setSelected(null); 
       setShowDirections(false);
       setDirections(null);
+      setDirectionsRequested(false);
       return; 
+    }
+    
+    // Check if BUILDINGS array is empty
+    if (!BUILDINGS || BUILDINGS.length === 0) {
+      console.error('❌ BUILDINGS array is empty or undefined!');
+      alert('Error: Building data not loaded. Please refresh the page.');
+      return;
     }
     
     const b = BUILDINGS.find(b => b.name.toLowerCase() === label.toLowerCase());
     if (b) {
+      console.log('🏢 Setting selected building:', b.name, 'Position:', b.position);
       setSelected(b);
       
       // Wait for map to be loaded before panning
-      if (mapRef.current && isLoaded) {
+      if (mapRef.current && isLoaded && isMapReady) {
+        console.log('🗺️ Panning to building...');
         mapRef.current.panTo(b.position);
         mapRef.current.setZoom(19);
       }
       
-      // If directions parameter is set and we have user location, show directions
-      if (showDir && userLocation && mapRef.current && isLoaded) {
-        setTimeout(() => calculateDirections(b), 500);
+      // If directions parameter is set, try to calculate directions
+      if (showDir && !directionsRequested) {
+        setDirectionsRequested(true);
+        
+        // Check if we have everything we need
+        if (userLocation && mapRef.current && isLoaded && isMapReady) {
+          console.log('✅ All prerequisites met, calculating directions...');
+          setTimeout(() => calculateDirections(b), 500);
+        } else {
+          console.log('⏳ Waiting for prerequisites...', {
+            hasUserLocation: !!userLocation,
+            hasMapRef: !!mapRef.current,
+            isLoaded,
+            isMapReady
+          });
+          
+          if (!userLocation) {
+            console.warn('⚠️ User location not available yet. Directions will be calculated when location is available.');
+            // Will retry when userLocation becomes available
+          }
+        }
       }
+    } else {
+      console.error('❌ Building not found:', label);
+      console.error('Available buildings:', BUILDINGS.map(b => b.name));
+      alert(`Building "${label}" not found. Please make sure the building name is correct.`);
     }
-  }, [searchParams, userLocation, calculateDirections, isLoaded]);
+  }, [searchParams, userLocation, calculateDirections, isLoaded, isMapReady, directionsRequested]);
+  
+  // Retry directions calculation when user location becomes available
+  useEffect(() => {
+    const showDir = searchParams.get('directions') === 'true';
+    if (showDir && userLocation && selected && isMapReady && isLoaded && directionsRequested) {
+      console.log('🔄 User location now available, retrying directions...');
+      setTimeout(() => calculateDirections(selected), 500);
+    }
+  }, [userLocation, selected, isMapReady, isLoaded, directionsRequested, searchParams, calculateDirections]);
 
   const handleCloseDetails = () => {
     setSelected(null);
@@ -185,7 +276,7 @@ const MapPage = () => {
     setSearchParams({});
   };
 
-  if (loadError)
+  if (loadError || !googleMapsApiKey)
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white relative">
         {/* Background Image with reduced opacity */}
@@ -198,8 +289,32 @@ const MapPage = () => {
         <Navbar />
 
         <div className="pt-24 px-6 flex items-center justify-center h-screen relative z-10">
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
-            <p className="text-xl font-semibold text-red-400">Failed to load map. Please check your connection.</p>
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 max-w-2xl">
+            <p className="text-xl font-semibold text-red-400 mb-4">
+              {!googleMapsApiKey ? '⚠️ Google Maps API Key Missing' : 'Failed to load map'}
+            </p>
+            <div className="text-sm text-gray-300 space-y-2">
+              {!googleMapsApiKey ? (
+                <>
+                  <p>The Google Maps API key is not configured in your deployment environment.</p>
+                  <p className="mt-3 font-mono text-xs bg-black/30 p-3 rounded">
+                    Please set <span className="text-cyan-400">VITE_GOOGLE_MAPS_API_KEY</span> in your Vercel environment variables.
+                  </p>
+                  <p className="mt-3">
+                    <a 
+                      href="https://vercel.com/docs/projects/environment-variables" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-400 hover:text-blue-300 underline"
+                    >
+                      Learn how to add environment variables →
+                    </a>
+                  </p>
+                </>
+              ) : (
+                <p>Please check your internet connection and try again.</p>
+              )}
+            </div>
           </div>
         </div>
       </div>

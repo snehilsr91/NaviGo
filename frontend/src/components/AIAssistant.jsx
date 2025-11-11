@@ -106,7 +106,9 @@ export default function AIAssistant() {
                         <button
                           onClick={() => {
                             // Open map page and pass label via query param with directions
-                            window.open(`/map?label=${encodeURIComponent(m.label)}&directions=true`, '_blank');
+                            const url = `/map?label=${encodeURIComponent(m.label)}&directions=true`;
+                            console.log('🚀 Opening map with directions:', { label: m.label, url });
+                            window.open(url, '_blank');
                           }}
                           className="mt-2 text-xs text-white bg-blue-600 hover:bg-blue-700 rounded px-2 py-1"
                         >Get Directions</button>
@@ -125,7 +127,9 @@ export default function AIAssistant() {
                               key={idx}
                               onClick={() => {
                                 const chatState = encodeURIComponent(JSON.stringify(history));
-                                window.open(`/map?label=${encodeURIComponent(building)}&directions=true&chat=${chatState}`, '_blank');
+                                const url = `/map?label=${encodeURIComponent(building)}&directions=true&chat=${chatState}`;
+                                console.log('🚀 Opening map with directions:', { building, url });
+                                window.open(url, '_blank');
                               }}
                               className="text-xs text-white bg-blue-600 hover:bg-blue-700 rounded px-2 py-1"
                             >

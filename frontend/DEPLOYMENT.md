@@ -1,5 +1,9 @@
 # Vercel Deployment Guide
 
+> 📚 **New Documentation Available:**
+> - See `DEPLOYMENT_CHECKLIST.md` in the root folder for a comprehensive troubleshooting guide
+> - See `FIX_SUMMARY.md` in the root folder for recent fixes to map/directions issues
+
 ## Setup Instructions
 
 1. **Vercel Project Configuration:**
@@ -13,12 +17,16 @@
 2. **Environment Variables:**
    Make sure to add the following environment variables in Vercel (Settings → Environment Variables):
 
-   - `VITE_API_URL` - **REQUIRED** Your backend API URL (e.g., `https://your-backend.railway.app/api` or `https://your-backend.herokuapp.com/api`)
-     - ⚠️ **IMPORTANT**: This MUST be set in production, otherwise API calls will fail!
+   - `VITE_API_URL` - **REQUIRED** Your backend API URL (e.g., `https://your-backend.railway.app/api` or `https://your-backend.vercel.app/api`)
+     - ⚠️ **CRITICAL**: This MUST be set in production, otherwise API calls (AI Assistant, Reviews, etc.) will fail!
      - The URL should point to your deployed backend server
      - Make sure it includes the `/api` suffix if your backend routes are mounted at `/api`
      - No trailing slashes!
-   - `VITE_GOOGLE_MAPS_API_KEY` - Your Google Maps API key
+     - Example: `https://navigo-backend.vercel.app/api`
+   - `VITE_GOOGLE_MAPS_API_KEY` - **REQUIRED** Your Google Maps API key
+     - Get from Google Cloud Console
+     - Enable "Maps JavaScript API" and "Directions API"
+     - Example: `AIzaSyC...`
 
 3. **Routing:**
    The `vercel.json` file handles client-side routing for the React Router SPA.
@@ -45,17 +53,23 @@
 - Check browser console for exact error message
 - Try accessing the file directly: `https://your-domain.vercel.app/Gemini_Generated_Image_lk7w0olk7w0olk7w.png`
 
-### API Calls Failing / 404 on Reviews and Photos
+### API Calls Failing / 404 on Reviews, AI Assistant, and Directions
 
 **This is the most common issue when deploying!**
 
 1. **Check VITE_API_URL is set:**
 
    - Go to Vercel Dashboard → Your Project → Settings → Environment Variables
-   - Verify `VITE_API_URL` is set for Production, Preview, and Development
-   - The value should be your backend URL (e.g., `https://your-backend.railway.app/api`)
-   - Make sure there are no trailing slashes
-   - **Redeploy after adding/changing environment variables!**
+   - Verify `VITE_API_URL` is set for **Production**, **Preview**, and **Development** environments
+   - The value should be your backend URL (e.g., `https://your-backend.railway.app/api` or `https://navigo-backend.vercel.app/api`)
+   - Make sure there are **NO trailing slashes**
+   - **IMPORTANT: Redeploy after adding/changing environment variables!**
+
+   **Common mistakes:**
+
+   - ❌ `https://your-backend.vercel.app/api/` (has trailing slash)
+   - ❌ `https://your-backend.vercel.app` (missing `/api`)
+   - ✅ `https://your-backend.vercel.app/api` (correct)
 
 2. **Verify Backend is Deployed and Accessible:**
 
