@@ -2,17 +2,17 @@
 const customDetections = {
   // Map standard COCO-SSD classes to custom labels
   // Format: 'standard-class': 'custom-label'
-  'person': 'Person',  // Replace with actual name
-  'laptop': 'MacBook Pro',
-  'cell phone': 'iPhone',
-  'backpack': 'Campus Backpack',
-  'bottle': 'Water Bottle',
-  'cup': 'Coffee Cup',
-  'chair': 'Campus Seat',
-  'bicycle': 'Campus Bike',
-  'car': 'Vehicle',
-  'bus': 'Campus Shuttle',
-  
+  person: "Person", // Replace with actual name
+  laptop: "Laptop",
+  "cell phone": "Phone",
+  backpack: "Bag",
+  bottle: "Water Bottle",
+  cup: "Coffee Cup",
+  chair: "Seat",
+  bicycle: "Bicyclle",
+  car: "Vehicle",
+  bus: "Bus",
+
   // Add more custom mappings as needed
   // 'building': 'Library',
   // 'building': 'Computer Science Department',
@@ -26,7 +26,15 @@ export const getCustomLabel = (standardLabel) => {
 // Function to check if an object should be highlighted as important
 export const isImportantObject = (label) => {
   // List of objects that should be highlighted
-  const importantObjects = ['person', 'laptop', 'cell phone', 'backpack', 'bicycle', 'bus', 'car'];
+  const importantObjects = [
+    "person",
+    "laptop",
+    "cell phone",
+    "backpack",
+    "bicycle",
+    "bus",
+    "car",
+  ];
   return importantObjects.includes(label.toLowerCase());
 };
 
