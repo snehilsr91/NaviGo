@@ -15,8 +15,8 @@ const ImageCapture = ({ onSave, onClose }) => {
     if (!window.isSecureContext && window.location.protocol !== 'https:') {
       setError(
         'Camera access requires HTTPS. ' +
-        'Please use the ngrok HTTPS URL shown in the terminal when you started the dev server. ' +
-        'HTTP URLs will not work for camera access on mobile devices.'
+        'HTTP URLs will not work for camera access on mobile devices. ' +
+        'Please use HTTPS or localhost.'
       );
       return;
     }
@@ -45,7 +45,7 @@ const ImageCapture = ({ onSave, onClose }) => {
         } else if (!window.isSecureContext) {
           setError(
             'Camera access requires HTTPS. ' +
-            'Please use the ngrok HTTPS URL shown in the terminal when you started the dev server.'
+            'Please use HTTPS or localhost to access the camera.'
           );
         } else {
           setError('Failed to access camera. Please ensure camera permissions are granted.');
