@@ -105,6 +105,8 @@ const PillNav = ({
       gsap.set(menu, { visibility: "hidden", opacity: 0, scaleY: 1, y: 0 });
     }
 
+    // Hamburger lines are now controlled by CSS based on isMobileMenuOpen state
+
     if (initialLoadAnimation) {
       const logo = logoRef.current;
       const navItems = navItemsRef.current;
@@ -173,16 +175,8 @@ const PillNav = ({
     const hamburger = hamburgerRef.current;
     const menu = mobileMenuRef.current;
 
-    if (hamburger) {
-      const lines = hamburger.querySelectorAll(".hamburger-line");
-      if (newState) {
-        gsap.to(lines[0], { rotation: 45, y: 3, duration: 0.3, ease });
-        gsap.to(lines[1], { rotation: -45, y: -3, duration: 0.3, ease });
-      } else {
-        gsap.to(lines[0], { rotation: 0, y: 0, duration: 0.3, ease });
-        gsap.to(lines[1], { rotation: 0, y: 0, duration: 0.3, ease });
-      }
-    }
+    // Animation is now handled by CSS transitions based on isMobileMenuOpen state
+    // No GSAP animation needed for hamburger lines
 
     if (menu) {
       if (newState) {
@@ -239,9 +233,9 @@ const PillNav = ({
   };
 
   return (
-    <div className="fixed top-6 z-[1000] left-1/2 -translate-x-1/2">
+    <div className="fixed top-4 md:top-6 z-[1000] left-1/2 -translate-x-1/2 w-full max-w-[calc(100vw-2rem)] md:w-auto md:max-w-none px-4 md:px-0">
       <nav
-        className={`w-full md:w-max flex items-center justify-between md:justify-start box-border px-4 md:px-0 ${className}`}
+        className={`w-full md:w-max flex items-center justify-between md:justify-start box-border ${className}`}
         aria-label="Primary"
         style={cssVars}
       >
@@ -254,7 +248,7 @@ const PillNav = ({
             ref={(el) => {
               logoRef.current = el;
             }}
-            className="rounded-full p-1 inline-flex items-center justify-center overflow-hidden bg-white/10 backdrop-blur-md border border-white/20 shadow-lg"
+            className="rounded-full p-1 inline-flex items-center justify-center overflow-hidden bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/15 transition-all duration-200 active:scale-95"
             style={{
               width: "var(--nav-h)",
               height: "var(--nav-h)",
@@ -276,7 +270,7 @@ const PillNav = ({
             ref={(el) => {
               logoRef.current = el;
             }}
-            className="rounded-full p-1 inline-flex items-center justify-center overflow-hidden bg-white/10 backdrop-blur-md border border-white/20 shadow-lg"
+            className="rounded-full p-1 inline-flex items-center justify-center overflow-hidden bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/15 transition-all duration-200 active:scale-95"
             style={{
               width: "var(--nav-h)",
               height: "var(--nav-h)",
@@ -397,48 +391,99 @@ const PillNav = ({
           onClick={toggleMobileMenu}
           aria-label="Toggle menu"
           aria-expanded={isMobileMenuOpen}
-          className="md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1 cursor-pointer p-0 relative bg-white/10 backdrop-blur-md border-white/20 shadow-lg"
+          className="md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1.5 cursor-pointer p-0 relative bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/15 transition-all duration-200 active:scale-95"
           style={{
             width: "var(--nav-h)",
             height: "var(--nav-h)",
-            background: "transparent",
+            minWidth: "var(--nav-h)",
+            minHeight: "var(--nav-h)",
           }}
         >
+          {/* Hamburger lines (shown when menu is closed) */}
           <span
-            className="hamburger-line w-4 h-0.5 rounded origin-center transition-all duration-[10ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]"
-            style={{ background: "var(--pill-text, #fff)" }}
+            className="hamburger-line w-5 h-0.5 rounded-full transition-all duration-300"
+            style={{ 
+              background: "#ffffff",
+              opacity: isMobileMenuOpen ? 0 : 1,
+              transform: isMobileMenuOpen ? "scale(0)" : "scale(1)",
+            }}
           />
           <span
-            className="hamburger-line w-4 h-0.5 rounded origin-center transition-all duration-[10ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]"
-            style={{ background: "var(--pill-text, #fff)" }}
+            className="hamburger-line w-5 h-0.5 rounded-full transition-all duration-300"
+            style={{ 
+              background: "#ffffff",
+              opacity: isMobileMenuOpen ? 0 : 1,
+              transform: isMobileMenuOpen ? "scale(0)" : "scale(1)",
+            }}
+          />
+          {/* Dot (shown when menu is open) */}
+          <span
+            className="absolute w-2 h-2 rounded-full transition-all duration-300"
+            style={{ 
+              background: "#ffffff",
+              top: "50%",
+              left: "50%",
+              marginLeft: "-4px",
+              marginTop: "-4px",
+              opacity: isMobileMenuOpen ? 1 : 0,
+              transform: isMobileMenuOpen ? "scale(1)" : "scale(0)",
+            }}
           />
         </button>
       </nav>
 
       <div
         ref={mobileMenuRef}
-        className="md:hidden absolute top-[calc(var(--nav-h)_+_10px)] left-4 right-4 rounded-3xl shadow-xl z-[998] origin-top border border-white/20 overflow-hidden bg-white/10 backdrop-blur-md"
+        className="md:hidden absolute top-[calc(var(--nav-h)_+_16px)] left-4 right-4 rounded-2xl shadow-2xl z-[998] origin-top border border-white/30 overflow-hidden"
         style={{
           ...cssVars,
-          background: "rgba(17, 24, 39, 0.7)", // A semi-transparent dark background
+          background: "rgba(15, 23, 42, 0.95)", // slate-900 with high opacity
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
         }}
       >
-        <ul className="list-none m-0 p-2 flex flex-col gap-1">
-          {items.map((item) => {
+        {/* Menu Header */}
+        <div className="p-4 pb-3 border-b border-white/10">
+          <h3 className="text-lg font-bold text-white">Menu</h3>
+        </div>
+        
+        <ul className="list-none m-0 p-3 flex flex-col gap-2">
+          {items.map((item, index) => {
+            const isActive = activeHref === item.href;
             const defaultStyle = {
-              color: "var(--pill-bg, #fff)",
+              color: isActive ? "#a78bfa" : "#e2e8f0",
             };
+            
             const hoverIn = (e) => {
-              e.currentTarget.style.background = "var(--pill-bg, #fff)";
-              e.currentTarget.style.color = "var(--pill-text, #000)";
+              if (!isActive) {
+                e.currentTarget.style.background = "rgba(139, 92, 246, 0.2)";
+                e.currentTarget.style.color = "#c4b5fd";
+              }
             };
             const hoverOut = (e) => {
-              e.currentTarget.style.background = "transparent";
-              e.currentTarget.style.color = "var(--pill-bg, #fff)";
+              if (!isActive) {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = "#e2e8f0";
+              }
             };
 
-            const linkClasses =
-              "block py-3 px-4 text-base font-semibold rounded-full transition-all duration-200 ease-in-out text-center";
+            // Icon mapping for menu items
+            const getIcon = (label) => {
+              const iconMap = {
+                "Home": "🏠",
+                "Map": "🗺️",
+                "Start AR": "🚀",
+                "AI Assistant": "🤖",
+                "Find": "👨‍🏫",
+              };
+              return iconMap[label] || "•";
+            };
+
+            const linkClasses = `block py-3.5 px-5 text-base font-semibold rounded-xl transition-all duration-200 ease-in-out ${
+              isActive 
+                ? "bg-gradient-to-r from-purple-600/30 to-indigo-600/30 text-purple-300 border border-purple-500/30" 
+                : "hover:bg-purple-500/10 text-slate-200"
+            } active:scale-95`;
 
             return (
               <li key={item.href}>
@@ -449,12 +494,24 @@ const PillNav = ({
                     style={defaultStyle}
                     onMouseEnter={hoverIn}
                     onMouseLeave={hoverOut}
+                    onTouchStart={(e) => {
+                      e.currentTarget.style.transform = "scale(0.95)";
+                    }}
+                    onTouchEnd={(e) => {
+                      e.currentTarget.style.transform = "scale(1)";
+                    }}
                     onClick={() => {
                       toggleMobileMenu();
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    {item.label}
+                    <span className="flex items-center gap-3 w-full">
+                      <span className="text-xl flex-shrink-0">{getIcon(item.label)}</span>
+                      <span className="flex-1 text-left">{item.label}</span>
+                      {isActive && (
+                        <span className="text-purple-400 flex-shrink-0">●</span>
+                      )}
+                    </span>
                   </Link>
                 ) : (
                   <a
@@ -463,12 +520,24 @@ const PillNav = ({
                     style={defaultStyle}
                     onMouseEnter={hoverIn}
                     onMouseLeave={hoverOut}
+                    onTouchStart={(e) => {
+                      e.currentTarget.style.transform = "scale(0.95)";
+                    }}
+                    onTouchEnd={(e) => {
+                      e.currentTarget.style.transform = "scale(1)";
+                    }}
                     onClick={() => {
                       toggleMobileMenu();
                       setIsMobileMenuOpen(false);
                     }}
                   >
-                    {item.label}
+                    <span className="flex items-center gap-3 w-full">
+                      <span className="text-xl flex-shrink-0">{getIcon(item.label)}</span>
+                      <span className="flex-1 text-left">{item.label}</span>
+                      {isActive && (
+                        <span className="text-purple-400 flex-shrink-0">●</span>
+                      )}
+                    </span>
                   </a>
                 )}
               </li>

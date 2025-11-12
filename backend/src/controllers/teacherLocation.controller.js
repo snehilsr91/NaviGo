@@ -23,6 +23,16 @@ const TIME_SLOTS = [
   { slot: "16:00-17:00", startHour: 16, startMin: 0, endHour: 17, endMin: 0 },
 ];
 
+// Get current time in IST (Indian Standard Time)
+function getISTTime() {
+  // Create date in IST timezone (Asia/Kolkata)
+  const now = new Date();
+  const istTime = new Date(
+    now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+  );
+  return istTime;
+}
+
 // Get current day (Monday = 1, Sunday = 0)
 function getCurrentDayColumn() {
   const days = [
@@ -34,22 +44,24 @@ function getCurrentDayColumn() {
     "Friday",
     "Saturday",
   ];
-  const today = new Date().getDay();
+  const istTime = getISTTime();
+  const today = istTime.getDay();
   return days[today];
 }
 
 // Get abbreviated day name (first 3 letters)
 function getAbbreviatedDay() {
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const today = new Date().getDay();
+  const istTime = getISTTime();
+  const today = istTime.getDay();
   return days[today];
 }
 
 // Find current time slot
 function getCurrentTimeSlot() {
-  const now = new Date();
-  const currentHour = now.getHours();
-  const currentMin = now.getMinutes();
+  const istTime = getISTTime();
+  const currentHour = istTime.getHours();
+  const currentMin = istTime.getMinutes();
   const currentTimeInMin = currentHour * 60 + currentMin;
 
   for (const slot of TIME_SLOTS) {
@@ -208,15 +220,26 @@ function getTeacherUsualLocation(teacherName) {
 
 // Check if current time is outside campus hours
 function isOutsideCampusHours() {
-  const now = new Date();
-  const currentHour = now.getHours();
-  const currentMin = now.getMinutes();
+  const istTime = getISTTime();
+  const currentHour = istTime.getHours();
+  const currentMin = istTime.getMinutes();
   const currentTimeInMin = currentHour * 60 + currentMin;
 
   // Before 9:00 AM
   const campusStartTime = 9 * 60; // 9:00 AM in minutes
   // After 4:30 PM (16:30)
   const campusEndTime = 16 * 60 + 30; // 4:30 PM in minutes
+
+  console.log(
+    `⏰ IST Time: ${istTime.toLocaleTimeString("en-IN", {
+      timeZone: "Asia/Kolkata",
+    })} (${currentHour}:${currentMin})`
+  );
+  console.log(
+    `🏫 Campus hours: 9:00 AM - 4:30 PM, Current: ${currentTimeInMin} mins, Outside: ${
+      currentTimeInMin < campusStartTime || currentTimeInMin >= campusEndTime
+    }`
+  );
 
   return (
     currentTimeInMin < campusStartTime || currentTimeInMin >= campusEndTime
@@ -377,7 +400,8 @@ export const debugTimetable = async (req, res) => {
     const currentDay = getCurrentDayColumn();
     const currentDayAbbr = getAbbreviatedDay();
     const currentTimeSlot = getCurrentTimeSlot();
-    const now = new Date();
+    const istTime = getISTTime();
+    const utcTime = new Date();
 
     return res.json({
       success: true,
@@ -385,7 +409,11 @@ export const debugTimetable = async (req, res) => {
         currentDay: currentDay,
         currentDayAbbreviated: currentDayAbbr,
         currentTimeSlot: currentTimeSlot,
-        currentTime: now.toLocaleTimeString(),
+        currentTimeIST: istTime.toLocaleTimeString("en-IN", {
+          timeZone: "Asia/Kolkata",
+        }),
+        currentTimeUTC: utcTime.toISOString(),
+        serverTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         lookingFor: `${currentDayAbbr} ${currentTimeSlot}`,
         isOutsideCampusHours: isOutsideCampusHours(),
         headers: timetableData ? timetableData[0] : [],

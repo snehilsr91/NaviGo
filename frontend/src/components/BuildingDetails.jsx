@@ -17,6 +17,11 @@ const BuildingDetails = ({
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Touch drag state
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!building || building.id === "main-gate") {
@@ -51,6 +56,37 @@ const BuildingDetails = ({
     loadData();
     setIsExpanded(false); // Reset expansion state when building changes
   }, [loadData]);
+
+  // Handle touch drag events
+  const handleTouchStart = (e) => {
+    setTouchStart(e.touches[0].clientY);
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    setTouchEnd(e.touches[0].clientY);
+  };
+
+  const handleTouchEnd = () => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    
+    const distance = touchStart - touchEnd;
+    const minSwipeDistance = 50; // Minimum distance for swipe to register
+    
+    // Swipe up - expand
+    if (distance > minSwipeDistance) {
+      setIsExpanded(true);
+    }
+    // Swipe down - collapse
+    else if (distance < -minSwipeDistance) {
+      setIsExpanded(false);
+    }
+    
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
 
   const handlePhotoSelect = (e) => {
     const file = e.target.files[0];
@@ -144,10 +180,16 @@ const BuildingDetails = ({
     >
       {/* Mobile grabber and close button */}
       <div
-        className="md:hidden p-4 text-center cursor-pointer"
+        className="md:hidden p-4 text-center cursor-pointer touch-none select-none"
         onClick={() => setIsExpanded(!isExpanded)}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         <div className="w-12 h-1.5 bg-gray-500 rounded-full mx-auto"></div>
+        <p className="text-xs text-gray-400 mt-2">
+          {isExpanded ? '⬇️ Swipe down' : '⬆️ Swipe up'}
+        </p>
       </div>
 
       {/* Close button for desktop */}
