@@ -5,7 +5,7 @@ import { GoogleMap, Marker, InfoWindow, DirectionsRenderer, useLoadScript } from
 import { COLLEGE_CENTER, COLLEGE_ZOOM, CAMPUS_BOUNDS, BUILDINGS } from "../data/buildings";
 import BuildingDetails from "../components/BuildingDetails";
 
-const containerStyle = { width: "100%", height: "100%", borderRadius: "0" };
+const containerStyle = { width: "100%", height: "100%", borderRadius: "0", minHeight: "100%" };
 
 const MapPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -279,12 +279,12 @@ const MapPage = () => {
   if (loadError || !googleMapsApiKey)
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white relative">
-        {/* Background Image with reduced opacity */}
+        {/* Background Image */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
           style={{ backgroundImage: 'url(/unnamed.jpg)' }}
         ></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-purple-900/80 to-indigo-900/80"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/50 to-indigo-900/50"></div>
         
         <Navbar />
 
@@ -322,12 +322,12 @@ const MapPage = () => {
   if (!isLoaded)
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white relative">
-        {/* Background Image with reduced opacity */}
+        {/* Background Image */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
           style={{ backgroundImage: 'url(/unnamed.jpg)' }}
         ></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-purple-900/80 to-indigo-900/80"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/50 to-indigo-900/50"></div>
         
         <Navbar />
 
@@ -343,18 +343,18 @@ const MapPage = () => {
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white overflow-hidden relative flex flex-col">
-      {/* Background Image with reduced opacity */}
+    <div className="h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white overflow-hidden relative flex flex-col">
+      {/* Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
         style={{ backgroundImage: 'url(/unnamed.jpg)' }}
       ></div>
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-purple-900/80 to-indigo-900/80"></div>
+      {/* Gradient overlay - more transparent */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/50 to-indigo-900/50"></div>
       
       <Navbar />
 
-      <div className="pt-20 relative overflow-hidden" style={{ height: "calc(100vh - 80px)" }}>
+      <div className="flex-1 relative overflow-hidden" style={{ height: 'calc(100vh - 80px)' }}>
         <GoogleMap
           mapContainerStyle={containerStyle}
           options={options}

@@ -15,6 +15,7 @@ const PillNav = ({
   pillTextColor,
   onMobileMenuClick,
   initialLoadAnimation = true,
+  isMapPage = false,
 }) => {
   const resolvedPillTextColor = pillTextColor ?? baseColor;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -233,9 +234,9 @@ const PillNav = ({
   };
 
   return (
-    <div className="fixed top-4 md:top-6 z-[1000] left-1/2 -translate-x-1/2 w-full max-w-[calc(100vw-2rem)] md:w-auto md:max-w-none px-4 md:px-0">
+    <div className={`fixed top-4 md:top-6 z-[1000] left-1/2 -translate-x-1/2 w-full max-w-[calc(100vw-2rem)] md:w-auto md:max-w-none px-4 md:px-0 ${isMapPage ? "map-page-navbar-container" : ""}`}>
       <nav
-        className={`w-full md:w-max flex items-center justify-between md:justify-start box-border ${className}`}
+        className={`w-full md:w-max flex items-center justify-between md:justify-start box-border ${className} ${isMapPage ? "bg-purple-600/30 backdrop-blur-xl rounded-full px-4 py-2 border-2 border-purple-400/50 shadow-xl" : ""}`}
         aria-label="Primary"
         style={cssVars}
       >

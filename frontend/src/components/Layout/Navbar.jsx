@@ -14,19 +14,22 @@ const Navbar = () => {
     { label: "Find", href: "/find-teacher" },
   ];
 
+  const isMapPage = location.pathname === "/map";
+
   return (
     <PillNav
       logo={logo}
       logoAlt="NaviGo Logo"
       items={navItems}
       activeHref={location.pathname}
-      className="navi-go-navbar"
+      className={`navi-go-navbar ${isMapPage ? "map-page-navbar" : ""}`}
       ease="power2.out"
       baseColor="transparent"
       pillColor="#ffffff"
       hoveredPillTextColor="#ffffff"
       pillTextColor="#7c3aed"
       initialLoadAnimation={true}
+      isMapPage={isMapPage}
     />
   );
 };

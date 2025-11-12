@@ -7,13 +7,13 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white overflow-hidden relative">
-      {/* Background Image with reduced opacity */}
+      {/* Background Image */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
         style={{ backgroundImage: "url(/unnamed.jpg)" }}
       ></div>
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-purple-900/80 to-indigo-900/80"></div>
+      {/* Gradient overlay - more transparent */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/50 to-indigo-900/50"></div>
 
       <Navbar />
 
@@ -39,52 +39,52 @@ const HomePage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 md:mb-12">
               <div
                 onClick={() => navigate("/ar")}
-                className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl cursor-pointer active:scale-95 md:cursor-default md:active:scale-105"
+                className="bg-white/20 backdrop-blur-xl rounded-2xl p-6 border-2 border-white/40 hover:bg-white/25 hover:border-white/60 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-xl cursor-pointer active:scale-95 md:cursor-default md:active:scale-105"
               >
                 <div className="text-3xl md:text-4xl mb-4">🎯</div>
                 <h3 className="text-lg md:text-xl font-bold mb-2 text-cyan-300">
                   Navigation
                 </h3>
-                <p className="text-gray-400 text-sm">
+                <p className="text-white text-sm">
                   Experience immersive navigation with real-time AR overlays,
                   location and object detection.
                 </p>
               </div>
               <div
                 onClick={() => navigate("/map")}
-                className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl cursor-pointer active:scale-95 md:cursor-default md:active:scale-105"
+                className="bg-white/20 backdrop-blur-xl rounded-2xl p-6 border-2 border-white/40 hover:bg-white/25 hover:border-white/60 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-xl cursor-pointer active:scale-95 md:cursor-default md:active:scale-105"
               >
                 <div className="text-3xl md:text-4xl mb-4">🗺️</div>
                 <h3 className="text-lg md:text-xl font-bold mb-2 text-purple-300">
                   Interactive Map
                 </h3>
-                <p className="text-gray-400 text-sm">
+                <p className="text-white text-sm">
                   Explore campus buildings, get directions, and discover points
                   of interest.
                 </p>
               </div>
               <div
                 onClick={() => navigate("/ai-chat")}
-                className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl cursor-pointer active:scale-95 md:cursor-default md:active:scale-105"
+                className="bg-white/20 backdrop-blur-xl rounded-2xl p-6 border-2 border-white/40 hover:bg-white/25 hover:border-white/60 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-xl cursor-pointer active:scale-95 md:cursor-default md:active:scale-105"
               >
                 <div className="text-3xl md:text-4xl mb-4">🤖</div>
                 <h3 className="text-lg md:text-xl font-bold mb-2 text-indigo-300">
                   AI Assistant
                 </h3>
-                <p className="text-gray-400 text-sm">
+                <p className="text-white text-sm">
                   Get instant answers about campus facilities, buildings, and
                   locations.
                 </p>
               </div>
               <div
                 onClick={() => navigate("/find-teacher")}
-                className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl cursor-pointer active:scale-95 md:cursor-default md:active:scale-105"
+                className="bg-white/20 backdrop-blur-xl rounded-2xl p-6 border-2 border-white/40 hover:bg-white/25 hover:border-white/60 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-xl cursor-pointer active:scale-95 md:cursor-default md:active:scale-105"
               >
                 <div className="text-3xl md:text-4xl mb-4">👨‍🏫</div>
                 <h3 className="text-lg md:text-xl font-bold mb-2 text-emerald-300">
                   Find Teacher
                 </h3>
-                <p className="text-gray-400 text-sm">
+                <p className="text-white text-sm">
                   Locate your teachers instantly based on their current schedule
                   and location.
                 </p>

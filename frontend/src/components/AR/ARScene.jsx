@@ -251,13 +251,14 @@ const ARScene = () => {
   return (
     <div className="relative w-full h-full overflow-hidden">
       {mode === "menu" && (
-        <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-900 via-gray-900 to-black pt-20 relative">
-          {/* Background Image with reduced opacity for menu mode */}
+        <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 pt-20 relative">
+          {/* Background Image */}
           <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25"
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
             style={{ backgroundImage: 'url(/unnamed.jpg)' }}
           ></div>
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-gray-900/80 to-black/80"></div>
+          {/* Gradient overlay - more transparent */}
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/50 to-indigo-900/50"></div>
           <div className="relative z-10 w-full">
           <div className="text-center max-w-lg mx-auto p-4 sm:p-12">
             <div className="space-y-6">
@@ -317,8 +318,15 @@ const ARScene = () => {
       )}
       
       {mode === "detection" && (
-        <div className="detection-container w-full h-full bg-gradient-to-br from-slate-900 via-gray-900 to-black pt-24 sm:pt-28 pb-4 sm:pb-6">
-          <div className="detection-wrapper w-full max-w-6xl mx-auto h-full flex flex-col px-4">
+        <div className="detection-container w-full h-full bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 pt-24 sm:pt-28 pb-4 sm:pb-6 relative">
+          {/* Background Image */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
+            style={{ backgroundImage: 'url(/unnamed.jpg)' }}
+          ></div>
+          {/* Gradient overlay - more transparent */}
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/50 to-indigo-900/50"></div>
+          <div className="detection-wrapper w-full max-w-6xl mx-auto h-full flex flex-col px-4 relative z-10">
             <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-2 sm:p-6 border border-gray-700/30 shadow-2xl flex-1 flex flex-col overflow-hidden">
               <ObjectDetectorSimple onDetection={handleDetection} />
             </div>

@@ -87,13 +87,13 @@ const FindTeacherPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white overflow-hidden relative">
-      {/* Background Image with reduced opacity */}
+      {/* Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
         style={{ backgroundImage: 'url(/unnamed.jpg)' }}
       ></div>
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-purple-900/80 to-indigo-900/80"></div>
+      {/* Gradient overlay - more transparent */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/50 to-indigo-900/50"></div>
       
       <Navbar />
 
@@ -120,7 +120,7 @@ const FindTeacherPage = () => {
           </div>
 
           {/* Search Form */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 border border-white/20 mb-6 relative">
+          <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-6 md:p-8 border-2 border-white/40 mb-6 relative shadow-xl">
             <form onSubmit={handleSearch} className="space-y-4">
               <div className="relative">
                 <label htmlFor="teacher-search" className="block text-sm font-medium text-gray-300 mb-2">
@@ -137,13 +137,13 @@ const FindTeacherPage = () => {
                     }
                   }}
                   placeholder="e.g., Dr. John Smith"
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 bg-white/10 border-2 border-white/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500/50 transition-all"
                   disabled={loading}
                 />
                 
                 {/* Suggestions Dropdown */}
                 {showSuggestions && filteredTeachers.length > 0 && (
-                  <div className="absolute z-20 w-full mt-2 bg-slate-800 border border-white/20 rounded-xl shadow-2xl max-h-60 overflow-y-auto">
+                  <div className="absolute z-20 w-full mt-2 bg-slate-800/95 backdrop-blur-xl border-2 border-white/40 rounded-xl shadow-2xl max-h-60 overflow-y-auto">
                     {filteredTeachers.slice(0, 10).map((teacher, index) => (
                       <button
                         key={index}
@@ -184,7 +184,7 @@ const FindTeacherPage = () => {
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-500/20 backdrop-blur-lg border border-red-500/50 rounded-xl p-4 mb-6 animate-fade-in">
+            <div className="bg-red-500/20 backdrop-blur-lg border-2 border-red-500/60 rounded-xl p-4 mb-6 animate-fade-in shadow-xl">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">⚠️</span>
                 <div>
@@ -197,7 +197,7 @@ const FindTeacherPage = () => {
 
           {/* Result Card */}
           {result && result.success && (
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 border border-white/20 animate-fade-in">
+            <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-6 md:p-8 border-2 border-white/40 animate-fade-in shadow-xl">
               <div className="text-center mb-6">
                 <div className="inline-block p-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full mb-4">
                   <span className="text-4xl">📍</span>
@@ -211,25 +211,25 @@ const FindTeacherPage = () => {
               </div>
 
               <div className="space-y-4">
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                <div className="bg-white/10 rounded-xl p-4 border-2 border-white/30">
                   <p className="text-gray-400 text-sm mb-1">Location</p>
                   <p className="text-xl md:text-2xl font-bold text-white">{result.location}</p>
                 </div>
 
                 {result.currentDay && result.currentTimeSlot && (
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <div className="bg-white/10 rounded-xl p-4 border-2 border-white/30">
                       <p className="text-gray-400 text-sm mb-1">Day</p>
                       <p className="text-lg font-semibold text-purple-300">{result.currentDay}</p>
                     </div>
-                    <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <div className="bg-white/10 rounded-xl p-4 border-2 border-white/30">
                       <p className="text-gray-400 text-sm mb-1">Time Slot</p>
                       <p className="text-lg font-semibold text-purple-300">{result.currentTimeSlot}</p>
                     </div>
                   </div>
                 )}
 
-                <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-xl p-4 border border-cyan-500/30">
+                <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-xl p-4 border-2 border-cyan-500/50">
                   <p className="text-cyan-200 text-center">{result.message}</p>
                 </div>
               </div>
@@ -241,7 +241,7 @@ const FindTeacherPage = () => {
                   setResult(null);
                   setError("");
                 }}
-                className="w-full mt-6 px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition-all duration-300 border border-white/20"
+                className="w-full mt-6 px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition-all duration-300 border-2 border-white/40"
               >
                 Search Another Teacher
               </button>
@@ -250,7 +250,7 @@ const FindTeacherPage = () => {
 
           {/* Info Section */}
           {!result && !error && !loading && (
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border-2 border-white/30">
               <div className="flex items-start gap-3">
                 <span className="text-xl">💡</span>
                 <div className="text-sm text-gray-300">

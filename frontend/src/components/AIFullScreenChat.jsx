@@ -47,14 +47,14 @@ export default function AIFullScreenChat() {
   };
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 z-50 flex flex-col relative h-screen w-screen overflow-hidden">
-      {/* Background Image with reduced opacity */}
+    <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 z-50 flex flex-col h-screen w-screen overflow-hidden">
+      {/* Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
         style={{ backgroundImage: 'url(/unnamed.jpg)' }}
       ></div>
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-purple-900/80 to-indigo-900/80"></div>
+      {/* Gradient overlay - more transparent */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/50 to-indigo-900/50"></div>
       
       <Navbar />
 
