@@ -3,8 +3,10 @@ import React, { useState, useEffect, useRef } from "react";
 import ARLabel from "./ARLabel";
 import ObjectDetectorSimple from "./ObjectDetectorSimple";
 import GeospatialControls from "./GeospatialControls";
+import LocationDetectionResult from "./LocationDetectionResult";
 import { usePOIs } from "../../hooks/usePOIs";
 import geospatialService from "../../utils/geospatialService";
+import { getCurrentLocation, detectCurrentBuilding } from "../../utils/locationDetector";
 
 const ARScene = () => {
   const { pois, addPOI } = usePOIs();
@@ -15,6 +17,9 @@ const ARScene = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showGeospatialControls, setShowGeospatialControls] = useState(false);
+  const [locationResult, setLocationResult] = useState(null);
+  const [showLocationResult, setShowLocationResult] = useState(false);
+  const [locationError, setLocationError] = useState(null);
   const sceneRef = useRef(null);
 
   // Initialize geolocation tracking
@@ -73,6 +78,32 @@ const ARScene = () => {
 
   const handleStartDetection = () => {
     setMode("detection");
+  };
+
+  const handleStartLocationDetection = async () => {
+    setIsLoading(true);
+    setLocationError(null);
+    
+    try {
+      // Get user's current location
+      const location = await getCurrentLocation();
+      setUserLocation(location);
+      
+      // Detect current building based on location
+      const result = detectCurrentBuilding(location.lat, location.lng);
+      
+      if (result) {
+        setLocationResult(result);
+        setShowLocationResult(true);
+      } else {
+        setLocationError('No buildings found nearby');
+      }
+    } catch (error) {
+      console.error('Location detection error:', error);
+      setLocationError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Detect buildings and roads using GeospatialService
@@ -233,17 +264,50 @@ const ARScene = () => {
               <button
                 onClick={handleStartDetection}
                 className="w-full px-6 py-5 sm:px-8 sm:py-6 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:via-blue-500 hover:to-indigo-500 text-white rounded-2xl shadow-2xl text-lg sm:text-xl font-bold transition-all duration-300 transform hover:scale-105 hover:shadow-cyan-500/25 active:scale-95 backdrop-blur-sm border border-cyan-500/20"
+                disabled={isLoading}
               >
                 <div className="flex items-center justify-center space-x-3">
                   <span className="text-xl sm:text-2xl">🎯</span>
-                  <span>Start Detection</span>
+                  <span>Start AR Detection</span>
                 </div>
               </button>
+              
+              <button
+                onClick={handleStartLocationDetection}
+                className="w-full px-6 py-5 sm:px-8 sm:py-6 bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 hover:from-emerald-500 hover:via-green-500 hover:to-teal-500 text-white rounded-2xl shadow-2xl text-lg sm:text-xl font-bold transition-all duration-300 transform hover:scale-105 hover:shadow-emerald-500/25 active:scale-95 backdrop-blur-sm border border-emerald-500/20"
+                disabled={isLoading}
+              >
+                <div className="flex items-center justify-center space-x-3">
+                  {isLoading ? (
+                    <>
+                      <svg className="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Detecting Location...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-xl sm:text-2xl">📍</span>
+                      <span>Start Location Detection</span>
+                    </>
+                  )}
+                </div>
+              </button>
+              
+              {locationError && (
+                <div className="bg-red-500/20 backdrop-blur-sm rounded-xl p-4 border border-red-500/50">
+                  <p className="text-red-200 text-sm flex items-center justify-center space-x-2">
+                    <span>⚠️</span>
+                    <span>{locationError}</span>
+                  </p>
+                </div>
+              )}
               
               <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50">
                 <p className="text-gray-300 text-sm flex items-center justify-center space-x-2">
                   <span className="text-cyan-400">📹</span>
-                  <span>Camera access will be requested when you start</span>
+                  <span>Camera/Location access will be requested when you start</span>
                 </p>
               </div>
             </div>
@@ -273,6 +337,18 @@ const ARScene = () => {
             ← Back to Menu
           </button>
         </div>
+      )}
+
+      {/* Location Detection Result Modal */}
+      {showLocationResult && (
+        <LocationDetectionResult
+          result={locationResult}
+          userLocation={userLocation}
+          onClose={() => {
+            setShowLocationResult(false);
+            setLocationResult(null);
+          }}
+        />
       )}
     </div>
   );

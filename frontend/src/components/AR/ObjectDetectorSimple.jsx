@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as tf from '@tensorflow/tfjs';
 import * as cocossd from '@tensorflow-models/coco-ssd';
 import { getCustomLabel, isImportantObject } from '../../utils/customDetections';
+import buildingDetector from '../../utils/buildingDetector';
+import BuildingDetectionModal from './BuildingDetectionModal';
 import './ObjectDetectorSimple.css';
 
 const ObjectDetectorSimple = ({ onDetection }) => {
@@ -17,6 +19,9 @@ const ObjectDetectorSimple = ({ onDetection }) => {
   const [error, setError] = useState(null);
   const [fps, setFps] = useState(0);
   const [detections, setDetections] = useState([]);
+  const [buildingDetected, setBuildingDetected] = useState(null);
+  const [showBuildingModal, setShowBuildingModal] = useState(false);
+  const [buildingCheckInterval, setBuildingCheckInterval] = useState(0);
 
   // Load model once on mount
   useEffect(() => {
@@ -27,6 +32,10 @@ const ObjectDetectorSimple = ({ onDetection }) => {
         setModel(loadedModel);
         setIsModelLoaded(true);
         console.log('Model loaded successfully');
+        
+        // Initialize building detector
+        await buildingDetector.initialize();
+        console.log('Building detector initialized');
       } catch (err) {
         console.error('Failed to load model:', err);
         setError('Failed to load object detection model');
@@ -135,6 +144,21 @@ const ObjectDetectorSimple = ({ onDetection }) => {
 
           // Detect objects
           const predictions = await model.detect(video);
+          
+          // Check for building detection every 3 seconds
+          if (timestamp - buildingCheckInterval > 3000) {
+            setBuildingCheckInterval(timestamp);
+            try {
+              const buildingResult = await buildingDetector.detectBuilding(video);
+              if (buildingResult.detected && !showBuildingModal) {
+                setBuildingDetected(buildingResult);
+                setShowBuildingModal(true);
+                console.log('🏛️ Building detected:', buildingResult);
+              }
+            } catch (err) {
+              console.error('Building detection error:', err);
+            }
+          }
 
           // Clear canvas
           ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -195,61 +219,79 @@ const ObjectDetectorSimple = ({ onDetection }) => {
   }, [model, cameraActive, isDetecting, onDetection]);
 
   return (
-    <div className="object-detector">
-      <div className="camera-frame">
-        <div className="video-container">
-          <video
-            ref={videoRef}
-            className="video"
-            autoPlay
-            muted
-            playsInline
-            style={{ display: cameraActive ? 'block' : 'none' }}
-          />
-          <canvas
-            ref={canvasRef}
-            className="canvas"
-            style={{ display: cameraActive ? 'block' : 'none' }}
-          />
-          {!cameraActive && (
-            <div className="camera-placeholder">
-              <div className="placeholder-content">
-                <div className="placeholder-icon-wrapper">
-                  <div className="placeholder-icon">📹</div>
+    <>
+      <div className="object-detector">
+        <div className="camera-frame">
+          <div className="video-container">
+            <video
+              ref={videoRef}
+              className="video"
+              autoPlay
+              muted
+              playsInline
+              style={{ display: cameraActive ? 'block' : 'none' }}
+            />
+            <canvas
+              ref={canvasRef}
+              className="canvas"
+              style={{ display: cameraActive ? 'block' : 'none' }}
+            />
+            {!cameraActive && (
+              <div className="camera-placeholder">
+                <div className="placeholder-content">
+                  <div className="placeholder-icon-wrapper">
+                    <div className="placeholder-icon">📹</div>
+                  </div>
+                  <p className="placeholder-text">Camera Ready</p>
+                  <p className="placeholder-subtext">Click Start Detection to begin</p>
                 </div>
-                <p className="placeholder-text">Camera Ready</p>
-                <p className="placeholder-subtext">Click Start Detection to begin</p>
               </div>
-            </div>
-          )}
-          {error && (
-            <div className="error">
-              <div className="error-content">
-                <div className="error-icon">⚠️</div>
-                <p className="error-text">{error}</p>
+            )}
+            {error && (
+              <div className="error">
+                <div className="error-content">
+                  <div className="error-icon">⚠️</div>
+                  <p className="error-text">{error}</p>
+                </div>
               </div>
-            </div>
-          )}
-          {cameraActive && (
-            <div className="fps-counter">
-              FPS: {fps}
-            </div>
-          )}
+            )}
+            {cameraActive && (
+              <div className="fps-counter">
+                FPS: {fps}
+              </div>
+            )}
+            {buildingDetected && (
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-white px-4 py-2 rounded-lg shadow-lg animate-bounce">
+                🏛️ Building Detected!
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="external-controls">
+          <div className="controls">
+            <button
+              onClick={toggleDetection}
+              className={`control-button ${cameraActive ? 'stop' : ''}`}
+              disabled={!isModelLoaded}
+            >
+              {!cameraActive ? '🚀 Start Detection' : isDetecting ? '⏹️ Stop Detection' : '▶️ Resume Detection'}
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="external-controls">
-        <div className="controls">
-          <button
-            onClick={toggleDetection}
-            className={`control-button ${cameraActive ? 'stop' : ''}`}
-            disabled={!isModelLoaded}
-          >
-            {!cameraActive ? '🚀 Start Detection' : isDetecting ? '⏹️ Stop Detection' : '▶️ Resume Detection'}
-          </button>
-        </div>
-      </div>
-    </div>
+      {/* Building Detection Modal */}
+      <BuildingDetectionModal
+        isOpen={showBuildingModal}
+        onClose={() => {
+          setShowBuildingModal(false);
+          setBuildingDetected(null);
+        }}
+        building={buildingDetected?.building}
+        confidence={buildingDetected?.confidence || 0}
+      />
+    </>
   );
 };
 
