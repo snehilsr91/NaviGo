@@ -97,33 +97,33 @@ const FindTeacherPage = () => {
       
       <Navbar />
 
-      <div className="relative z-10 pt-24 md:pt-28 px-4 pb-10">
+      <div className="relative z-10 pt-16 sm:pt-20 md:pt-28 px-4 pb-10">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-4 sm:mb-6 md:mb-8">
             <button
               onClick={() => navigate("/")}
-              className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 mb-4 transition-colors"
+              className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 mb-2 sm:mb-3 md:mb-4 transition-colors text-sm sm:text-base"
             >
               <span>←</span>
               <span>Back to Home</span>
             </button>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 bg-gradient-to-r from-white via-cyan-200 to-purple-200 bg-clip-text text-transparent">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-2 sm:mb-3 md:mb-4 bg-gradient-to-r from-white via-cyan-200 to-purple-200 bg-clip-text text-transparent">
               Find Your Teacher
             </h1>
-            <p className="text-lg text-gray-300 mb-2">
+            <p className="text-base sm:text-lg text-gray-300 mb-1 sm:mb-2">
               Search for a teacher to find their current location
             </p>
-            <p className="text-sm text-gray-400">
+            <p className="text-xs sm:text-sm text-gray-400">
               Current Time: {getCurrentTime()}
             </p>
           </div>
 
           {/* Search Form */}
-          <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-6 md:p-8 border-2 border-white/40 mb-6 relative shadow-xl">
-            <form onSubmit={handleSearch} className="space-y-4">
+          <div className="bg-white/20 backdrop-blur-xl rounded-2xl p-4 sm:p-5 md:p-8 border-2 border-white/40 mb-6 relative shadow-xl">
+            <form onSubmit={handleSearch} className="space-y-3 sm:space-y-4">
               <div className="relative">
-                <label htmlFor="teacher-search" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="teacher-search" className="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5 sm:mb-2">
                   Teacher Name
                 </label>
                 <input
@@ -137,7 +137,7 @@ const FindTeacherPage = () => {
                     }
                   }}
                   placeholder="e.g., Dr. John Smith"
-                  className="w-full px-4 py-3 bg-white/10 border-2 border-white/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500/50 transition-all"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border-2 border-white/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500/50 transition-all text-sm sm:text-base"
                   disabled={loading}
                 />
                 
@@ -162,7 +162,7 @@ const FindTeacherPage = () => {
                 id="search-button"
                 type="submit"
                 disabled={loading}
-                className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base"
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">

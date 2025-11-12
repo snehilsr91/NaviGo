@@ -12,15 +12,14 @@ const facultyLocationsPath = join(
   "../../assets/faculty_locations.xlsx"
 );
 
-// Time slot definitions (adjust these based on your actual schedule)
+// Time slot definitions (matching Excel format: 24-hour format)
 const TIME_SLOTS = [
   { slot: "09:00-10:00", startHour: 9, startMin: 0, endHour: 10, endMin: 0 },
   { slot: "10:00-11:00", startHour: 10, startMin: 0, endHour: 11, endMin: 0 },
   { slot: "11:30-12:30", startHour: 11, startMin: 30, endHour: 12, endMin: 30 },
   { slot: "12:30-13:30", startHour: 12, startMin: 30, endHour: 13, endMin: 30 },
-  { slot: "14:00-15:00", startHour: 14, startMin: 0, endHour: 15, endMin: 0 },
-  { slot: "15:00-16:00", startHour: 15, startMin: 0, endHour: 16, endMin: 0 },
-  { slot: "16:00-17:00", startHour: 16, startMin: 0, endHour: 17, endMin: 0 },
+  { slot: "14:30-15:30", startHour: 14, startMin: 30, endHour: 15, endMin: 30 },
+  { slot: "15:30-16:30", startHour: 15, startMin: 30, endHour: 16, endMin: 30 },
 ];
 
 // Get current time in IST (Indian Standard Time)

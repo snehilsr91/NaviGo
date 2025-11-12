@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "./Layout/Navbar"; // Import the new Navbar
+import Navbar from "./Layout/Navbar";
 import { askBackend } from "../utils/askBackend";
-import { parseMarkdown, extractLocations } from "../utils/parseMarkdown";
+import { parseMarkdown } from "../utils/parseMarkdown";
 import { filterBuildingsWithCoordinates } from "../utils/buildingUtils";
 
 export default function AIFullScreenChat() {
@@ -10,31 +10,23 @@ export default function AIFullScreenChat() {
   const [question, setQuestion] = useState("");
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
+  const inputRef = useRef(null);
 
   useEffect(() => {
-    // Focus on input when component mounts
-    const input = document.querySelector("#ai-fullscreen-input");
-    if (input) {
-      // Small delay to ensure layout is ready
-      setTimeout(() => input.focus(), 100);
-    }
+    if (inputRef.current) setTimeout(() => inputRef.current.focus(), 100);
   }, []);
 
-  // Scroll input into view on mobile when keyboard appears
+  // Handle keyboard visibility (for mobile)
   useEffect(() => {
-    const input = document.querySelector("#ai-fullscreen-input");
-    if (input) {
-      const handleFocus = () => {
-        // On mobile, scroll input into view when keyboard appears
-        if (window.innerWidth < 640) {
-          setTimeout(() => {
-            input.scrollIntoView({ behavior: "smooth", block: "end" });
-          }, 300);
-        }
-      };
-      input.addEventListener("focus", handleFocus);
-      return () => input.removeEventListener("focus", handleFocus);
-    }
+    const handleResize = () => {
+      document.documentElement.style.setProperty(
+        "--vh",
+        `${window.innerHeight * 0.01}px`
+      );
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const send = async () => {
@@ -70,22 +62,27 @@ export default function AIFullScreenChat() {
   };
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 z-50 flex flex-col h-screen w-screen overflow-hidden">
-      {/* Background Image */}
+    <div
+      className="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 z-50 flex flex-col overflow-hidden"
+      style={{
+        height: "calc(var(--vh, 1vh) * 100)", // use dynamic viewport height
+      }}
+    >
+      {/* Background */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
         style={{ backgroundImage: "url(/unnamed.jpg)" }}
       ></div>
-      {/* Gradient overlay - more transparent */}
+
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/50 to-indigo-900/50"></div>
 
       <Navbar />
 
       {/* Chat Messages */}
       <div
-        className="flex-1 overflow-y-auto px-4 sm:px-6 pt-20 sm:pt-24 pb-4 sm:pb-6 relative z-10 min-h-0"
+        className="flex-1 overflow-y-auto px-4 sm:px-6 pt-20 sm:pt-24 relative z-10"
         style={{
-          paddingBottom: "calc(1rem + max(0px, env(safe-area-inset-bottom)))",
+          paddingBottom: "7rem",
         }}
       >
         <div className="max-w-4xl mx-auto space-y-6">
@@ -119,7 +116,6 @@ export default function AIFullScreenChat() {
 
           {history.map((h, i) => (
             <div key={i} className="space-y-4">
-              {/* User Message */}
               <div className="flex justify-end">
                 <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl px-6 py-4 max-w-2xl shadow-xl border border-purple-400/30">
                   <p className="font-semibold mb-2 text-cyan-200">You</p>
@@ -127,7 +123,6 @@ export default function AIFullScreenChat() {
                 </div>
               </div>
 
-              {/* Bot Response */}
               <div className="flex justify-start">
                 <div className="bg-white/10 backdrop-blur-lg rounded-2xl px-6 py-4 max-w-2xl shadow-xl border border-white/20">
                   <p className="font-semibold text-cyan-400 mb-2">Assistant</p>
@@ -150,10 +145,6 @@ export default function AIFullScreenChat() {
                               const url = `/map?label=${encodeURIComponent(
                                 m.label
                               )}&directions=true&chat=${chatState}`;
-                              console.log("🚀 Opening map with directions:", {
-                                label: m.label,
-                                url,
-                              });
                               window.open(url, "_blank");
                             }}
                             className="text-sm text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-lg px-4 py-2 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
@@ -184,10 +175,6 @@ export default function AIFullScreenChat() {
                                   const url = `/map?label=${encodeURIComponent(
                                     building
                                   )}&directions=true&chat=${chatState}`;
-                                  console.log(
-                                    "🚀 Opening map with directions:",
-                                    { building, url }
-                                  );
                                   window.open(url, "_blank");
                                 }}
                                 className="text-sm text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-lg px-4 py-2 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
@@ -207,36 +194,40 @@ export default function AIFullScreenChat() {
         </div>
       </div>
 
-      {/* Input Area */}
+      {/* ✅ Fixed Input Area */}
       <div
-        className="border-t border-white/20 bg-white/5 backdrop-blur-lg px-4 sm:px-6 py-3 sm:py-4 pb-safe relative z-10 flex-shrink-0"
-        style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
+        className="border-t border-white/20 bg-white/5 backdrop-blur-lg px-3 sm:px-6 pt-3 pb-3 sm:py-4 relative z-10 flex-shrink-0"
+        style={{
+          paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.75rem)",
+        }}
       >
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-end gap-2 sm:gap-3">
+        <div className="max-w-4xl mx-auto w-full">
+          <div className="flex items-center gap-2 sm:gap-3">
             <textarea
+              ref={inputRef}
               id="ai-fullscreen-input"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type your question here... (Press Enter to send, Shift+Enter for new line)"
-              className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 text-white placeholder-gray-400 text-sm sm:text-base"
+              className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 text-white placeholder-gray-400 text-sm sm:text-base leading-snug"
               rows="2"
               disabled={loading}
             />
             <button
               onClick={send}
               disabled={loading || !question.trim()}
-              className={`px-4 sm:px-8 py-2.5 sm:py-3 rounded-xl font-bold transition-all duration-200 flex-shrink-0 ${
-                loading || !question.trim()
-                  ? "bg-gray-600/50 text-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
-              }`}
+              className={`flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold transition-all duration-200 text-sm sm:text-base flex-shrink-0
+                ${
+                  loading || !question.trim()
+                    ? "bg-cyan-700/50 text-cyan-300 cursor-not-allowed"
+                    : "bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-400 hover:to-cyan-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+                }`}
             >
               {loading ? (
-                <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-5 h-5 sm:w-6 sm:h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
               ) : (
-                <span className="text-sm sm:text-base">Send</span>
+                "Send"
               )}
             </button>
           </div>
