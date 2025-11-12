@@ -55,6 +55,23 @@ app.use(async (req, res, next) => {
   }
 });
 
+// Health check endpoint
+app.get("/", (req, res) => {
+  res.json({ 
+    status: "ok", 
+    message: "NaviGo Backend API is running",
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get("/health", (req, res) => {
+  res.json({ 
+    status: "healthy", 
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Routes
 app.use("/api/places", placesRoutes);
 app.use("/api/detections", detectionsRoutes);
