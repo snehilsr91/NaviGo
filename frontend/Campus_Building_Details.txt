@@ -45,16 +45,16 @@ Other Rooms and Departments:
   - Exam Control Room - North-East side
 
 - First Floor:
-  - Department of Information Science and Engineering (ISE) - South-West
-  - Department of Physics - North-West
-  - Department of Computer Science and Engineering (CSE) - North-West
+  - Department of Information Science and Engineering (ISE) / ISE HOD Office - South-West
+  - Department of Physics / Physics HOD Office - North-West
+  - Department of Computer Science and Engineering (CSE) / CSE HOD Office - North-West
 
 - Second Floor:
-  - Department of Mathematics - North-West
+  - Department of Mathematics / Mathematics HOD Office - North-West
 
 - Third Floor:
-  - Department of Mechanical Engineering - South-West
-  - Staff Room - North-West
+  - Department of Mechanical Engineering / Mechanical HOD Office - South-West
+  - Mathematics Staff Room - North-West
 
 
 2. Madhavacharya Bhavan (Library Building)
@@ -184,19 +184,21 @@ Access:
 - Visitor entry requires prior permission and strict registration procedures
 
 
-6. Food Court
+6. Food Court (College Mess)
 ---------------
 Purpose:
-Central dining facility serving a variety of cuisines and food options for students and staff.
+Central dining facility serving a variety of cuisines and food options for students and staff. It is the combined mess for both Girls' Hostel and Boys' Hostel.
 
 Location:
-Conveniently located near the academic buildings for easy access during meal times.
+Located near the main entrance of the campus for easy access during meal times. It also has a bakery outside it.
 
 Facilities:
 - Multiple food counters offering different cuisines
 - Seating area for dining
 - Clean and hygienic food preparation areas
 - Affordable pricing for students
+- Students from south campus hostels can have their meals here as well
+- Day scholars can pay 50rs and have a meal here too
 
 Operating Hours:
 - Breakfast: 7:00 AM - 9:00 AM
@@ -208,7 +210,7 @@ Operating Hours:
 7. Canteen - Gopi's Kitchen
 -----------------------------
 Purpose:
-Popular student canteen providing quick snacks, beverages, and light meals.
+Popular student canteen providing quick snacks, beverages, and light meals. Also called Day Scholar's Canteen, Day Scholar's Mess, or Day Scholar Sitting Area.
 
 Location:
 Located near the main academic area for convenient access.
@@ -216,6 +218,7 @@ Located near the main academic area for convenient access.
 Facilities:
 - Quick service counter
 - Variety of snacks and beverages
+- Cooked food available
 - Student-friendly pricing
 - Takeaway options available
 
@@ -247,13 +250,13 @@ Access:
 - Operating hours: 6:00 AM - 8:00 PM
 
 
-9. Bakery and Cake
+9. Bakery and Cake (Coca Cola Canteen)
 --------------------
 Purpose:
-Campus bakery offering fresh baked goods, cakes, and confectionery items.
+Campus bakery offering fresh baked goods, cakes, and confectionery items. Also known as Coca Cola Canteen.
 
 Location:
-Conveniently located near student residential areas.
+Located in the area between the Shankaracharya Bhavan and the Ramanujacharya Bhavan. It is next to the shed of bike parking.
 
 Products:
 - Fresh bread and buns
@@ -271,16 +274,18 @@ Services:
 10. Parking
 -------------
 Purpose:
-Designated parking area for students, staff, and visitors.
+Designated parking area for students, staff, and visitors. Combined parking for all vehicles.
 
 Location:
-Strategically located near the main entrance for easy access.
+Strategically located near the main entrance for easy access. Bike parking shed is located near the area between Shankaracharya Bhavan and Ramanujacharya Bhavan.
 
 Facilities:
+- Combined parking for all vehicles
 - Separate sections for two-wheelers and four-wheelers
 - Security surveillance
 - Covered parking for two-wheelers
 - Visitor parking area
+- Bike parking shed
 
 Rules:
 - Valid parking permit required

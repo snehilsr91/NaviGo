@@ -63,15 +63,10 @@ export default function AIAssistant() {
       {/* chat panel */}
       {open && (
         <div 
+          className="fixed bottom-24 sm:bottom-24 right-6 sm:right-6 left-6 sm:left-auto w-auto sm:w-80 max-h-[calc(100vh-120px-env(safe-area-inset-bottom))] sm:max-h-[28rem] bg-white rounded-xl shadow-2xl flex flex-col z-[99999]"
           style={{ 
-            position: 'fixed', 
-            bottom: '96px', 
-            right: '24px', 
-            zIndex: 99999,
-            width: '320px',
-            maxHeight: '28rem',
+            bottom: 'calc(96px + max(0px, env(safe-area-inset-bottom)))',
           }}
-          className="bg-white rounded-xl shadow-2xl flex flex-col"
         >
           <header className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
             <h3 className="font-semibold text-gray-800">Campus Assistant</h3>
@@ -144,18 +139,18 @@ export default function AIAssistant() {
             ))}
           </div>
 
-          <div className="border-t border-gray-200 px-4 py-3 flex items-center gap-2">
+          <div className="border-t border-gray-200 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center gap-2 flex-shrink-0" style={{ paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom))' }}>
             <input
               value={question}
               onChange={e => setQuestion(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && send()}
               placeholder="Type your question..."
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="flex-1 px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <button
               onClick={send}
               disabled={loading}
-              className={`px-3 py-2 rounded-lg text-sm ${loading ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'} text-white`}
+              className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm flex-shrink-0 ${loading ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'} text-white`}
             >{loading ? '…' : 'Send'}</button>
           </div>
         </div>

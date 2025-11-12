@@ -157,7 +157,7 @@ export async function ask(req, res) {
     // 🧠 1. Ask Gemini to classify the intent
     const classifierPrompt = `
 Classify the following question into one of these categories:
-- "campus" if it asks about buildings, facilities, departments, hostels, library, or college locations.
+- "campus" if it asks about buildings, facilities, departments, hostels, library, canteen, mess, parking, bakery, food court, or college locations.
 - "general" if it's about greetings, conversation, or other topics.
 
 Question: "${q}"
@@ -216,8 +216,14 @@ User: "${q}"
     const buildingNames = [
       // Main Academic Buildings
       'Ramanujacharya Bhavan',
+      'Ramanujacharya Bhavan (Classroom Building)',
+      'Classroom Building',
       'Madhavacharya Bhavan', 
+      'Madhavacharya Bhavan (Library Building)',
+      'Library Building',
       'Shankaracharya Bhavan',
+      'Shankaracharya Bhavan (Lab Building)',
+      'Lab Building',
       'Main Building',
       'Central Library',
       'Library',
@@ -229,9 +235,18 @@ User: "${q}"
       
       // Food and Dining
       'Food Court',
+      'Food Court (College Mess)',
+      'College Mess',
       'Canteen',
       'Canteen - Gopi\'s Kitchen',
+      'Gopi\'s Kitchen',
+      'Gopi\'s Kitchen (Canteen)',
+      'Day Scholar\'s Canteen',
+      'Day Scholar\'s Mess',
+      'Day Scholar Sitting Area',
       'Bakery and Cake',
+      'Bakery and Cake (Coca Cola Canteen)',
+      'Coca Cola Canteen',
       'Coffee Shop',
       
       // Sports and Recreation
@@ -242,29 +257,45 @@ User: "${q}"
       
       // Facilities and Services
       'Parking',
+      'Combined Parking',
+      'Bike Parking',
+      'Bike Parking Shed',
       'Main Gate',
       'Training & Placement Cell',
       'T&P Cell',
       'TPO Office',
+      'T&P Cells',
       'Infirmary',
       'First Aid',
       'Admission Cell',
       'Dean Office',
       'Board Room',
+      'Stationery Shop',
       
       // Academic Departments and Labs
       'Department of Computer Science and Engineering',
       'CSE Department',
+      'CSE Dept',
+      'CSE HOD Office',
       'Department of Information Science and Engineering',
       'ISE Department',
+      'ISE Dept',
+      'ISE HOD Office',
       'Department of MCA',
       'MCA Department',
+      'MCA Dept',
       'Department of Mechanical Engineering',
       'Mechanical Department',
+      'Mechanical Dept',
+      'Mechanical HOD Office',
       'Department of Physics',
       'Physics Department',
+      'Physics Dept',
+      'Physics HOD Office',
       'Department of Mathematics',
       'Mathematics Department',
+      'Mathematics Dept',
+      'Mathematics HOD Office',
       
       // Specific Labs
       'AIML Labs',
@@ -301,20 +332,29 @@ User: "${q}"
       // Classrooms and Rooms
       'MB1', 'MB2', 'MB3', 'MB4', 'MB5',
       'Principal\'s Room',
+      'Principal Room',
       'Vice Principal\'s Room',
+      'Vice Principal',
       'College Office',
+      'Office',
       'Boardroom',
+      'Boardroom & Autonomous Cell',
       'Autonomous Cell',
       'Exam Control Room',
+      'Exam Control',
       'Reading Rooms',
       'Staff Room',
       'CSE Staff Room 1',
       'CSE Staff Room 2',
       'ISE Staff Room 1',
       'ISE Staff Room 2',
+      'ISE Staff Room',
       'Gents Staff Room',
+      'Gents Staff Room (West)',
       'General Staff Room',
-      'IT Cell'
+      'Mathematics Staff Room',
+      'IT Cell',
+      'ISE & IT Cell'
     ];
     
     buildingNames.forEach(building => {
