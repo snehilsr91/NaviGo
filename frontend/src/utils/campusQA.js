@@ -6,7 +6,7 @@ Ramanujacharya Bhavan (Classroom Building)
 - RO water: South-West corner of basement
 - Basement: Chemistry Lab, Staff Room
 - Washrooms: every floor – Boys NE, Girls NW
-- Ground Floor: Principal Room (South), Vice Principal (South), Office (South), Boardroom & Autonomous Cell (SW), Exam Control (West)
+- Ground Floor: Principal Room (South), Vice Principal (South), Dean Office (SW), Board Room(SW), Exam Control Room (NE), Office (South), Boardroom & Autonomous Cell (SW), Exam Control (West)
 - First Floor: ISE Dept (SW), Physics Dept (NW), CSE Dept (NW)
 - Second Floor: Mathematics Dept (NW)
 - Third Floor: Mechanical Dept (SW), Staff Room (NW)
@@ -25,14 +25,17 @@ Shankaracharya Bhavan (Lab Building)
 - Stairs: South side, all floors
 - Water dispensers: South-East corner
 - Stationery shop: South side near stairs
-- Ground Floor: T&P Cell (NW), Coffee Shop (West), Seminar Hall (Central), Auditorium (East), Boys washroom SW, Girls SE
+- Ground Floor: Infirmary for first aid (NW), TPO Office/T&P Cells (NW), Coffee Shop (West), Seminar Hall (Central), Auditorium (East), Boys washroom SW, Girls SE, Admission Cell (West)
 - First Floor: AIML Labs 1-4, MCA Dept (West), MCA Labs 1-3, ISE & IT Cell (West), CSE Staff Room 1 (SE)
 - Second Floor: CSE Staff Room 2 (North), Gents Staff Room (West), CSE Labs 1-8 (Lab 6 = CAED Lab)
 - Third Floor: ISE Staff Room 2 (North), IS Labs 1-8
 `;
 
 function normalize(text) {
-  return text.toLowerCase().replace(/[^\w\s]/g, ' ').split(/\s+/);
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s]/g, " ")
+    .split(/\s+/);
 }
 
 function score(passage, questionWords) {
@@ -45,10 +48,12 @@ function score(passage, questionWords) {
 }
 
 export function askCampus(question) {
-  if (!question) return 'Please ask something about campus buildings, labs, rooms, or facilities.';
+  if (!question)
+    return "Please ask something about campus buildings, labs, rooms, or facilities.";
   const q = normalize(question);
-  const lines = knowledge.split('\n').filter(l => l.trim());
-  let best = null, bestScore = 0;
+  const lines = knowledge.split("\n").filter((l) => l.trim());
+  let best = null,
+    bestScore = 0;
   for (const line of lines) {
     const s = score(line, q);
     if (s > bestScore) {
@@ -57,7 +62,7 @@ export function askCampus(question) {
     }
   }
   if (!best || bestScore < 1) {
-    return 'I could not find an answer in the campus data. Try rephrasing or ask about specific buildings, labs, or rooms.';
+    return "I could not find an answer in the campus data. Try rephrasing or ask about specific buildings, labs, or rooms.";
   }
-  return best.replace(/^-\s*/, ''); // remove leading bullet
+  return best.replace(/^-\s*/, ""); // remove leading bullet
 }

@@ -245,6 +245,12 @@ User: "${q}"
       'Main Gate',
       'Training & Placement Cell',
       'T&P Cell',
+      'TPO Office',
+      'Infirmary',
+      'First Aid',
+      'Admission Cell',
+      'Dean Office',
+      'Board Room',
       
       // Academic Departments and Labs
       'Department of Computer Science and Engineering',

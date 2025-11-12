@@ -39,8 +39,10 @@ Other Rooms and Departments:
   - Principal's Room - South side
   - Vice Principal's Room - South side
   - Office (Administrative & Accounts) - South side
+  - Dean Office - South-West side
+  - Board Room - South-West side
   - Boardroom & Autonomous Cell - South-West side
-  - Exam Control Room - West side
+  - Exam Control Room - North-East side
 
 - First Floor:
   - Department of Information Science and Engineering (ISE) - South-West
@@ -102,7 +104,10 @@ Washrooms:
 
 Other Rooms and Departments:
 - Ground Floor:
+  - Infirmary for first aid - North-West side
+  - TPO Office/T&P Cells - North-West side
   - Training & Placement Cell - North-West side
+  - Admission Cell - West side
   - Coffee Shop - West side
   - Seminar Hall - Central area
   - Auditorium - East side
