@@ -93,17 +93,17 @@ function EventApproval() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-purple-400 mb-2">Event Approval</h1>
-        <p className="text-gray-300">Review and approve booking requests for auditoriums and halls</p>
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-purple-400 mb-2">Event Approval</h1>
+        <p className="text-sm sm:text-base text-gray-300">Review and approve booking requests for auditoriums and halls</p>
       </div>
 
       {/* Filters */}
-      <div className="bg-black/80 backdrop-blur-xl rounded-xl p-4 border border-purple-500/30 mb-6">
-        <div className="flex gap-4">
+      <div className="bg-black/80 backdrop-blur-xl rounded-xl p-3 sm:p-4 border border-purple-500/30 mb-4 sm:mb-6">
+        <div className="flex flex-wrap gap-2 sm:gap-4">
           <button
             onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-lg transition-all duration-200 ${
+            className={`px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg transition-all duration-200 ${
               filter === 'all' ? 'bg-purple-600 text-white' : 'bg-black/60 text-gray-300 hover:bg-purple-500/20'
             }`}
           >
@@ -111,7 +111,7 @@ function EventApproval() {
           </button>
           <button
             onClick={() => setFilter('pending')}
-            className={`px-4 py-2 rounded-lg transition-all duration-200 ${
+            className={`px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg transition-all duration-200 ${
               filter === 'pending' ? 'bg-purple-600 text-white' : 'bg-black/60 text-gray-300 hover:bg-purple-500/20'
             }`}
           >
@@ -119,7 +119,7 @@ function EventApproval() {
           </button>
           <button
             onClick={() => setFilter('approved')}
-            className={`px-4 py-2 rounded-lg transition-all duration-200 ${
+            className={`px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg transition-all duration-200 ${
               filter === 'approved' ? 'bg-purple-600 text-white' : 'bg-black/60 text-gray-300 hover:bg-purple-500/20'
             }`}
           >
@@ -127,7 +127,7 @@ function EventApproval() {
           </button>
           <button
             onClick={() => setFilter('rejected')}
-            className={`px-4 py-2 rounded-lg transition-all duration-200 ${
+            className={`px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg transition-all duration-200 ${
               filter === 'rejected' ? 'bg-purple-600 text-white' : 'bg-black/60 text-gray-300 hover:bg-purple-500/20'
             }`}
           >
@@ -145,57 +145,57 @@ function EventApproval() {
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="ml-4 text-gray-300">Loading requests...</p>
+          <p className="ml-4 text-sm sm:text-base text-gray-300">Loading requests...</p>
         </div>
       ) : requests.length === 0 ? (
-        <div className="bg-black/60 border border-purple-500/20 rounded-xl p-8 text-center">
-          <p className="text-gray-400 text-lg">No booking requests found</p>
+        <div className="bg-black/60 border border-purple-500/20 rounded-xl p-6 sm:p-8 text-center">
+          <p className="text-gray-400 text-base sm:text-lg">No booking requests found</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {requests.map((request) => (
             <div
               key={request._id}
-              className="bg-black/80 backdrop-blur-xl rounded-xl p-6 border border-purple-500/30 hover:border-purple-500/50 transition-all duration-300"
+              className="bg-black/80 backdrop-blur-xl rounded-xl p-4 sm:p-6 border border-purple-500/30 hover:border-purple-500/50 transition-all duration-300"
             >
-              <div className="flex items-center justify-between mb-4">
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(request.status)}`}>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold border w-fit ${getStatusColor(request.status)}`}>
                   {request.status.toUpperCase()}
                 </span>
                 <span className="text-xs text-gray-400">{formatDate(request.requestedAt)}</span>
               </div>
 
-              <h3 className="text-xl font-bold text-white mb-2">{request.title}</h3>
-              <p className="text-gray-300 text-sm mb-4">{request.organizationName}</p>
+              <h3 className="text-lg sm:text-xl font-bold text-white mb-2 break-words">{request.title}</h3>
+              <p className="text-gray-300 text-sm mb-4 break-words">{request.organizationName}</p>
 
-              <div className="space-y-2 text-sm mb-4">
-                <div className="flex items-center gap-2 text-gray-300">
-                  <span>📅</span>
-                  <span>{formatDate(request.startTime)}</span>
+              <div className="space-y-2 text-xs sm:text-sm mb-4">
+                <div className="flex items-start gap-2 text-gray-300">
+                  <span className="mt-0.5">📅</span>
+                  <span className="break-words">{formatDate(request.startTime)}</span>
                 </div>
-                <div className="flex items-center gap-2 text-gray-300">
-                  <span>⏰</span>
-                  <span>Until: {formatDate(request.endTime)}</span>
+                <div className="flex items-start gap-2 text-gray-300">
+                  <span className="mt-0.5">⏰</span>
+                  <span className="break-words">Until: {formatDate(request.endTime)}</span>
                 </div>
-                <div className="flex items-center gap-2 text-purple-400">
-                  <span>📍</span>
-                  <span>{request.auditoriumName}</span>
+                <div className="flex items-start gap-2 text-purple-400">
+                  <span className="mt-0.5">📍</span>
+                  <span className="break-words">{request.auditoriumName}</span>
                 </div>
-                <div className="flex items-center gap-2 text-gray-300">
-                  <span>👤</span>
-                  <span>{request.organizerName} ({request.organizerEmail})</span>
+                <div className="flex items-start gap-2 text-gray-300">
+                  <span className="mt-0.5">👤</span>
+                  <span className="break-words">{request.organizerName} ({request.organizerEmail})</span>
                 </div>
               </div>
 
               {request.description && (
-                <p className="text-gray-400 text-sm mb-4 line-clamp-2">{request.description}</p>
+                <p className="text-gray-400 text-xs sm:text-sm mb-4 line-clamp-2 break-words">{request.description}</p>
               )}
 
               {request.status === 'pending' && (
                 <div className="flex gap-3 mt-4">
                   <button
                     onClick={() => setSelectedRequest(request)}
-                    className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all duration-200"
+                    className="flex-1 px-4 py-2 text-sm sm:text-base bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all duration-200"
                   >
                     Review
                   </button>
@@ -208,23 +208,24 @@ function EventApproval() {
 
       {/* Review Modal */}
       {selectedRequest && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-black/95 backdrop-blur-xl rounded-2xl p-6 border border-purple-500/30 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-purple-400">Review Booking Request</h2>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-black/95 backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-purple-500/30 max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-purple-400">Review Booking Request</h2>
               <button
                 onClick={() => {
                   setSelectedRequest(null);
                   setAdminNotes('');
                   setReviewedBy('');
                 }}
-                className="text-gray-400 hover:text-white text-2xl"
+                className="text-gray-400 hover:text-white text-2xl sm:text-3xl p-1"
+                aria-label="Close"
               >
                 ×
               </button>
             </div>
 
-            <div className="space-y-4 mb-6">
+            <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
               {/* Event Image Preview */}
               {selectedRequest.image && (
                 <div>
@@ -244,28 +245,28 @@ function EventApproval() {
 
               <div>
                 <label className="block text-sm font-semibold text-purple-400 mb-2">Event Title</label>
-                <p className="text-white">{selectedRequest.title}</p>
+                <p className="text-white text-sm sm:text-base break-words">{selectedRequest.title}</p>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-purple-400 mb-2">Organization</label>
-                <p className="text-white">{selectedRequest.organizationName}</p>
+                <p className="text-white text-sm sm:text-base break-words">{selectedRequest.organizationName}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-purple-400 mb-2">Start Time</label>
-                  <p className="text-white">{formatDate(selectedRequest.startTime)}</p>
+                  <p className="text-white text-sm sm:text-base break-words">{formatDate(selectedRequest.startTime)}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-purple-400 mb-2">End Time</label>
-                  <p className="text-white">{formatDate(selectedRequest.endTime)}</p>
+                  <p className="text-white text-sm sm:text-base break-words">{formatDate(selectedRequest.endTime)}</p>
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-purple-400 mb-2">Location/Auditorium</label>
-                <p className="text-white font-semibold mb-2">{selectedRequest.auditoriumName}</p>
+                <p className="text-white text-sm sm:text-base font-semibold mb-2 break-words">{selectedRequest.auditoriumName}</p>
                 {/* Availability Check */}
                 <div className="mt-2">
                   <button
@@ -308,7 +309,7 @@ function EventApproval() {
                         setLoading(false);
                       }
                     }}
-                    className="mt-2 px-4 py-2 text-sm bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50 rounded-lg text-purple-300 font-semibold transition-all duration-200"
+                    className="mt-2 w-full sm:w-auto px-3 sm:px-4 py-2 text-xs sm:text-sm bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50 rounded-lg text-purple-300 font-semibold transition-all duration-200"
                   >
                     🔍 Check Availability Now
                   </button>
@@ -321,14 +322,14 @@ function EventApproval() {
               {selectedRequest.description && (
                 <div>
                   <label className="block text-sm font-semibold text-purple-400 mb-2">Description</label>
-                  <p className="text-white">{selectedRequest.description}</p>
+                  <p className="text-white text-sm sm:text-base break-words">{selectedRequest.description}</p>
                 </div>
               )}
 
               {selectedRequest.registrationFormUrl && (
                 <div>
                   <label className="block text-sm font-semibold text-purple-400 mb-2">Registration Form</label>
-                  <a href={selectedRequest.registrationFormUrl} target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline">
+                  <a href={selectedRequest.registrationFormUrl} target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline text-xs sm:text-sm break-all">
                     {selectedRequest.registrationFormUrl}
                   </a>
                 </div>
@@ -337,13 +338,13 @@ function EventApproval() {
               {selectedRequest.announcementContent && (
                 <div>
                   <label className="block text-sm font-semibold text-purple-400 mb-2">Announcement Content</label>
-                  <p className="text-white">{selectedRequest.announcementContent}</p>
+                  <p className="text-white text-sm sm:text-base break-words">{selectedRequest.announcementContent}</p>
                 </div>
               )}
 
               <div>
                 <label className="block text-sm font-semibold text-purple-400 mb-2">Contact</label>
-                <p className="text-white">{selectedRequest.organizerName} ({selectedRequest.organizerEmail})</p>
+                <p className="text-white text-sm sm:text-base break-words">{selectedRequest.organizerName} ({selectedRequest.organizerEmail})</p>
               </div>
 
               <div>
@@ -369,18 +370,18 @@ function EventApproval() {
               </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => handleReject(selectedRequest._id)}
                 disabled={processing === selectedRequest._id}
-                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 text-sm sm:text-base bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {processing === selectedRequest._id ? 'Processing...' : 'Reject'}
               </button>
               <button
                 onClick={() => handleApprove(selectedRequest._id)}
                 disabled={processing === selectedRequest._id}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 text-sm sm:text-base bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {processing === selectedRequest._id ? 'Processing...' : 'Approve'}
               </button>

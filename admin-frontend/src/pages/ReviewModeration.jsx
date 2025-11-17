@@ -159,14 +159,14 @@ function ReviewModeration() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-purple-400 mb-2">Review Moderation</h1>
-            <p className="text-gray-300">Moderate reviews for campus buildings</p>
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-purple-400 mb-2">Review Moderation</h1>
+        <p className="text-sm sm:text-base text-gray-300">Moderate reviews for campus buildings</p>
       </div>
 
       {/* Filters and Sorting */}
-      <div className="bg-black/80 backdrop-blur-xl rounded-xl p-4 border border-purple-500/30 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="bg-black/80 backdrop-blur-xl rounded-xl p-3 sm:p-4 border border-purple-500/30 mb-4 sm:mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           {/* Filter by Building */}
           <div>
             <label className="block text-sm font-semibold text-purple-400 mb-2">
@@ -222,33 +222,33 @@ function ReviewModeration() {
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="ml-4 text-gray-300">Loading...</p>
+          <p className="ml-4 text-sm sm:text-base text-gray-300">Loading...</p>
         </div>
       ) : filteredAndSortedItems.length === 0 ? (
-        <div className="bg-black/60 border border-purple-500/20 rounded-xl p-8 text-center">
-          <p className="text-gray-400 text-lg">
+        <div className="bg-black/60 border border-purple-500/20 rounded-xl p-6 sm:p-8 text-center">
+          <p className="text-gray-400 text-base sm:text-lg">
              {filterBuilding !== 'all' 
                ? `No reviews found for ${filterBuilding}` 
                : 'No reviews found'}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {filteredAndSortedItems.map((item) => {
             const imageSrc = getImageSrc(item);
             
             return (
               <div
                 key={item._id}
-                className="bg-black/80 backdrop-blur-xl rounded-xl p-6 border border-purple-500/30 hover:border-purple-500/50 transition-all duration-300"
+                className="bg-black/80 backdrop-blur-xl rounded-xl p-4 sm:p-6 border border-purple-500/30 hover:border-purple-500/50 transition-all duration-300"
               >
-                 <div className="flex items-center justify-between mb-4">
-                   <span className="text-sm font-semibold text-purple-400">{item.buildingId}</span>
+                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                   <span className="text-sm font-semibold text-purple-400 break-words">{item.buildingId}</span>
                    <span className="text-xs text-gray-400">{formatDate(item.createdAt)}</span>
                  </div>
 
                 {item.comment && (
-                  <p className="text-white mb-4">{item.comment}</p>
+                  <p className="text-white text-sm sm:text-base mb-4 break-words">{item.comment}</p>
                 )}
 
                 {imageSrc && (
@@ -256,7 +256,7 @@ function ReviewModeration() {
                     <img
                       src={imageSrc}
                       alt={item.comment || item.filename || 'Review photo'}
-                      className="w-full h-48 object-cover rounded-lg"
+                      className="w-full h-40 sm:h-48 object-cover rounded-lg"
                       onError={(e) => {
                         e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23333" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EImage not available%3C/text%3E%3C/svg%3E';
                       }}
@@ -265,13 +265,13 @@ function ReviewModeration() {
                 )}
 
                  {item.author && (
-                   <p className="text-sm text-gray-400 mb-4">By: {item.author}</p>
+                   <p className="text-xs sm:text-sm text-gray-400 mb-4 break-words">By: {item.author}</p>
                  )}
 
                  <button
                    onClick={() => handleDeleteReview(item._id)}
                    disabled={deleting === item._id}
-                   className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                   className="w-full px-4 py-2 text-sm sm:text-base bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                  >
                    {deleting === item._id ? 'Deleting...' : 'Delete Review'}
                  </button>
