@@ -75,23 +75,73 @@ export const getAllPhotosForModeration = async (req, res) => {
     
     const photos = [];
     
+    // Process main Photos directory
     for (const building of buildings) {
       const buildingPath = path.join(photosDir, building);
       const stat = await fs.stat(buildingPath);
       
-      if (stat.isDirectory()) {
+      if (stat.isDirectory() && building !== "Images") {
         const files = await fs.readdir(buildingPath);
         for (const file of files) {
+          // Skip hidden files, temp files, and non-image files
+          if (file.startsWith('.') || file.startsWith('~') || file.endsWith('.ahk')) {
+            continue;
+          }
+          
+          // Check if it's an image file
           if (file.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-            photos.push({
-              buildingName: building,
-              filename: file,
-              path: `/api/buildings/photos/${building}/${file}`,
-              url: `/uploads/Photos/${building}/${file}`,
-            });
+            const filePath = path.join(buildingPath, file);
+            const fileStat = await fs.stat(filePath);
+            // Make sure it's actually a file, not a directory
+            if (fileStat.isFile()) {
+              photos.push({
+                buildingName: building,
+                filename: file,
+                path: `/api/buildings/photos/${building}/${file}`,
+                url: `/uploads/Photos/${building}/${file}`,
+              });
+            }
           }
         }
       }
+    }
+    
+    // Also process Images subdirectory
+    const imagesDir = path.join(photosDir, "Images");
+    try {
+      const imageBuildings = await fs.readdir(imagesDir);
+      for (const building of imageBuildings) {
+        const buildingPath = path.join(imagesDir, building);
+        const stat = await fs.stat(buildingPath);
+        
+        if (stat.isDirectory()) {
+          const files = await fs.readdir(buildingPath);
+          for (const file of files) {
+            // Skip hidden files
+            if (file.startsWith('.') || file.startsWith('~')) {
+              continue;
+            }
+            
+            // Check if it's an image file
+            if (file.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+              const filePath = path.join(buildingPath, file);
+              const fileStat = await fs.stat(filePath);
+              // Make sure it's actually a file, not a directory
+              if (fileStat.isFile()) {
+                photos.push({
+                  buildingName: building,
+                  filename: file,
+                  path: `/api/buildings/photos/${building}/${file}`,
+                  url: `/uploads/Photos/${building}/${file}`,
+                });
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      // Images directory doesn't exist, that's okay
+      console.log('Images subdirectory not found, skipping...');
     }
     
     console.log(`✅ Found ${photos.length} photos for moderation`);

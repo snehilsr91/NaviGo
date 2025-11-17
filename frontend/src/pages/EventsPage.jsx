@@ -27,7 +27,6 @@ const EventsPage = () => {
     organizerEmail: "",
     category: "Other",
     auditoriumName: "",
-    location: "",
     eventDate: "",
     startTime: "",
     endTime: "",
@@ -266,7 +265,6 @@ const EventsPage = () => {
         ...bookingFormData,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
-        location: bookingFormData.location || bookingFormData.auditoriumName,
         maxParticipants: bookingFormData.maxParticipants ? parseInt(bookingFormData.maxParticipants) : undefined,
       };
       
@@ -284,7 +282,6 @@ const EventsPage = () => {
         organizerEmail: "",
         category: "Other",
         auditoriumName: "",
-        location: "",
         eventDate: "",
         startTime: "",
         endTime: "",
@@ -382,6 +379,13 @@ const EventsPage = () => {
         {/* Event Title */}
         <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{event.title}</h3>
 
+        {/* Organization */}
+        {event.organizer && (
+          <p className="text-gray-300 text-xs sm:text-sm mb-2 font-medium">
+            {event.organizer}
+          </p>
+        )}
+
         {/* Description */}
         {event.description && (
           <p className="text-gray-400 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2 leading-relaxed">
@@ -409,11 +413,6 @@ const EventsPage = () => {
             <span className="text-sm sm:text-base">📍</span>
             <span className="font-semibold leading-tight">{event.location}</span>
           </div>
-          {event.auditoriumBooked && event.auditoriumName && (
-            <div className="text-[10px] sm:text-xs text-gray-400 ml-5 sm:ml-6 leading-tight">
-              Auditorium: {event.auditoriumName}
-            </div>
-          )}
         </div>
 
         {/* Participants Count */}
@@ -829,20 +828,6 @@ const EventsPage = () => {
                   {checkingAvailability ? "Checking..." : "🔍 Check Availability"}
                 </button>
               )}
-
-              {/* Location */}
-              <div>
-                <label className="block text-sm font-semibold text-purple-400 mb-2">
-                  Location (optional)
-                </label>
-                <input
-                  type="text"
-                  value={bookingFormData.location}
-                  onChange={(e) => setBookingFormData({ ...bookingFormData, location: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-black/60 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500/50"
-                  placeholder="Building name or additional location details"
-                />
-              </div>
 
               {/* Description */}
               <div>

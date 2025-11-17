@@ -228,6 +228,79 @@ Specialties:
 - Light meals and snacks
 - Seasonal specials
 
+Menu:
+
+📌 MENU ITEMS
+
+🥣 BREAKFAST:
+- Idli (1)
+- Idli (3)
+- Vada (1)
+- Vada (2)
+- Idli Vada (3+1)
+- Thatte Idli (1)
+- Thatte Idli (2)
+- Thatte Idli + Vada
+- Masala Dosa
+- Benne Masala Dosa
+- Set Dosa (3)
+- Benne Set Dosa (3)
+- Onion Dosa
+- Uttappa
+- Paper Dosa
+- Benne Paper Dosa
+- Chapati (2)
+- Parota (2)
+- Rice Bath
+- Bisibele Bath
+- Vangi Bath
+- Puliyogare
+- Curd Rice
+- Rice Sambar
+- Bajji / Bonda
+
+🍟 SNACKS:
+- Gobi Manchurian
+- French Fries
+- Vada Pav
+- Pav Bhaji
+- Bhel Puri / Churumuri
+- Nippat Masala
+- Masala Puri
+- Sev Puri (6)
+- Dahi Puri (6)
+- Pani Puri (6)
+
+🍚 RICE:
+- Jeera Fried Rice
+- Veg Fried Rice
+- Paneer Fried Rice
+- Mushroom Fried Rice
+- Corn Fried Rice
+- Ghee Rice
+
+🍹 JUICES:
+- Watermelon
+- Musk Melon Milkshake
+- Sapota Milkshake
+- Butter Fruit Milkshake
+- Dragon Fruit Milkshake
+- Grape
+- Buttermilk
+- Lassi
+
+☕ BEVERAGES:
+- Tea
+- Lemon Tea
+- Coffee
+- Milk
+- Badam Milk
+- Boost
+- Horlicks
+
+⭐ Daily Specials:
+Available depending on the day.
+
 
 8. Gym
 --------
@@ -269,6 +342,80 @@ Services:
 - Daily fresh products
 - Custom cake orders for special occasions
 - Student discount available
+
+Menu:
+
+📌 Snacks & Rolls:
+- Parota Veg Roll
+- Parota Paneer Roll
+- Maggie
+- Cheese Maggie
+- Sweet Corn
+- Cheese Mayo Sandwich
+- Masala Puri
+- Bhel Puri
+- Birthday Cake (Also Available)
+
+📌 Tea, Coffee & Drinks:
+- Lemon Tea
+- Green Tea
+- Ginger Tea
+- Coffee
+- Cold Coffee
+- Black Coffee
+- Badam Milk
+- Butter Milk
+- Horlicks
+- Boost
+- Lemon Soda
+- Soup
+- Milkshakes (also available)
+
+📌 Chats Items:
+- Churumuri
+- Nippat Masala
+- Chips Masala
+- Cucumber Slice
+- Tomato Slice
+- Sev Puri
+- Dahi Puri
+- Kurkure Masala
+- Peanut Masala
+- Lays Masala
+
+📌 Fresh Fruit Juices:
+- Watermelon
+- Musk Melon
+- Pineapple
+- Mosambi
+- Chiku
+- Grape
+- Lemon
+- Apple
+- Pomegranate
+- Mango (Seasonal)
+
+📌 Ice Creams:
+- Chocolate
+- Vanilla
+- Pista
+- Strawberry
+- Mango
+- Butterscotch
+- Orange
+- Black Currant
+- Fig-O-Honey
+
+📌 Milkshakes:
+- Chocolate
+- Vanilla
+- Pista
+- Strawberry
+- Mango
+- Green Apple
+- Black Currant
+- Oreo Milkshake
+- Bourbon Milkshake
 
 
 10. Parking

@@ -70,8 +70,10 @@ export const createBookingRequest = async (req, res) => {
     }
     
     // Create booking request
+    // Automatically set location to auditoriumName if location is not provided
     const bookingRequest = new EventBookingRequest({
       ...requestData,
+      location: requestData.location || requestData.auditoriumName,
       startTime,
       endTime,
       status: 'pending',
@@ -220,7 +222,7 @@ export const approveBookingRequest = async (req, res) => {
     const eventData = {
       title: bookingRequest.title,
       description: bookingRequest.description || bookingRequest.announcementContent,
-      location: bookingRequest.location || bookingRequest.auditoriumName,
+      location: bookingRequest.auditoriumName, // Use auditoriumName as location
       locationCoordinates: bookingRequest.locationCoordinates,
       startDate: bookingRequest.startTime,
       endDate: bookingRequest.endTime,
@@ -232,6 +234,7 @@ export const approveBookingRequest = async (req, res) => {
       auditoriumBooked: true,
       auditoriumName: bookingRequest.auditoriumName,
       image: bookingRequest.image || null, // Include image from booking request
+      registrationFormUrl: bookingRequest.registrationFormUrl || null, // Include registration form URL
       status: new Date(bookingRequest.startTime) <= new Date() && new Date(bookingRequest.endTime) >= new Date() ? 'ongoing' : 'upcoming',
     };
     

@@ -63,6 +63,10 @@ const eventSchema = new mongoose.Schema({
     type: String, // Base64 or URL
     required: false,
   },
+  registrationFormUrl: {
+    type: String,
+    required: false,
+  },
   status: {
     type: String,
     enum: ['upcoming', 'ongoing', 'completed', 'cancelled'],

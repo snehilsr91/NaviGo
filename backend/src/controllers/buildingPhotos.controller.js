@@ -52,11 +52,23 @@ export const getPlacePhotos = async (req, res) => {
     // Read all files from the directory
     const files = readdirSync(buildingPath);
 
-    // Filter image files
+    // Filter image files (case-insensitive, exclude hidden files and directories)
     const imageFiles = files.filter((file) => {
+      // Skip hidden files and directories
+      if (file.startsWith('.') || file.startsWith('~')) {
+        return false;
+      }
+      
+      // Check if it's a file (not a directory)
+      const filePath = join(buildingPath, file);
+      if (!existsSync(filePath) || !statSync(filePath).isFile()) {
+        return false;
+      }
+      
+      // Check file extension (case-insensitive)
       const ext = file.toLowerCase().split(".").pop();
       return ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
-    });
+    }).sort(); // Sort alphabetically for consistent ordering
 
     // Create URLs for each photo
     const photos = imageFiles.map((file) => {
@@ -65,6 +77,8 @@ export const getPlacePhotos = async (req, res) => {
       )}/${encodeURIComponent(file)}`;
     });
 
+    console.log(`📸 Found ${photos.length} photos for place: ${decodedPlaceName}`);
+    
     return res.json({
       success: true,
       place: decodedPlaceName,
@@ -162,9 +176,19 @@ export const getAllBuildingsWithPhotos = async (req, res) => {
           const placePath = join(imagesBasePath, dirent.name);
           const files = readdirSync(placePath);
           const imageFiles = files.filter((file) => {
+            // Skip hidden files
+            if (file.startsWith('.') || file.startsWith('~')) {
+              return false;
+            }
+            // Check if it's a file
+            const filePath = join(placePath, file);
+            if (!existsSync(filePath) || !statSync(filePath).isFile()) {
+              return false;
+            }
+            // Check file extension (case-insensitive)
             const ext = file.toLowerCase().split(".").pop();
             return ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
-          });
+          }).sort();
 
           return {
             name: dirent.name,
@@ -191,9 +215,19 @@ export const getAllBuildingsWithPhotos = async (req, res) => {
           const placePath = join(photosBasePath, dirent.name);
           const files = readdirSync(placePath);
           const imageFiles = files.filter((file) => {
+            // Skip hidden files and non-image files like script.ahk
+            if (file.startsWith('.') || file.startsWith('~') || file.endsWith('.ahk')) {
+              return false;
+            }
+            // Check if it's a file
+            const filePath = join(placePath, file);
+            if (!existsSync(filePath) || !statSync(filePath).isFile()) {
+              return false;
+            }
+            // Check file extension (case-insensitive)
             const ext = file.toLowerCase().split(".").pop();
             return ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
-          });
+          }).sort();
 
           return {
             name: dirent.name,

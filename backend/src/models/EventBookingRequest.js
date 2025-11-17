@@ -45,7 +45,7 @@ const eventBookingRequestSchema = new mongoose.Schema({
   },
   location: {
     type: String,
-    required: true,
+    required: false, // Will be auto-set from auditoriumName if not provided
   },
   locationCoordinates: {
     lat: { type: Number, required: false },

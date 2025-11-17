@@ -29,7 +29,9 @@ const MapPage = () => {
   }, [googleMapsApiKey]);
 
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: googleMapsApiKey,
+    googleMapsApiKey: googleMapsApiKey || '',
+    libraries: ['places', 'geometry'], // Add required libraries
+    version: 'weekly', // Use weekly version for latest features
   });
 
   const options = useMemo(
@@ -305,7 +307,21 @@ const MapPage = () => {
                   </p>
                 </>
               ) : (
-                <p>Please check your internet connection and try again.</p>
+                <>
+                  <p className="text-red-300 mb-3">Error loading Google Maps: {loadError?.message || 'Unknown error'}</p>
+                  <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mt-4">
+                    <p className="font-semibold text-red-300 mb-2">Common fixes for "Do you own this website?" error:</p>
+                    <ol className="list-decimal list-inside space-y-2 text-sm text-gray-300">
+                      <li>Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline">Google Cloud Console → APIs & Services → Credentials</a></li>
+                      <li>Click on your API key</li>
+                      <li>Under "Application restrictions", select "HTTP referrers (web sites)"</li>
+                      <li>Add your domain(s): <code className="bg-black/60 px-2 py-1 rounded">*.vercel.app/*</code> and <code className="bg-black/60 px-2 py-1 rounded">yourdomain.com/*</code></li>
+                      <li>Under "API restrictions", ensure "Maps JavaScript API" and "Directions API" are enabled</li>
+                      <li>Make sure billing is enabled in your Google Cloud project</li>
+                      <li>Redeploy your frontend after updating the API key</li>
+                    </ol>
+                  </div>
+                </>
               )}
             </div>
           </div>
