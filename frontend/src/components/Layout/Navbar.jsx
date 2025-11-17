@@ -12,6 +12,7 @@ const Navbar = () => {
     { label: "Start AR", href: "/ar" },
     { label: "AI Assistant", href: "/ai-chat" },
     { label: "Find", href: "/find-teacher" },
+    { label: "Events", href: "/events" },
   ];
 
   const isMapPage = location.pathname === "/map";
@@ -24,10 +25,10 @@ const Navbar = () => {
       activeHref={location.pathname}
       className={`navi-go-navbar ${isMapPage ? "map-page-navbar" : ""}`}
       ease="power2.out"
-      baseColor="transparent"
-      pillColor="#ffffff"
+      baseColor="#8b5cf6"
+      pillColor="#000000"
       hoveredPillTextColor="#ffffff"
-      pillTextColor="#7c3aed"
+      pillTextColor="#a78bfa"
       initialLoadAnimation={true}
       isMapPage={isMapPage}
     />

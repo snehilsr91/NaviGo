@@ -2,28 +2,20 @@ import * as tf from '@tensorflow/tfjs';
 import * as mobilenet from '@tensorflow-models/mobilenet';
 
 /**
- * Building Detector using MobileNet feature extraction
- * Detects Shankaracharya Bhavan based on visual features
+ * Place Detector using MobileNet feature extraction and image similarity
+ * Detects any place based on reference images
  */
 class BuildingDetector {
   constructor() {
     this.model = null;
     this.isInitialized = false;
-    this.detectionThreshold = 0.5; // Confidence threshold for detection
+    this.referenceFeatures = new Map(); // Map<placeName, Array<featureVectors>>
+    this.placesLoaded = false;
+    this.detectionThreshold = 0.65; // Cosine similarity threshold (0.65 = 65% similarity)
+    this.maxReferenceImages = 5; // Limit reference images per place for performance
     
-    // Known building features (architectural patterns we look for)
-    this.buildingFeatures = {
-      'Shankaracharya Bhavan': {
-        // Visual features that identify this building
-        keywords: ['building', 'structure', 'architecture', 'facade', 'window'],
-        minConfidence: 0.4,
-        // Color signatures (can be enhanced with actual color analysis)
-        colorProfile: {
-          dominant: 'beige',
-          secondary: 'brown'
-        }
-      }
-    };
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    this.apiBaseUrl = API_URL.replace('/api', '');
   }
 
   /**
@@ -35,22 +27,171 @@ class BuildingDetector {
     }
 
     try {
-      console.log('🏢 Initializing Building Detector...');
+      console.log('🏢 Initializing Place Detector...');
       await tf.setBackend('webgl');
       await tf.ready();
       
       // Load MobileNet for feature extraction
       this.model = await mobilenet.load();
       this.isInitialized = true;
-      console.log('✅ Building Detector initialized successfully');
+      console.log('✅ Place Detector initialized successfully');
+      
+      // Load reference images for all places
+      await this.loadAllPlaces();
     } catch (error) {
-      console.error('❌ Failed to initialize Building Detector:', error);
+      console.error('❌ Failed to initialize Place Detector:', error);
       throw error;
     }
   }
 
   /**
-   * Detect if the image contains Shankaracharya Bhavan
+   * Load all places and their reference images from backend
+   */
+  async loadAllPlaces() {
+    if (this.placesLoaded) {
+      return;
+    }
+
+    try {
+      console.log('📸 Loading reference images for all places...');
+      const response = await fetch(`${this.apiBaseUrl}/api/buildings/all-with-photos`);
+      const data = await response.json();
+      
+      if (!data.success || !data.places) {
+        console.warn('⚠️ No places found or error loading places');
+        return;
+      }
+
+      console.log(`📁 Found ${data.places.length} places with photos`);
+      
+      // Load reference images for each place
+      for (const place of data.places) {
+        if (place.photoUrls && place.photoUrls.length > 0) {
+          await this.loadReferenceImagesForPlace(place.name, place.photoUrls);
+        }
+      }
+      
+      this.placesLoaded = true;
+      console.log(`✅ Loaded reference images for ${this.referenceFeatures.size} places`);
+    } catch (error) {
+      console.error('❌ Error loading places:', error);
+    }
+  }
+
+  /**
+   * Load and extract features from reference images for a specific place
+   */
+  async loadReferenceImagesForPlace(placeName, photoUrls) {
+    try {
+      const featureVectors = [];
+      const imageUrlsToLoad = photoUrls.slice(0, this.maxReferenceImages); // Limit for performance
+      
+      console.log(`  Loading ${imageUrlsToLoad.length} reference images for: ${placeName}`);
+      
+      for (const photoUrl of imageUrlsToLoad) {
+        try {
+          const fullUrl = photoUrl.startsWith('http') 
+            ? photoUrl 
+            : `${this.apiBaseUrl}${photoUrl}`;
+          
+          // Load image with timeout
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          
+          await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+              reject(new Error('Image loading timeout'));
+            }, 10000); // 10 second timeout
+            
+            img.onload = () => {
+              clearTimeout(timeout);
+              resolve();
+            };
+            img.onerror = (err) => {
+              clearTimeout(timeout);
+              reject(new Error(`Failed to load image: ${fullUrl}`));
+            };
+            img.src = fullUrl;
+          });
+          
+          // Extract feature vector using MobileNet
+          const features = await this.extractFeatures(img);
+          if (features) {
+            featureVectors.push(features);
+          }
+        } catch (err) {
+          console.warn(`    Failed to load image ${photoUrl}:`, err.message);
+        }
+      }
+      
+      if (featureVectors.length > 0) {
+        this.referenceFeatures.set(placeName, featureVectors);
+        console.log(`    ✅ Loaded ${featureVectors.length} reference feature vectors for ${placeName}`);
+      }
+    } catch (error) {
+      console.error(`❌ Error loading reference images for ${placeName}:`, error);
+    }
+  }
+
+  /**
+   * Extract feature vector from an image using MobileNet
+   * Returns a tensor representing the image features
+   */
+  async extractFeatures(imageElement) {
+    try {
+      if (!this.model) {
+        await this.initialize();
+      }
+      
+      // Use MobileNet's infer method to get feature vector
+      // This returns a 1024-dimensional feature vector
+      const embedding = this.model.infer(imageElement, true); // true = return embeddings
+      
+      // Normalize the feature vector for better cosine similarity comparison
+      const normalized = tf.div(embedding, tf.norm(embedding, 'euclidean'));
+      const features = await normalized.data();
+      
+      // Dispose tensors to free memory
+      embedding.dispose();
+      normalized.dispose();
+      
+      return Array.from(features);
+    } catch (error) {
+      console.error('Error extracting features:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Calculate cosine similarity between two feature vectors
+   */
+  cosineSimilarity(vec1, vec2) {
+    if (vec1.length !== vec2.length) {
+      return 0;
+    }
+    
+    let dotProduct = 0;
+    let norm1 = 0;
+    let norm2 = 0;
+    
+    for (let i = 0; i < vec1.length; i++) {
+      dotProduct += vec1[i] * vec2[i];
+      norm1 += vec1[i] * vec1[i];
+      norm2 += vec2[i] * vec2[i];
+    }
+    
+    norm1 = Math.sqrt(norm1);
+    norm2 = Math.sqrt(norm2);
+    
+    if (norm1 === 0 || norm2 === 0) {
+      return 0;
+    }
+    
+    return dotProduct / (norm1 * norm2);
+  }
+
+  /**
+   * Detect which place is in the image by comparing with reference images
    * @param {HTMLVideoElement|HTMLImageElement|HTMLCanvasElement} imageElement
    * @returns {Promise<Object>} Detection result
    */
@@ -59,114 +200,86 @@ class BuildingDetector {
       await this.initialize();
     }
 
+    if (this.referenceFeatures.size === 0) {
+      console.warn('⚠️ No reference images loaded yet');
+      return { detected: false, confidence: 0, building: null };
+    }
+
     try {
-      // Get predictions from MobileNet
-      const predictions = await this.model.classify(imageElement);
+      // Extract features from current frame
+      const currentFeatures = await this.extractFeatures(imageElement);
+      if (!currentFeatures) {
+        return { detected: false, confidence: 0, building: null };
+      }
       
-      // Analyze predictions to determine if it's a building
-      const buildingDetected = this.analyzePredictions(predictions);
+      // Compare with all reference images
+      let bestMatch = {
+        place: null,
+        similarity: 0,
+        matches: 0
+      };
       
-      return buildingDetected;
+      for (const [placeName, referenceVectors] of this.referenceFeatures.entries()) {
+        let maxSimilarity = 0;
+        let matches = 0;
+        
+        // Compare with all reference images for this place
+        for (const referenceVector of referenceVectors) {
+          const similarity = this.cosineSimilarity(currentFeatures, referenceVector);
+          maxSimilarity = Math.max(maxSimilarity, similarity);
+          
+          if (similarity > this.detectionThreshold) {
+            matches++;
+          }
+        }
+        
+        // Average similarity across all references
+        const avgSimilarity = referenceVectors.reduce((sum, ref) => 
+          sum + this.cosineSimilarity(currentFeatures, ref), 0) / referenceVectors.length;
+        
+        // Use both max similarity and average similarity
+        const combinedSimilarity = (maxSimilarity * 0.7) + (avgSimilarity * 0.3);
+        
+        if (combinedSimilarity > bestMatch.similarity) {
+          bestMatch = {
+            place: placeName,
+            similarity: combinedSimilarity,
+            matches: matches
+          };
+        }
+      }
+      
+      // Check if similarity meets threshold
+      if (bestMatch.similarity >= this.detectionThreshold && bestMatch.place) {
+        return {
+          detected: true,
+          confidence: bestMatch.similarity,
+          building: bestMatch.place,
+          matches: bestMatch.matches,
+          note: `Matched with ${bestMatch.matches} reference image(s)`
+        };
+      }
+      
+      return {
+        detected: false,
+        confidence: bestMatch.similarity,
+        building: null,
+        bestMatch: bestMatch.place,
+        note: 'Similarity below threshold'
+      };
     } catch (error) {
-      console.error('Error detecting building:', error);
+      console.error('Error detecting place:', error);
       return { detected: false, confidence: 0, building: null };
     }
   }
 
   /**
-   * Analyze MobileNet predictions to determine if it's Shankaracharya Bhavan
-   * @param {Array} predictions - Array of predictions from MobileNet
-   * @returns {Object} Detection result
+   * Reload reference images (useful after adding new places)
    */
-  analyzePredictions(predictions) {
-    // Look for building-related classes
-    const buildingClasses = [
-      'palace', 'monastery', 'church', 'mosque', 'library',
-      'theater', 'cinema', 'restaurant', 'bakery', 'barbershop',
-      'bookshop', 'shoe shop', 'confectionery', 'restaurant',
-      'prison', 'grocery store', 'apiary', 'cliff dwelling',
-      'boathouse', 'dome', 'bell cote', 'column', 'pedestal',
-      'library', 'barn', 'greenhouse', 'dock', 'lakeside'
-    ];
-
-    // Check if any prediction matches building-related classes
-    for (const pred of predictions) {
-      const className = pred.className.toLowerCase();
-      const confidence = pred.probability;
-      
-      // Check if it's a building-related class with sufficient confidence
-      const isBuilding = buildingClasses.some(bc => 
-        className.includes(bc.toLowerCase())
-      );
-      
-      if (isBuilding && confidence > this.buildingFeatures['Shankaracharya Bhavan'].minConfidence) {
-        return {
-          detected: true,
-          confidence: confidence,
-          building: 'Shankaracharya Bhavan',
-          className: pred.className,
-          allPredictions: predictions
-        };
-      }
-    }
-
-    // Even if no exact match, check for architectural features
-    const hasArchitecturalFeatures = predictions.some(pred => {
-      const className = pred.className.toLowerCase();
-      return (
-        className.includes('building') ||
-        className.includes('structure') ||
-        className.includes('facade') ||
-        className.includes('wall') ||
-        className.includes('window') ||
-        pred.probability > 0.6 // High confidence in any class
-      );
-    });
-
-    if (hasArchitecturalFeatures) {
-      const topPrediction = predictions[0];
-      return {
-        detected: true,
-        confidence: topPrediction.probability,
-        building: 'Shankaracharya Bhavan',
-        className: 'Building Structure',
-        allPredictions: predictions,
-        note: 'Detected based on architectural features'
-      };
-    }
-
-    return {
-      detected: false,
-      confidence: 0,
-      building: null,
-      allPredictions: predictions
-    };
-  }
-
-  /**
-   * Analyze color profile of the image
-   * @param {HTMLCanvasElement} canvas
-   * @returns {Object} Color analysis
-   */
-  analyzeColorProfile(canvas) {
-    const ctx = canvas.getContext('2d');
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
-    
-    let r = 0, g = 0, b = 0;
-    const pixelCount = data.length / 4;
-    
-    for (let i = 0; i < data.length; i += 4) {
-      r += data[i];
-      g += data[i + 1];
-      b += data[i + 2];
-    }
-    
-    return {
-      r: Math.round(r / pixelCount),
-      g: Math.round(g / pixelCount),
-      b: Math.round(b / pixelCount)
-    };
+  async reloadPlaces() {
+    this.placesLoaded = false;
+    this.referenceFeatures.clear();
+    await this.loadAllPlaces();
   }
 
   /**
@@ -178,6 +291,8 @@ class BuildingDetector {
       this.model = null;
       this.isInitialized = false;
     }
+    this.referenceFeatures.clear();
+    this.placesLoaded = false;
   }
 }
 
@@ -185,4 +300,3 @@ class BuildingDetector {
 const buildingDetector = new BuildingDetector();
 
 export default buildingDetector;
-

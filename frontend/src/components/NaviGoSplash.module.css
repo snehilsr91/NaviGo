@@ -1,0 +1,577 @@
+/* NaviGoSplash.module.css */
+
+.splashContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  min-width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #000000; /* Pure black background */
+  overflow: visible !important; /* Prevent clipping of animated text */
+  clip: auto !important;
+  clip-path: none !important;
+  z-index: 9999;
+  transition: background 0.8s ease-out;
+  color: white;
+  font-family: "Montserrat", sans-serif;
+  /* Ensure no clipping at container level */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.splashContainer.hidden {
+  /* Hide background but keep animated elements visible */
+  background: transparent !important;
+  pointer-events: none;
+  z-index: 1; /* Lower z-index but still visible */
+}
+
+.splashContainer.hidden .logoContainer {
+  /* Keep animated elements visible and interactive */
+  pointer-events: auto;
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 999 !important; /* Keep them visible above page content */
+  position: fixed !important; /* Ensure fixed positioning */
+  display: flex !important; /* Ensure flex display */
+}
+
+.splashContainer.hidden .pageTransition {
+  /* Hide the wave transition */
+  display: none !important;
+}
+
+/* Full-page transition effect - purple wave sweeping across */
+.pageTransition {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(88, 28, 135, 0.4) 30%,
+    rgba(107, 33, 168, 0.6) 50%,
+    rgba(88, 28, 135, 0.4) 70%,
+    transparent 100%
+  );
+  box-shadow: 0 0 100px rgba(88, 28, 135, 0.3);
+  animation: pageSweep 1.5s ease-in-out 2s forwards;
+  z-index: 5;
+}
+
+@keyframes pageSweep {
+  0% {
+    left: -100%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+.logoContainer {
+  position: fixed !important;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  filter: blur(10px);
+  /* Prevent ALL clipping during animations */
+  overflow: visible !important;
+  clip: auto !important;
+  clip-path: none !important;
+  /* Add VERY generous padding to prevent ANY clipping */
+  padding: 8rem 10rem;
+  min-width: fit-content;
+  min-height: fit-content;
+  width: auto;
+  height: auto;
+  /* Ensure it stays visible after animation */
+  will-change: transform, top, left;
+  /* Prevent element from being removed */
+  pointer-events: auto;
+  /* Ensure it persists */
+  animation-fill-mode: forwards;
+  /* Prevent rendering issues */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translate(-50%, -50%) translateZ(0); /* Force GPU acceleration */
+  /* Extra space to prevent any clipping */
+  box-sizing: content-box; /* Use content-box so padding doesn't affect size calculations */
+  margin: 0;
+
+  /* Animations */
+  animation: containerAppear 1s ease-out forwards,
+    moveToPosition 1.5s cubic-bezier(0.4, 0, 0.2, 1) 4.3s forwards; /* Start after color transition completes (2s delay + 2s duration = 4s + buffer) */
+}
+
+.logoContainer.moving {
+  /* After moving, ensure it stays in position */
+  animation-fill-mode: forwards;
+  transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+    top 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+    left 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes containerAppear {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8) translateZ(0);
+    filter: blur(10px);
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 8rem 10rem;
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) translateZ(0);
+    filter: blur(0);
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 8rem 10rem;
+  }
+}
+
+.logoText {
+  /* Default fallback values (will be overridden by extracted styles) */
+  --initial-size: 6rem; /* Start larger - will shrink */
+  --final-size: 3rem; /* text-5xl = 48px - default fallback */
+  font-size: var(--initial-size);
+  font-weight: 900; /* font-black default */
+  letter-spacing: -0.025em; /* tracking-tight default */
+  text-transform: uppercase;
+  line-height: 1.25; /* leading-tight default */
+  margin-bottom: 0;
+  font-family: "Poppins", sans-serif; /* Default from tailwind config */
+
+  /* Prevent ALL clipping and rendering issues */
+  will-change: font-size, color, background, transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0); /* Force GPU acceleration */
+  -webkit-font-smoothing: antialiased;
+  overflow: visible !important; /* Ensure text isn't clipped */
+  clip: auto !important;
+  clip-path: none !important;
+  /* Prevent text clipping during background-clip transition */
+  position: relative;
+  display: inline-block;
+  /* Add VERY generous space around text to prevent ANY clipping */
+  padding: 2rem 4rem;
+  margin: 0;
+  white-space: nowrap;
+  /* Extra protection against clipping */
+  box-sizing: content-box; /* Use content-box so padding doesn't affect size */
+  text-overflow: clip;
+  word-wrap: normal;
+  min-width: max-content;
+  width: auto;
+  height: auto;
+
+  /* Use extracted styles if available */
+  --extracted-font-size: var(--final-size);
+  --extracted-font-family: "Poppins", sans-serif;
+  --extracted-font-weight: 900;
+  --extracted-letter-spacing: -0.025em;
+  --extracted-line-height: 1.25;
+  --extracted-text-transform: uppercase;
+  --extracted-margin-bottom: 1rem;
+
+  /* Homepage purple gradient fallback (exact colors from homepage) */
+  --homepage-purple-gradient: linear-gradient(
+    to right,
+    #a78bfa,
+    #8b5cf6,
+    #7c3aed
+  );
+
+  /* Animations */
+  animation: whiteGlow 1s ease-in-out 1s forwards,
+    colorTransition 2s cubic-bezier(0.4, 0, 0.2, 1) 2s forwards,
+    /* Smooth cubic-bezier easing for fluid transition */ shrinkText 1.5s
+      cubic-bezier(0.4, 0, 0.2, 1) 4s forwards; /* Start after color transition completes */
+}
+
+.logoText.usingExtracted {
+  /* Use extracted exact styles from homepage */
+  font-family: var(--extracted-font-family);
+  font-weight: var(--extracted-font-weight);
+  letter-spacing: var(--extracted-letter-spacing);
+  line-height: var(--extracted-line-height);
+  text-transform: var(--extracted-text-transform);
+  margin-bottom: var(--extracted-margin-bottom);
+}
+
+@keyframes whiteGlow {
+  0% {
+    color: white;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+  100% {
+    color: white;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.9),
+      0 0 40px rgba(255, 255, 255, 0.7), 0 0 60px rgba(255, 255, 255, 0.5);
+  }
+}
+
+@keyframes colorTransition {
+  0% {
+    /* Pure white */
+    color: rgb(255, 255, 255);
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.9),
+      0 0 40px rgba(255, 255, 255, 0.7), 0 0 60px rgba(255, 255, 255, 0.5);
+    background: none;
+    -webkit-background-clip: initial;
+    background-clip: initial;
+    -webkit-text-fill-color: rgb(255, 255, 255);
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 2rem 4rem;
+  }
+  10% {
+    /* Extremely light purple - 95% white + 5% purple-300 */
+    color: rgb(
+      254,
+      252,
+      255
+    ); /* Interpolated: 255*0.95 + 192*0.05, 255*0.95 + 132*0.05, 255*0.95 + 252*0.05 */
+    text-shadow: 0 0 19px rgba(254, 252, 255, 0.88),
+      0 0 38px rgba(254, 252, 255, 0.68), 0 0 57px rgba(254, 252, 255, 0.48);
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 2rem 4rem;
+  }
+  20% {
+    /* Very very light purple - 90% white + 10% purple-300 */
+    color: rgb(
+      252,
+      250,
+      255
+    ); /* Interpolated: 255*0.9 + 192*0.1, 255*0.9 + 132*0.1, 255*0.9 + 252*0.1 */
+    text-shadow: 0 0 18px rgba(252, 250, 255, 0.86),
+      0 0 36px rgba(252, 250, 255, 0.66), 0 0 54px rgba(252, 250, 255, 0.46);
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 2rem 4rem;
+  }
+  30% {
+    /* Very light purple - 85% white + 15% purple-300 */
+    color: rgb(
+      251,
+      248,
+      255
+    ); /* Interpolated: 255*0.85 + 192*0.15, 255*0.85 + 132*0.15, 255*0.85 + 252*0.15 */
+    text-shadow: 0 0 17px rgba(251, 248, 255, 0.84),
+      0 0 34px rgba(251, 248, 255, 0.64), 0 0 51px rgba(251, 248, 255, 0.44);
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 2rem 4rem;
+  }
+  40% {
+    /* Light purple - 75% white + 25% purple-300 */
+    color: rgb(
+      248,
+      242,
+      254
+    ); /* Interpolated: 255*0.75 + 192*0.25, 255*0.75 + 132*0.25, 255*0.75 + 252*0.25 */
+    text-shadow: 0 0 16px rgba(248, 242, 254, 0.82),
+      0 0 32px rgba(248, 242, 254, 0.62), 0 0 48px rgba(248, 242, 254, 0.42);
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 2rem 4rem;
+  }
+  50% {
+    /* Medium-light purple - 65% white + 35% purple-300 */
+    color: rgb(
+      244,
+      233,
+      253
+    ); /* Interpolated: 255*0.65 + 192*0.35, 255*0.65 + 132*0.35, 255*0.65 + 252*0.35 */
+    text-shadow: 0 0 15px rgba(244, 233, 253, 0.8),
+      0 0 30px rgba(244, 233, 253, 0.6);
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 2rem 4rem;
+  }
+  60% {
+    /* Medium purple - 55% white + 45% purple-300 */
+    color: rgb(
+      239,
+      226,
+      253
+    ); /* Interpolated: 255*0.55 + 192*0.45, 255*0.55 + 132*0.45, 255*0.55 + 252*0.45 */
+    text-shadow: 0 0 14px rgba(239, 226, 253, 0.78),
+      0 0 28px rgba(239, 226, 253, 0.58);
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 2rem 4rem;
+  }
+  70% {
+    /* Medium-strong purple - 40% white + 60% purple-300 */
+    color: rgb(
+      230,
+      215,
+      253
+    ); /* Interpolated: 255*0.4 + 192*0.6, 255*0.4 + 132*0.6, 255*0.4 + 252*0.6 */
+    text-shadow: 0 0 13px rgba(230, 215, 253, 0.76),
+      0 0 26px rgba(230, 215, 253, 0.56);
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 2rem 4rem;
+  }
+  80% {
+    /* Strong purple - 25% white + 75% purple-300 */
+    color: rgb(
+      218,
+      194,
+      253
+    ); /* Interpolated: 255*0.25 + 192*0.75, 255*0.25 + 132*0.75, 255*0.25 + 252*0.75 */
+    text-shadow: 0 0 12px rgba(218, 194, 253, 0.74),
+      0 0 24px rgba(218, 194, 253, 0.54);
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 2rem 4rem;
+  }
+  88% {
+    /* Almost full purple-300 - 15% white + 85% purple-300 */
+    color: rgb(
+      203,
+      155,
+      252
+    ); /* Interpolated: 255*0.15 + 192*0.85, 255*0.15 + 132*0.85, 255*0.15 + 252*0.85 */
+    text-shadow: 0 0 11px rgba(203, 155, 252, 0.72),
+      0 0 22px rgba(203, 155, 252, 0.52);
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 2rem 4rem;
+  }
+  94% {
+    /* Nearly full purple-300 - 8% white + 92% purple-300 */
+    color: rgb(
+      196,
+      143,
+      252
+    ); /* Interpolated: 255*0.08 + 192*0.92, 255*0.08 + 132*0.92, 255*0.08 + 252*0.92 */
+    text-shadow: 0 0 10px rgba(196, 143, 252, 0.7),
+      0 0 20px rgba(196, 143, 252, 0.5);
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 2rem 4rem;
+  }
+  98% {
+    /* Almost exact purple-300 - 3% white + 97% purple-300 */
+    color: rgb(
+      193,
+      135,
+      252
+    ); /* Interpolated: 255*0.03 + 192*0.97, 255*0.03 + 132*0.97, 255*0.03 + 252*0.97 */
+    text-shadow: 0 0 9px rgba(193, 135, 252, 0.68),
+      0 0 18px rgba(193, 135, 252, 0.48);
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 2rem 4rem;
+  }
+  100% {
+    /* Final homepage gradient - transition ends with full gradient */
+    color: transparent;
+    background: var(
+      --extracted-background,
+      linear-gradient(to right, #c084fc, #c084fc, #c084fc)
+    ); /* Will use extracted gradient from homepage */
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    filter: opacity(1);
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 2rem 4rem;
+  }
+}
+
+@keyframes shrinkText {
+  0% {
+    font-size: var(--initial-size);
+    margin-bottom: 0;
+    /* Use homepage exact gradient - already applied from colorTransition */
+    background: var(--extracted-background, var(--homepage-purple-gradient));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 2rem 4rem;
+    /* Ensure enough space to prevent clipping */
+    min-width: max-content;
+    box-sizing: content-box;
+  }
+  100% {
+    font-size: var(--extracted-font-size, var(--final-size));
+    margin-bottom: var(--extracted-margin-bottom, var(--final-margin-bottom));
+    /* Keep homepage exact gradient during shrink */
+    background: var(--extracted-background, var(--homepage-purple-gradient));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 2rem 4rem;
+    /* Ensure enough space to prevent clipping */
+    min-width: max-content;
+    box-sizing: content-box;
+  }
+}
+
+.logoText.usingExtracted {
+  --final-size: var(--extracted-font-size);
+}
+
+/* Line and dot are now handled by homepage - removed from animation */
+
+@keyframes moveToPosition {
+  0% {
+    transform: translate(-50%, -50%) translateZ(0);
+    top: 50%;
+    left: 50%;
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 8rem 10rem;
+  }
+  100% {
+    /* Exact landing page position - keep transform centered */
+    transform: translate(-50%, -50%) translateZ(0);
+    top: var(--calculated-top, var(--final-top));
+    left: var(--calculated-left, 50%);
+    /* Ensure it stays visible */
+    opacity: 1;
+    visibility: visible;
+    z-index: 10;
+    overflow: visible !important;
+    clip: auto !important;
+    clip-path: none !important;
+    padding: 8rem 10rem;
+  }
+}
+
+.logoContainer.usingCalculated {
+  /* Use calculated position from JS if available */
+  --final-top: var(--calculated-top);
+}
+
+/* Responsive font sizes matching landing page exactly */
+@media (min-width: 640px) {
+  .logoText {
+    --initial-size: 7rem; /* Start larger */
+    --final-size: 3.75rem; /* sm:text-6xl = 60px - exact landing page size */
+    --final-margin-bottom: 1.5rem; /* sm:mb-6 = 1.5rem */
+  }
+
+  .lineContainer {
+    --initial-margin: 1.5rem;
+    --final-margin: 1.5rem; /* sm:mb-6 = 1.5rem */
+  }
+
+  .line {
+    --line-height: 0.25rem; /* sm:h-1 = 4px = 0.25rem */
+  }
+
+  .dot {
+    --dot-size: 0.75rem; /* sm:w-3 sm:h-3 = 12px = 0.75rem */
+  }
+}
+
+@media (min-width: 768px) {
+  .logoText {
+    --initial-size: 9rem; /* Start larger */
+    --final-size: 4.5rem; /* md:text-7xl = 72px - exact landing page size */
+    --final-margin-bottom: 1.5rem; /* md:mb-6 = 1.5rem */
+  }
+
+  .lineContainer {
+    --final-margin: 1.5rem; /* md:mb-6 = 1.5rem */
+  }
+
+  .line {
+    --line-height: 0.375rem; /* md:h-1.5 = 6px = 0.375rem */
+  }
+}
+
+@media (min-width: 1024px) {
+  .logoText {
+    --initial-size: 14rem; /* Start larger */
+    --final-size: 8rem; /* lg:text-9xl = 128px - exact landing page size */
+    --final-margin-bottom: 1.5rem; /* lg:mb-6 = 1.5rem */
+  }
+
+  .lineContainer {
+    --initial-margin: 2rem;
+    --final-margin: 1.5rem; /* lg:mb-6 = 1.5rem */
+  }
+}
+
+/* Base positioning calculations */
+.logoContainer {
+  --navbar-top: 1rem; /* top-4 = 16px default */
+  --navbar-height: 2.625rem; /* 42px from --nav-h */
+  --padding-top: 1.5rem; /* pt-24 = 24px default */
+  --final-top: calc(
+    (var(--navbar-top) + var(--navbar-height) + var(--padding-top)) / 2 + 50vh
+  );
+}
+
+@media (min-width: 640px) {
+  .logoContainer {
+    --padding-top: 1.75rem; /* sm:pt-28 = 28px */
+    --final-top: calc(
+      (var(--navbar-top) + var(--navbar-height) + var(--padding-top)) / 2 + 50vh
+    );
+  }
+}
+
+@media (min-width: 768px) {
+  .logoContainer {
+    --navbar-top: 1.5rem; /* md:top-6 = 24px */
+    --padding-top: 2rem; /* md:pt-32 = 32px */
+    --final-top: calc(
+      (var(--navbar-top) + var(--navbar-height) + var(--padding-top)) / 2 + 50vh
+    );
+  }
+}

@@ -251,99 +251,100 @@ const ARScene = () => {
   return (
     <div className="relative w-full h-full overflow-hidden">
       {mode === "menu" && (
-        <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 pt-20 relative">
-          {/* Background Image */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
-            style={{ backgroundImage: 'url(/unnamed.jpg)' }}
-          ></div>
-          {/* Gradient overlay - more transparent */}
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/50 to-indigo-900/50"></div>
-          <div className="relative z-10 w-full">
-          <div className="text-center max-w-lg mx-auto p-4 sm:p-12">
-            <div className="space-y-6">
-              <button
-                onClick={handleStartDetection}
-                className="w-full px-6 py-5 sm:px-8 sm:py-6 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:via-blue-500 hover:to-indigo-500 text-white rounded-2xl shadow-2xl text-lg sm:text-xl font-bold transition-all duration-300 transform hover:scale-105 hover:shadow-cyan-500/25 active:scale-95 backdrop-blur-sm border border-cyan-500/20"
-                disabled={isLoading}
-              >
-                <div className="flex items-center justify-center space-x-3">
-                  <span className="text-xl sm:text-2xl">🎯</span>
-                  <span>Start AR Detection</span>
-                </div>
-              </button>
-              
-              <button
-                onClick={handleStartLocationDetection}
-                className="w-full px-6 py-5 sm:px-8 sm:py-6 bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 hover:from-emerald-500 hover:via-green-500 hover:to-teal-500 text-white rounded-2xl shadow-2xl text-lg sm:text-xl font-bold transition-all duration-300 transform hover:scale-105 hover:shadow-emerald-500/25 active:scale-95 backdrop-blur-sm border border-emerald-500/20"
-                disabled={isLoading}
-              >
-                <div className="flex items-center justify-center space-x-3">
-                  {isLoading ? (
-                    <>
-                      <svg className="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <span>Detecting Location...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="text-xl sm:text-2xl">📍</span>
-                      <span>Start Location Detection</span>
-                    </>
-                  )}
-                </div>
-              </button>
-              
-              {locationError && (
-                <div className="bg-red-500/20 backdrop-blur-sm rounded-xl p-4 border border-red-500/50">
-                  <p className="text-red-200 text-sm flex items-center justify-center space-x-2">
-                    <span>⚠️</span>
-                    <span>{locationError}</span>
-                  </p>
-                </div>
-              )}
-              
-              <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50">
-                <p className="text-gray-300 text-sm flex items-center justify-center space-x-2">
-                  <span className="text-cyan-400">📹</span>
-                  <span>Camera/Location access will be requested when you start</span>
+        <div className="min-h-screen bg-black text-white overflow-hidden relative">
+          {/* Purple accent lines */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-32 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent"></div>
+            <div className="absolute top-60 left-10 w-px h-64 bg-gradient-to-b from-purple-500/20 to-transparent"></div>
+            <div className="absolute bottom-40 right-20 w-px h-80 bg-gradient-to-t from-purple-500/20 to-transparent"></div>
+            <div className="absolute top-1/3 right-1/4 w-32 h-32 border border-purple-500/15 rotate-45"></div>
+            <div className="absolute top-32 right-1/4 w-32 h-32 border border-purple-500/20 bg-transparent rotate-45" style={{ borderColor: 'rgba(168, 85, 247, 0.2)' }}></div>
+            <div className="absolute bottom-32 left-1/3 w-24 h-24 border border-purple-500/15 bg-transparent rotate-35" style={{ borderColor: 'rgba(168, 85, 247, 0.15)' }}></div>
+            <div className="absolute top-1/2 right-10 w-16 h-16 border border-purple-500/25 bg-transparent -rotate-12" style={{ borderColor: 'rgba(168, 85, 247, 0.25)' }}></div>
+          </div>
+
+          <div className="relative z-10 pt-20 sm:pt-24 md:pt-28 px-4 sm:px-6 pb-8 sm:pb-10">
+            <div className="max-w-4xl mx-auto">
+              {/* Header */}
+              <div className="text-center mb-6 sm:mb-8">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-3 sm:mb-4 bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 bg-clip-text text-transparent px-2">
+                  AR Detection & Navigation
+                </h1>
+                <p className="text-gray-300 text-base sm:text-lg px-2 mb-4">
+                  Experience immersive navigation with real-time AR overlays
                 </p>
               </div>
+
+              {/* Action Cards */}
+              <div className="space-y-4 sm:space-y-6">
+                <div className="bg-black/80 backdrop-blur-xl rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-8 border border-purple-500/30 hover:border-purple-500/50 transition-all duration-300">
+                  <button
+                    onClick={handleStartDetection}
+                    className="w-full px-6 py-4 sm:py-5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 active:from-purple-500 active:to-purple-600 text-white rounded-lg sm:rounded-xl shadow-lg transition-all duration-300 text-base sm:text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[48px] flex items-center justify-center gap-3"
+                    disabled={isLoading}
+                  >
+                    <span className="text-2xl sm:text-3xl">🎯</span>
+                    <span>Start AR Detection</span>
+                  </button>
+                </div>
+                
+                <div className="bg-black/80 backdrop-blur-xl rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-8 border border-purple-500/30 hover:border-purple-500/50 transition-all duration-300">
+                  <button
+                    onClick={handleStartLocationDetection}
+                    className="w-full px-6 py-4 sm:py-5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 active:from-purple-500 active:to-purple-600 text-white rounded-lg sm:rounded-xl shadow-lg transition-all duration-300 text-base sm:text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[48px] flex items-center justify-center gap-3"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5 sm:h-6 sm:w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Detecting Location...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-2xl sm:text-3xl">📍</span>
+                        <span>Start Location Detection</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                
+                {locationError && (
+                  <div className="bg-red-500/10 backdrop-blur-lg border border-red-500/40 rounded-xl p-4 animate-fade-in shadow-xl">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">⚠️</span>
+                      <div>
+                        <h3 className="font-bold text-red-400">Error</h3>
+                        <p className="text-red-300">{locationError}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="bg-black/60 backdrop-blur-lg rounded-lg sm:rounded-xl p-4 sm:p-5 border border-purple-500/20">
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <span className="text-lg sm:text-xl text-purple-400 flex-shrink-0">💡</span>
+                    <div className="text-xs sm:text-sm text-gray-300">
+                      <p className="font-semibold mb-1.5 sm:mb-2 text-purple-300">How it works:</p>
+                      <ul className="space-y-1 list-disc list-inside text-gray-400 leading-relaxed">
+                        <li>Camera and location access will be requested when you start</li>
+                        <li>AR Detection identifies objects in real-time using your camera</li>
+                        <li>Location Detection finds your current building based on GPS</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
           </div>
         </div>
       )}
       
       {mode === "detection" && (
-        <div className="detection-container w-full h-full bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 pt-24 sm:pt-28 pb-4 sm:pb-6 relative">
-          {/* Background Image */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
-            style={{ backgroundImage: 'url(/unnamed.jpg)' }}
-          ></div>
-          {/* Gradient overlay - more transparent */}
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/50 to-indigo-900/50"></div>
-          <div className="detection-wrapper w-full max-w-6xl mx-auto h-full flex flex-col px-4 relative z-10">
-            <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-2 sm:p-6 border border-gray-700/30 shadow-2xl flex-1 flex flex-col overflow-hidden">
-              <ObjectDetectorSimple onDetection={handleDetection} />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Back to Menu button */}
-      {mode !== "menu" && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-xs px-4">
-          <button
-            onClick={() => setMode("menu")}
-            className="w-full px-5 py-3 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-white rounded-xl shadow-xl text-base font-semibold min-h-[44px] touch-manipulation transition-all duration-200 transform hover:scale-105 active:scale-95 border border-gray-500/30 backdrop-blur-sm"
-            style={{ touchAction: 'manipulation' }}
-          >
-            ← Back to Menu
-          </button>
+        <div className="w-full h-full">
+          <ObjectDetectorSimple onDetection={handleDetection} />
         </div>
       )}
 

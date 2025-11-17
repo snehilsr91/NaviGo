@@ -236,7 +236,7 @@ const PillNav = ({
   return (
     <div className={`fixed top-4 md:top-6 z-[1000] left-1/2 -translate-x-1/2 w-full max-w-[calc(100vw-2rem)] md:w-auto md:max-w-none px-4 md:px-0 ${isMapPage ? "map-page-navbar-container" : ""}`}>
       <nav
-        className={`w-full md:w-max flex items-center justify-between md:justify-start box-border ${className} ${isMapPage ? "bg-purple-600/30 backdrop-blur-xl rounded-full px-4 py-2 border-2 border-purple-400/50 shadow-xl" : ""}`}
+        className={`w-full md:w-max flex items-center justify-between md:justify-start box-border ${className} ${isMapPage ? "bg-black/80 backdrop-blur-xl rounded-full px-4 py-2 border-2 border-purple-500/40 shadow-xl" : ""}`}
         aria-label="Primary"
         style={cssVars}
       >
@@ -249,7 +249,7 @@ const PillNav = ({
             ref={(el) => {
               logoRef.current = el;
             }}
-            className="rounded-full p-1 inline-flex items-center justify-center overflow-hidden bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/15 transition-all duration-200 active:scale-95"
+            className="rounded-full p-1 inline-flex items-center justify-center overflow-hidden bg-black/80 backdrop-blur-md border border-purple-500/30 shadow-lg hover:bg-black/90 hover:border-purple-500/50 transition-all duration-200 active:scale-95"
             style={{
               width: "var(--nav-h)",
               height: "var(--nav-h)",
@@ -271,7 +271,7 @@ const PillNav = ({
             ref={(el) => {
               logoRef.current = el;
             }}
-            className="rounded-full p-1 inline-flex items-center justify-center overflow-hidden bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/15 transition-all duration-200 active:scale-95"
+            className="rounded-full p-1 inline-flex items-center justify-center overflow-hidden bg-black/80 backdrop-blur-md border border-purple-500/30 shadow-lg hover:bg-black/90 hover:border-purple-500/50 transition-all duration-200 active:scale-95"
             style={{
               width: "var(--nav-h)",
               height: "var(--nav-h)",
@@ -289,7 +289,7 @@ const PillNav = ({
 
         <div
           ref={navItemsRef}
-          className="relative items-center rounded-full hidden md:flex ml-3 bg-white/10 backdrop-blur-md border border-white/20 shadow-lg"
+          className="relative items-center rounded-full hidden md:flex ml-3 bg-black/80 backdrop-blur-md border border-purple-500/30 shadow-lg"
           style={{
             height: "var(--nav-h)",
             background: "transparent",
@@ -392,7 +392,7 @@ const PillNav = ({
           onClick={toggleMobileMenu}
           aria-label="Toggle menu"
           aria-expanded={isMobileMenuOpen}
-          className="md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1.5 cursor-pointer p-0 relative bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/15 transition-all duration-200 active:scale-95"
+          className="md:hidden rounded-full border-0 flex flex-col items-center justify-center gap-1.5 cursor-pointer p-0 relative bg-black/80 backdrop-blur-md border border-purple-500/30 shadow-lg hover:bg-black/90 hover:border-purple-500/50 transition-all duration-200 active:scale-95"
           style={{
             width: "var(--nav-h)",
             height: "var(--nav-h)",
@@ -438,9 +438,10 @@ const PillNav = ({
         className="md:hidden absolute top-[calc(var(--nav-h)_+_16px)] left-4 right-4 rounded-2xl shadow-2xl z-[998] origin-top border border-white/30 overflow-hidden"
         style={{
           ...cssVars,
-          background: "rgba(15, 23, 42, 0.95)", // slate-900 with high opacity
+          background: "rgba(0, 0, 0, 0.95)", // black with high opacity
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
+          border: "1px solid rgba(139, 92, 246, 0.3)",
         }}
       >
         {/* Menu Header */}
@@ -452,19 +453,19 @@ const PillNav = ({
           {items.map((item, index) => {
             const isActive = activeHref === item.href;
             const defaultStyle = {
-              color: isActive ? "#a78bfa" : "#e2e8f0",
+              color: isActive ? "#a78bfa" : "#d1d5db",
             };
             
             const hoverIn = (e) => {
               if (!isActive) {
-                e.currentTarget.style.background = "rgba(139, 92, 246, 0.2)";
+                e.currentTarget.style.background = "rgba(139, 92, 246, 0.15)";
                 e.currentTarget.style.color = "#c4b5fd";
               }
             };
             const hoverOut = (e) => {
               if (!isActive) {
                 e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.color = "#e2e8f0";
+                e.currentTarget.style.color = "#d1d5db";
               }
             };
 
@@ -476,14 +477,15 @@ const PillNav = ({
                 "Start AR": "🚀",
                 "AI Assistant": "🤖",
                 "Find": "👨‍🏫",
+                "Events": "📅",
               };
               return iconMap[label] || "•";
             };
 
             const linkClasses = `block py-3.5 px-5 text-base font-semibold rounded-xl transition-all duration-200 ease-in-out ${
               isActive 
-                ? "bg-gradient-to-r from-purple-600/30 to-indigo-600/30 text-purple-300 border border-purple-500/30" 
-                : "hover:bg-purple-500/10 text-slate-200"
+                ? "bg-gradient-to-r from-purple-500/20 to-purple-600/20 text-purple-300 border border-purple-500/40" 
+                : "hover:bg-purple-500/10 text-gray-300"
             } active:scale-95`;
 
             return (

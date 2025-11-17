@@ -7,6 +7,9 @@ import detectionsRoutes from "./routes/detections.routes.js";
 import buildingReviewsRoutes from "./routes/buildingReviews.routes.js";
 import buildingPhotosRoutes from "./routes/buildingPhotos.routes.js";
 import teacherLocationRoutes from "./routes/teacherLocation.routes.js";
+import eventsRoutes from "./routes/events.routes.js";
+import eventBookingRequestRoutes from "./routes/eventBookingRequest.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
 import { ask } from "./controllers/assistantController.js"; 
 import { connectDB, isConnected } from "./utils/connectDB.js";
 import dotenv from "dotenv";
@@ -78,6 +81,9 @@ app.use("/api/detections", detectionsRoutes);
 app.use("/api/buildings", buildingPhotosRoutes); // Building photos (must be before buildingReviewsRoutes)
 app.use("/api/buildings", buildingReviewsRoutes);
 app.use("/api/teachers", teacherLocationRoutes);
+app.use("/api/events", eventsRoutes);
+app.use("/api/event-booking-requests", eventBookingRequestRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.get("/api/assistant/ask", ask);
 

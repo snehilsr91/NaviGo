@@ -154,9 +154,9 @@ const BuildingDetails = ({
 
   if (loading) {
     return (
-      <div className="p-4 w-full h-full bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 flex items-center justify-center">
+      <div className="p-4 w-full h-full bg-black flex items-center justify-center">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-6 h-6 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
           <p className="text-lg text-gray-300">Loading Details...</p>
         </div>
       </div>
@@ -168,7 +168,7 @@ const BuildingDetails = ({
       className={`
         absolute bottom-0 left-0 right-0 md:static
         w-full h-full 
-        bg-gradient-to-br from-slate-900/90 via-purple-900/90 to-indigo-900/90 backdrop-blur-lg
+        bg-black/90 backdrop-blur-lg
         transition-all duration-500 ease-in-out
         flex flex-col
         ${
@@ -195,7 +195,7 @@ const BuildingDetails = ({
       {/* Close button for desktop */}
       <button
         onClick={onClose}
-        className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+        className="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/60 hover:bg-black/80 border border-purple-500/30 hover:border-purple-500/50 transition-colors"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -214,17 +214,17 @@ const BuildingDetails = ({
       </button>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6">
-        <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 pr-10 bg-gradient-to-r from-cyan-300 to-purple-300 bg-clip-text text-transparent">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-5 md:p-6">
+        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-3 sm:mb-4 pr-8 sm:pr-10 bg-gradient-to-r from-purple-400 to-purple-500 bg-clip-text text-transparent">
           {building.name}
         </h3>
 
         {/* Action Buttons */}
-        <div className="mb-4 space-y-2">
+        <div className="mb-3 sm:mb-4 space-y-2">
           {onGoToPlace && (
             <button
               onClick={() => onGoToPlace(building)}
-              className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white text-sm py-3 px-4 rounded-lg hover:shadow-lg transition-all duration-200 font-bold transform hover:scale-105"
+              className="w-full bg-gradient-to-r from-purple-600 to-purple-700 active:from-purple-500 active:to-purple-600 text-white text-xs sm:text-sm py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg active:shadow-lg transition-all duration-200 font-bold active:scale-95 border border-purple-500/30 touch-manipulation min-h-[44px]"
             >
               📍 Go to Place
             </button>
@@ -238,14 +238,14 @@ const BuildingDetails = ({
               ) : userLocation ? (
                 <button
                   onClick={() => onGetDirections(building)}
-                  className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm py-3 px-4 rounded-lg hover:shadow-lg transition-all duration-200 font-bold transform hover:scale-105"
+                  className="w-full bg-gradient-to-r from-purple-600 to-purple-700 active:from-purple-500 active:to-purple-600 text-white text-xs sm:text-sm py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg active:shadow-lg transition-all duration-200 font-bold active:scale-95 border border-purple-500/30 touch-manipulation min-h-[44px]"
                 >
                   🧭 Get Directions
                 </button>
               ) : (
                 <button
                   disabled
-                  className="w-full bg-gray-600/50 text-gray-400 text-sm py-3 px-4 rounded-lg cursor-not-allowed"
+                  className="w-full bg-gray-600/50 text-gray-400 text-xs sm:text-sm py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg cursor-not-allowed min-h-[44px]"
                 >
                   Getting your location...
                 </button>
@@ -255,12 +255,12 @@ const BuildingDetails = ({
         </div>
 
         {/* Comments Section */}
-        <div className="mb-4">
-          <h4 className="text-sm font-bold text-purple-300 mb-3 flex items-center gap-2">
+        <div className="mb-3 sm:mb-4">
+          <h4 className="text-xs sm:text-sm font-bold text-purple-400 mb-2 sm:mb-3 flex items-center gap-2">
             <span>💬</span> Comments & Photos
           </h4>
           {reviews.length === 0 ? (
-            <p className="text-xs text-gray-400 mb-2 bg-white/5 rounded-lg p-2 text-center">
+            <p className="text-xs text-gray-400 mb-2 bg-black/60 rounded-lg p-2 text-center border border-purple-500/20">
               None yet
             </p>
           ) : (
@@ -268,7 +268,7 @@ const BuildingDetails = ({
               {reviews.map((review, idx) => (
                 <div
                   key={idx}
-                  className="bg-white/10 backdrop-blur-sm p-3 rounded-lg text-xs text-gray-200 border border-white/10"
+                  className="bg-black/60 backdrop-blur-sm p-2.5 sm:p-3 rounded-lg text-xs text-gray-200 border border-purple-500/20"
                 >
                   {review.comment && (
                     <p className="leading-relaxed">{review.comment}</p>
@@ -277,12 +277,12 @@ const BuildingDetails = ({
                     <img
                       src={review.photo}
                       alt="Review photo"
-                      className={`w-full h-24 object-cover rounded-lg ${
+                      className={`w-full h-20 sm:h-24 object-cover rounded-lg ${
                         review.comment ? "mt-2" : ""
-                      } border border-white/20`}
+                      } border border-purple-500/20`}
                     />
                   )}
-                  <p className="text-gray-400 text-xs mt-2">
+                  <p className="text-gray-400 text-[10px] sm:text-xs mt-1.5 sm:mt-2">
                     {new Date(review.createdAt).toLocaleDateString()}
                   </p>
                 </div>
@@ -295,31 +295,31 @@ const BuildingDetails = ({
         {!showAddForm ? (
           <button
             onClick={() => setShowAddForm(true)}
-            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-sm py-3 px-4 rounded-lg hover:shadow-lg transition-all duration-200 font-bold transform hover:scale-105"
+            className="w-full bg-gradient-to-r from-purple-600 to-purple-700 active:from-purple-500 active:to-purple-600 text-white text-xs sm:text-sm py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg active:shadow-lg transition-all duration-200 font-bold active:scale-95 border border-purple-500/30 touch-manipulation min-h-[44px]"
           >
             Add Comment or Photo
           </button>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3">
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Add a comment (optional)"
-              className="w-full p-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-sm resize-none text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400"
+              className="w-full p-2.5 sm:p-3 bg-black/60 backdrop-blur-sm border border-purple-500/30 rounded-lg text-xs sm:text-sm resize-none text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-400 min-h-[80px]"
               rows="3"
             />
             <div>
-              <label className="block text-xs text-cyan-300 mb-2 font-semibold">
+              <label className="block text-xs text-purple-400 mb-1.5 sm:mb-2 font-semibold">
                 Add a photo (optional, max 1MB)
               </label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={handlePhotoSelect}
-                className="w-full text-xs text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500"
+                className="w-full text-xs text-gray-300 file:mr-2 sm:file:mr-4 file:py-1.5 sm:file:py-2 file:px-3 sm:file:px-4 file:rounded-lg file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-purple-600 file:text-white active:file:bg-purple-500 file:border file:border-purple-500/30"
               />
               {selectedPhoto && (
-                <p className="text-xs text-cyan-300 mt-2 font-semibold">
+                <p className="text-xs text-purple-400 mt-1.5 sm:mt-2 font-semibold">
                   {selectedPhoto.name} selected
                 </p>
               )}
@@ -328,7 +328,7 @@ const BuildingDetails = ({
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-sm py-3 px-4 rounded-lg transition-all duration-200 font-bold disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
+                className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 active:from-purple-500 active:to-purple-600 text-white text-xs sm:text-sm py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg transition-all duration-200 font-bold disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 touch-manipulation min-h-[44px]"
               >
                 {submitting ? "Submitting..." : "Submit"}
               </button>
@@ -339,7 +339,7 @@ const BuildingDetails = ({
                   setComment("");
                   setSelectedPhoto(null);
                 }}
-                className="flex-1 bg-gray-600/50 hover:bg-gray-600 text-white text-sm py-3 px-4 rounded-lg transition-all duration-200 font-semibold"
+                className="flex-1 bg-black/60 active:bg-black/80 text-white text-xs sm:text-sm py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg transition-all duration-200 font-semibold border border-purple-500/30 active:border-purple-500/50 touch-manipulation min-h-[44px]"
               >
                 Cancel
               </button>

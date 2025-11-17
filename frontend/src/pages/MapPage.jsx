@@ -278,34 +278,27 @@ const MapPage = () => {
 
   if (loadError || !googleMapsApiKey)
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white relative">
-        {/* Background Image */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
-          style={{ backgroundImage: 'url(/unnamed.jpg)' }}
-        ></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/50 to-indigo-900/50"></div>
-        
+      <div className="min-h-screen bg-black text-white relative">
         <Navbar />
 
         <div className="pt-24 px-6 flex items-center justify-center h-screen relative z-10">
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 max-w-2xl">
-            <p className="text-xl font-semibold text-red-400 mb-4">
+          <div className="bg-black/80 backdrop-blur-lg rounded-2xl p-8 border border-purple-500/30 max-w-2xl">
+            <p className="text-xl font-semibold text-purple-400 mb-4">
               {!googleMapsApiKey ? '⚠️ Google Maps API Key Missing' : 'Failed to load map'}
             </p>
             <div className="text-sm text-gray-300 space-y-2">
               {!googleMapsApiKey ? (
                 <>
                   <p>The Google Maps API key is not configured in your deployment environment.</p>
-                  <p className="mt-3 font-mono text-xs bg-black/30 p-3 rounded">
-                    Please set <span className="text-cyan-400">VITE_GOOGLE_MAPS_API_KEY</span> in your Vercel environment variables.
+                  <p className="mt-3 font-mono text-xs bg-black/60 p-3 rounded border border-purple-500/20">
+                    Please set <span className="text-purple-400">VITE_GOOGLE_MAPS_API_KEY</span> in your Vercel environment variables.
                   </p>
                   <p className="mt-3">
                     <a 
                       href="https://vercel.com/docs/projects/environment-variables" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-blue-400 hover:text-blue-300 underline"
+                      className="text-purple-400 hover:text-purple-300 underline"
                     >
                       Learn how to add environment variables →
                     </a>
@@ -321,20 +314,13 @@ const MapPage = () => {
     );
   if (!isLoaded)
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white relative">
-        {/* Background Image */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
-          style={{ backgroundImage: 'url(/unnamed.jpg)' }}
-        ></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/50 to-indigo-900/50"></div>
-        
+      <div className="min-h-screen bg-black text-white relative">
         <Navbar />
 
         <div className="pt-24 px-6 flex items-center justify-center h-screen relative z-10">
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
+          <div className="bg-black/80 backdrop-blur-lg rounded-2xl p-8 border border-purple-500/30">
             <div className="flex items-center gap-4">
-              <div className="w-8 h-8 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
               <p className="text-xl font-semibold">Loading map…</p>
             </div>
           </div>
@@ -343,15 +329,7 @@ const MapPage = () => {
     );
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white overflow-hidden relative flex flex-col">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
-        style={{ backgroundImage: 'url(/unnamed.jpg)' }}
-      ></div>
-      {/* Gradient overlay - more transparent */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/50 to-indigo-900/50"></div>
-      
+    <div className="h-screen bg-black text-white overflow-hidden relative flex flex-col">
       <Navbar />
 
       <div className="flex-1 relative overflow-hidden" style={{ height: 'calc(100vh - 80px)' }}>

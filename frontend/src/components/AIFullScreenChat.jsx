@@ -63,34 +63,34 @@ export default function AIFullScreenChat() {
 
   return (
     <div
-      className="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 z-50 flex flex-col overflow-hidden"
+      className="fixed inset-0 bg-black z-50 flex flex-col overflow-hidden"
       style={{
         height: "calc(var(--vh, 1vh) * 100)", // use dynamic viewport height
       }}
     >
-      {/* Background */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
-        style={{ backgroundImage: "url(/unnamed.jpg)" }}
-      ></div>
-
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/50 to-indigo-900/50"></div>
+      {/* Purple accent lines */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/20 to-transparent"></div>
+        <div className="absolute top-40 left-10 w-px h-64 bg-gradient-to-b from-purple-500/15 to-transparent"></div>
+        <div className="absolute bottom-40 right-20 w-px h-80 bg-gradient-to-t from-purple-500/15 to-transparent"></div>
+        <div className="absolute top-1/3 right-1/4 w-32 h-32 border border-purple-500/10 rotate-45"></div>
+      </div>
 
       <Navbar />
 
       {/* Chat Messages */}
       <div
-        className="flex-1 overflow-y-auto px-4 sm:px-6 pt-20 sm:pt-24 relative z-10"
+        className="flex-1 overflow-y-auto px-3 sm:px-4 md:px-6 pt-20 sm:pt-24 relative z-10"
         style={{
           paddingBottom: "7rem",
         }}
       >
         <div className="max-w-4xl mx-auto space-y-6">
           {history.length === 0 && (
-            <div className="text-center py-12">
-              <div className="w-24 h-24 bg-gradient-to-br from-purple-500/20 to-cyan-500/20 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-6 border border-white/20">
+            <div className="text-center py-8 sm:py-12 px-2">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-purple-500/20 to-purple-600/20 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 border border-purple-500/30">
                 <svg
-                  className="w-12 h-12 text-cyan-400"
+                  className="w-10 h-10 sm:w-12 sm:h-12 text-purple-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -103,11 +103,13 @@ export default function AIFullScreenChat() {
                   />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-3">
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3 px-2">
                 Hello! I'm the AI Assistant.
-                <br /> Ask me anything about the campus.
+                <br className="hidden sm:block" />
+                <span className="sm:hidden"> </span>
+                Ask me anything about the campus.
               </h3>
-              <p className="text-gray-300 text-lg">
+              <p className="text-gray-300 text-base sm:text-lg px-2 leading-relaxed">
                 I'm here to help you find information about campus buildings,
                 labs, rooms, and facilities. What would you like to know?
               </p>
@@ -117,21 +119,25 @@ export default function AIFullScreenChat() {
           {history.map((h, i) => (
             <div key={i} className="space-y-4">
               <div className="flex justify-end">
-                <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl px-6 py-4 max-w-2xl shadow-xl border border-purple-400/30">
-                  <p className="font-semibold mb-2 text-cyan-200">You</p>
-                  <p className="leading-relaxed">{h.q}</p>
+                <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl sm:rounded-2xl px-4 sm:px-6 py-3 sm:py-4 max-w-[85%] sm:max-w-2xl shadow-xl border border-purple-500/40">
+                  <p className="font-semibold mb-1.5 sm:mb-2 text-purple-200 text-xs sm:text-sm">
+                    You
+                  </p>
+                  <p className="leading-relaxed text-sm sm:text-base">{h.q}</p>
                 </div>
               </div>
 
               <div className="flex justify-start">
-                <div className="bg-white/10 backdrop-blur-lg rounded-2xl px-6 py-4 max-w-2xl shadow-xl border border-white/20">
-                  <p className="font-semibold text-cyan-400 mb-2">Assistant</p>
+                <div className="bg-black/60 backdrop-blur-lg rounded-xl sm:rounded-2xl px-4 sm:px-6 py-3 sm:py-4 max-w-[85%] sm:max-w-2xl shadow-xl border border-purple-500/30">
+                  <p className="font-semibold text-purple-400 mb-1.5 sm:mb-2 text-xs sm:text-sm">
+                    Assistant
+                  </p>
                   {h.data.matches ? (
                     <div className="space-y-3">
                       {h.data.matches.map((m, idx) => (
                         <div
                           key={idx}
-                          className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 hover:bg-white/15 transition-colors"
+                          className="bg-black/60 backdrop-blur-md rounded-xl p-4 border border-purple-500/20 hover:bg-black/80 transition-colors"
                         >
                           <div className="font-bold text-white mb-2">
                             {m.building}
@@ -147,7 +153,7 @@ export default function AIFullScreenChat() {
                               )}&directions=true&chat=${chatState}`;
                               window.open(url, "_blank");
                             }}
-                            className="text-sm text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-lg px-4 py-2 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+                            className="text-sm text-white bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 rounded-lg px-4 py-2 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
                           >
                             Get Directions
                           </button>
@@ -177,7 +183,7 @@ export default function AIFullScreenChat() {
                                   )}&directions=true&chat=${chatState}`;
                                   window.open(url, "_blank");
                                 }}
-                                className="text-sm text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-lg px-4 py-2 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+                                className="text-sm text-white bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 rounded-lg px-4 py-2 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
                               >
                                 Get Directions to {building}
                               </button>
@@ -196,32 +202,32 @@ export default function AIFullScreenChat() {
 
       {/* ✅ Fixed Input Area */}
       <div
-        className="border-t border-white/20 bg-white/5 backdrop-blur-lg px-3 sm:px-6 pt-3 pb-3 sm:py-4 relative z-10 flex-shrink-0"
+        className="border-t border-purple-500/20 bg-black/80 backdrop-blur-lg px-3 sm:px-4 md:px-6 pt-3 pb-3 sm:py-4 relative z-10 flex-shrink-0"
         style={{
           paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.75rem)",
         }}
       >
         <div className="max-w-4xl mx-auto w-full">
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-end gap-2 sm:gap-3">
             <textarea
               ref={inputRef}
               id="ai-fullscreen-input"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type your question here... (Press Enter to send, Shift+Enter for new line)"
-              className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 text-white placeholder-gray-400 text-sm sm:text-base leading-snug"
-              rows="2"
+              placeholder="Type your question..."
+              className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-black/60 backdrop-blur-md border border-purple-500/30 rounded-lg sm:rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-400 text-white placeholder-gray-500 text-sm sm:text-base leading-snug min-h-[44px]"
+              rows="1"
               disabled={loading}
             />
             <button
               onClick={send}
               disabled={loading || !question.trim()}
-              className={`flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold transition-all duration-200 text-sm sm:text-base flex-shrink-0
+              className={`flex items-center justify-center px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-bold transition-all duration-200 text-sm sm:text-base flex-shrink-0 min-h-[44px] min-w-[60px] touch-manipulation
                 ${
                   loading || !question.trim()
-                    ? "bg-cyan-700/50 text-cyan-300 cursor-not-allowed"
-                    : "bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-400 hover:to-cyan-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+                    ? "bg-purple-700/50 text-purple-300 cursor-not-allowed"
+                    : "bg-gradient-to-r from-purple-600 to-purple-700 active:from-purple-500 active:to-purple-600 text-white shadow-lg active:shadow-xl active:scale-95"
                 }`}
             >
               {loading ? (

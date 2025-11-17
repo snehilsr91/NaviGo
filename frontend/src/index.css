@@ -23,12 +23,45 @@
   }
 }
 
+@keyframes purple-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+  }
+}
+
+@keyframes purple-pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
 
 .animate-slide-up {
   animation: slide-up 0.4s ease-out;
+}
+
+.animate-purple-glow {
+  animation: purple-glow 2s ease-in-out infinite;
+}
+
+.animate-purple-pulse {
+  animation: purple-pulse 2s ease-in-out infinite;
+}
+
+/* Ensure line container from splash animation stays visible */
+[data-line-container][data-splash-visible="true"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
 }
 
 * {
@@ -40,6 +73,10 @@ html, body {
   padding: 0;
   height: 100%;
   width: 100%;
+  background: #000000;
+  overflow: visible !important; /* Prevent clipping of splash screen */
+  clip: auto !important;
+  clip-path: none !important;
 }
 
 body {
@@ -48,46 +85,50 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: #000000;
+  color: #ffffff;
 }
 
 #root {
   height: 100%;
   width: 100%;
+  background: #000000;
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - Purple theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #8b5cf6, #6366f1);
+  background: linear-gradient(180deg, #8b5cf6, #7c3aed);
   border-radius: 4px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #7c3aed, #4f46e5);
+  background: linear-gradient(180deg, #7c3aed, #6d28d9);
 }
 
 /* Label styling for Google Maps markers */
 .marker-label {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.95), rgba(99, 102, 241, 0.95));
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.95), rgba(124, 58, 237, 0.95));
   backdrop-filter: blur(10px);
   padding: 4px 8px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(167, 139, 250, 0.5);
   transform: translateY(-6px);
   white-space: nowrap;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
 }
 
 /* Smooth transitions */
@@ -97,9 +138,41 @@ body {
   transition-duration: 150ms;
 }
 
-/* Glassmorphism utility */
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  /* Better touch targets */
+  button, a {
+    min-height: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(139, 92, 246, 0.2);
+  }
+  
+  /* Prevent text selection on buttons */
+  button {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  
+  /* Better scrolling on mobile */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Glassmorphism utility - Purple theme */
 .glass {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(139, 92, 246, 0.1);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+}
+
+/* Purple accent shapes */
+.purple-accent-line {
+  background: linear-gradient(90deg, transparent, #8b5cf6, transparent);
+  height: 2px;
+}
+
+.purple-accent-shape {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(124, 58, 237, 0.1));
+  border: 1px solid rgba(167, 139, 250, 0.3);
 }

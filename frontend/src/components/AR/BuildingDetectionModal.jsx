@@ -9,14 +9,14 @@ const BuildingDetectionModal = ({ isOpen, onClose, building, confidence }) => {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('info'); // 'info', 'photos', 'reviews'
 
-  const buildingInfo = {
-    'Shankaracharya Bhavan': {
-      name: 'Shankaracharya Bhavan',
-      description: 'A prominent building in the National Institute of Engineering campus, Mysore.',
-      floors: 'Multiple floors',
-      departments: ['Computer Science', 'Information Science'],
-      mapLabel: 'Shankaracharya Bhavan' // This should match the building name in your map data
-    }
+  // Dynamic building info (can be expanded with actual data from backend)
+  const getBuildingInfo = (placeName) => {
+    // Default info for any place
+    return {
+      name: placeName || 'Unknown Place',
+      description: `${placeName || 'This place'} is a location in the National Institute of Engineering campus, Mysore.`,
+      mapLabel: placeName || 'Unknown Place'
+    };
   };
 
   useEffect(() => {
@@ -26,16 +26,46 @@ const BuildingDetectionModal = ({ isOpen, onClose, building, confidence }) => {
   }, [isOpen, building]);
 
   const loadBuildingData = async () => {
+    if (!building) return;
+    
     setLoading(true);
     try {
-      // Load photos from backend
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const photosResponse = await axios.get(`${API_URL.replace('/api', '')}/api/buildings/shankaracharya-bhavan/photos`);
-      setPhotos(photosResponse.data.photos || []);
+      const apiBaseUrl = API_URL.replace('/api', '');
+      
+      // Encode place name for URL
+      const encodedPlaceName = encodeURIComponent(building);
+      
+      // Load photos from backend for the detected place
+      try {
+        const photoApiUrl = `${apiBaseUrl}/api/buildings/${encodedPlaceName}/photos`;
+        console.log('Fetching photos from:', photoApiUrl);
+        const photosResponse = await axios.get(photoApiUrl);
+        console.log('Photos response:', photosResponse.data);
+        const photoUrls = photosResponse.data.photos || [];
+        // Convert relative URLs to absolute URLs
+        const fullPhotoUrls = photoUrls.map(photo => {
+          if (photo.startsWith('http')) {
+            return photo; // Already absolute
+          }
+          // If relative, prepend base URL
+          const fullUrl = photo.startsWith('/') 
+            ? `${apiBaseUrl}${photo}` 
+            : `${apiBaseUrl}/${photo}`;
+          console.log(`Converting photo URL: ${photo} -> ${fullUrl}`);
+          return fullUrl;
+        });
+        setPhotos(fullPhotoUrls);
+        console.log(`✅ Loaded ${fullPhotoUrls.length} photos for ${building}:`, fullPhotoUrls);
+      } catch (err) {
+        console.error('❌ Error loading photos:', err);
+        console.error('Error details:', err.response?.data || err.message);
+        setPhotos([]);
+      }
 
       // Load reviews if available
       try {
-        const reviewsResponse = await axios.get(`${API_URL}/buildings/shankaracharya-bhavan/reviews`);
+        const reviewsResponse = await axios.get(`${API_URL}/buildings/${encodedPlaceName}/reviews`);
         setReviews(reviewsResponse.data || []);
       } catch (err) {
         console.log('No reviews available yet');
@@ -51,8 +81,8 @@ const BuildingDetectionModal = ({ isOpen, onClose, building, confidence }) => {
   };
 
   const handleViewOnMap = () => {
-    const info = buildingInfo[building];
-    if (info) {
+    if (building) {
+      const info = getBuildingInfo(building);
       // Navigate to map with building label
       navigate(`/map?label=${encodeURIComponent(info.mapLabel)}`);
       onClose();
@@ -65,7 +95,7 @@ const BuildingDetectionModal = ({ isOpen, onClose, building, confidence }) => {
 
   if (!isOpen) return null;
 
-  const info = buildingInfo[building] || {};
+  const info = building ? getBuildingInfo(building) : {};
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 animate-fade-in">
@@ -92,8 +122,8 @@ const BuildingDetectionModal = ({ isOpen, onClose, building, confidence }) => {
               <span className="text-3xl">🏛️</span>
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-white">{info.name || building}</h2>
-              <p className="text-emerald-100 text-sm">Building Detected! ({Math.round(confidence * 100)}% confidence)</p>
+              <h2 className="text-2xl font-bold text-white">{info.name || building || 'Place Detected'}</h2>
+              <p className="text-emerald-100 text-sm">Place Detected! ({Math.round((confidence || 0) * 100)}% confidence)</p>
             </div>
           </div>
         </div>
@@ -181,6 +211,10 @@ const BuildingDetectionModal = ({ isOpen, onClose, building, confidence }) => {
                           src={photo}
                           alt={`${building} - Photo ${index + 1}`}
                           className="w-full h-32 object-cover rounded-lg border border-white/10 group-hover:border-cyan-400 transition-all"
+                          onError={(e) => {
+                            console.error(`Failed to load image: ${photo}`);
+                            e.target.style.display = 'none';
+                          }}
                         />
                       </div>
                     ))
