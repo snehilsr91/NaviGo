@@ -1,7 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "comment": "⚠️ DO NOT USE THIS FILE FOR DEPLOYMENT! Deploy frontend and backend as SEPARATE projects in Vercel. See VERCEL_DEPLOYMENT_GUIDE.md",
-  "comment2": "Frontend should be deployed from /frontend directory, Backend from /backend directory",
-  "comment3": "This file is kept for reference only and should not be used"
-}
-
