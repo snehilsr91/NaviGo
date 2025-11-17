@@ -1,6 +1,16 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Get API URL from environment variable
+let API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// Ensure the URL is absolute (starts with http:// or https://)
+// If it doesn't, prepend https://
+if (API_URL && !API_URL.match(/^https?:\/\//i)) {
+  API_URL = `https://${API_URL}`;
+}
+
+// Remove trailing slash if present
+API_URL = API_URL.replace(/\/$/, '');
 
 const api = axios.create({
   baseURL: API_URL,
