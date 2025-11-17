@@ -116,7 +116,43 @@ body {
   background: linear-gradient(180deg, #7c3aed, #6d28d9);
 }
 
-/* Label styling for Google Maps markers */
+/* Leaflet map container styling */
+.leaflet-container {
+  font-family: inherit;
+}
+
+/* Leaflet popup styling */
+.leaflet-popup-content-wrapper {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  border-radius: 8px;
+}
+
+.leaflet-popup-content {
+  margin: 12px;
+  font-size: 14px;
+}
+
+.leaflet-popup-tip {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+/* Custom marker label styling */
+.custom-marker-label {
+  background: transparent !important;
+  border: none !important;
+}
+
+.custom-marker-label div {
+  pointer-events: none;
+}
+
+.custom-marker-label img {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* Label styling for map markers (legacy - kept for reference) */
 .marker-label {
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.95), rgba(124, 58, 237, 0.95));
   backdrop-filter: blur(10px);

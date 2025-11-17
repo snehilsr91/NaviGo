@@ -1,89 +1,95 @@
-import React, { useMemo, useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
+import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap, Polyline } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import Navbar from "../components/Layout/Navbar";
-import { GoogleMap, Marker, InfoWindow, DirectionsRenderer, useLoadScript } from "@react-google-maps/api";
 import { COLLEGE_CENTER, COLLEGE_ZOOM, CAMPUS_BOUNDS, BUILDINGS } from "../data/buildings";
 import BuildingDetails from "../components/BuildingDetails";
 
-const containerStyle = { width: "100%", height: "100%", borderRadius: "0", minHeight: "100%" };
+// Helper function to check if a point is within campus bounds
+const isWithinCampus = (lat, lng) => {
+  if (!CAMPUS_BOUNDS) return true;
+  return (
+    lat >= CAMPUS_BOUNDS.south &&
+    lat <= CAMPUS_BOUNDS.north &&
+    lng >= CAMPUS_BOUNDS.west &&
+    lng <= CAMPUS_BOUNDS.east
+  );
+};
+
+// Helper function to constrain a point to campus bounds
+const constrainToCampus = (lat, lng) => {
+  if (!CAMPUS_BOUNDS) return { lat, lng };
+  return {
+    lat: Math.max(CAMPUS_BOUNDS.south, Math.min(CAMPUS_BOUNDS.north, lat)),
+    lng: Math.max(CAMPUS_BOUNDS.west, Math.min(CAMPUS_BOUNDS.east, lng))
+  };
+};
+
+// Create a campus-constrained path between two points
+const createCampusPath = (start, end) => {
+  const startConstrained = constrainToCampus(start.lat, start.lng);
+  const endConstrained = constrainToCampus(end.lat, end.lng);
+  
+  // Create a simple path with intermediate points that stay within campus
+  // Use a few waypoints to create a smoother path
+  const numPoints = 10;
+  const path = [];
+  
+  for (let i = 0; i <= numPoints; i++) {
+    const ratio = i / numPoints;
+    const lat = startConstrained.lat + (endConstrained.lat - startConstrained.lat) * ratio;
+    const lng = startConstrained.lng + (endConstrained.lng - startConstrained.lng) * ratio;
+    
+    // Ensure point is within campus
+    const constrained = constrainToCampus(lat, lng);
+    path.push([constrained.lat, constrained.lng]);
+  }
+  
+  return path;
+};
+
+// Fix for default marker icons in Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+});
+
+// Custom component to handle map view updates
+function MapController({ center, zoom, bounds, selectedBuilding, routeBounds }) {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (routeBounds) {
+      // Fit map to show the entire route
+      map.fitBounds(routeBounds, { padding: [50, 50] });
+    } else if (selectedBuilding) {
+      map.setView([selectedBuilding.position.lat, selectedBuilding.position.lng], 19);
+    } else if (bounds) {
+      map.fitBounds([
+        [bounds.south, bounds.west],
+        [bounds.north, bounds.east]
+      ]);
+    } else if (center) {
+      map.setView([center.lat, center.lng], zoom || COLLEGE_ZOOM);
+    }
+  }, [map, center, zoom, bounds, selectedBuilding, routeBounds]);
+  
+  return null;
+}
 
 const MapPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const mapRef = useRef();
   const [selected, setSelected] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [directions, setDirections] = useState(null);
+  const [routeBounds, setRouteBounds] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const [showDirections, setShowDirections] = useState(false);
-  const [isMapReady, setIsMapReady] = useState(false);
   const [directionsRequested, setDirectionsRequested] = useState(false);
-
-  const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-  
-  // Check if API key is missing
-  useEffect(() => {
-    if (!googleMapsApiKey) {
-      console.error('❌ VITE_GOOGLE_MAPS_API_KEY is not set!');
-      console.error('💡 Please set VITE_GOOGLE_MAPS_API_KEY in your Vercel environment variables.');
-    }
-  }, [googleMapsApiKey]);
-
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: googleMapsApiKey || '',
-    libraries: ['places', 'geometry'], // Add required libraries
-    version: 'weekly', // Use weekly version for latest features
-  });
-
-  const options = useMemo(
-    () => ({
-      mapTypeId: 'roadmap',
-      disableDefaultUI: false,
-      clickableIcons: false,
-      // allow free pan/zoom and smooth scroll
-      gestureHandling: 'greedy',
-      zoomControl: true,
-      scrollwheel: true,
-      styles: [
-        {
-          featureType: 'poi',
-          elementType: 'labels',
-          stylers: [{ visibility: 'off' }]
-        }
-      ]
-    }),
-    []
-  );
-
-  const handleMapLoad = useCallback((map) => {
-    console.log('🗺️ Map loaded successfully');
-    mapRef.current = map;
-    setIsMapReady(true);
-    
-    // Check if we have a building in URL params when map loads
-    const label = new URLSearchParams(window.location.search).get('label');
-    if (label) {
-      console.log('🏢 Building label from URL:', label);
-      const b = BUILDINGS.find(b => b.name.toLowerCase() === label.toLowerCase());
-      if (b) {
-        console.log('✅ Found building:', b.name);
-        map.panTo(b.position);
-        map.setZoom(19);
-        setSelected(b);
-        return; // Don't fit bounds if we're showing a specific building
-      } else {
-        console.warn('⚠️ Building not found in BUILDINGS data:', label);
-      }
-    }
-    
-    // Default: fit to campus bounds
-    if (CAMPUS_BOUNDS) {
-      const bounds = new window.google.maps.LatLngBounds(
-        { lat: CAMPUS_BOUNDS.south, lng: CAMPUS_BOUNDS.west },
-        { lat: CAMPUS_BOUNDS.north, lng: CAMPUS_BOUNDS.east }
-      );
-      map.fitBounds(bounds);
-    }
-  }, []);
 
   // Get user's current location
   useEffect(() => {
@@ -113,8 +119,8 @@ const MapPage = () => {
     );
   }, []);
 
-  // Calculate directions
-  const calculateDirections = useCallback((destination) => {
+  // Calculate directions using OSRM routing API
+  const calculateDirections = useCallback(async (destination) => {
     if (!userLocation) {
       console.warn('⚠️ Cannot calculate directions: User location not available');
       setLocationError("Please enable location permissions to get directions.");
@@ -125,48 +131,98 @@ const MapPage = () => {
       console.warn('⚠️ Cannot calculate directions: No destination provided');
       return;
     }
-    
-    if (!mapRef.current) {
-      console.warn('⚠️ Cannot calculate directions: Map not ready');
-      return;
-    }
-    
-    if (!window.google || !window.google.maps) {
-      console.warn('⚠️ Cannot calculate directions: Google Maps API not loaded');
-      return;
-    }
 
     console.log('🧭 Calculating directions from', userLocation, 'to', destination.name, destination.position);
     
-    const directionsService = new window.google.maps.DirectionsService();
-    
-    directionsService.route(
-      {
-        origin: userLocation,
-        destination: destination.position,
-        travelMode: window.google.maps.TravelMode.WALKING,
-      },
-      (result, status) => {
-        if (status === "OK") {
-          console.log('✅ Directions calculated successfully');
-          setDirections(result);
-          setShowDirections(true);
-          setDirectionsRequested(false);
+    try {
+      setDirectionsRequested(true);
+      
+      // Use OSRM (Open Source Routing Machine) for road-based routing
+      // Using walking mode (more appropriate for campus navigation)
+      const startLng = userLocation.lng;
+      const startLat = userLocation.lat;
+      const endLng = destination.position.lng;
+      const endLat = destination.position.lat;
+      
+      // Check if both points are within campus
+      const startInCampus = isWithinCampus(startLat, startLng);
+      const endInCampus = isWithinCampus(endLat, endLng);
+      
+      // If both points are within campus, try OSRM walking route
+      let route = null;
+      let routeStaysInCampus = true;
+      
+      if (startInCampus && endInCampus) {
+        try {
+          // OSRM route API endpoint - using walking profile for campus navigation
+          const osrmUrl = `https://router.project-osrm.org/route/v1/walking/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`;
           
-          // Fit map to show the entire route
-          const bounds = new window.google.maps.LatLngBounds();
-          result.routes[0].legs[0].steps.forEach((step) => {
-            bounds.extend(step.start_location);
-            bounds.extend(step.end_location);
-          });
-          mapRef.current.fitBounds(bounds);
-        } else {
-          console.error("❌ Directions request failed:", status);
-          setDirectionsRequested(false);
-          alert(`Unable to calculate directions. Status: ${status}\nPlease try again or check your location settings.`);
+          const response = await fetch(osrmUrl);
+          
+          if (response.ok) {
+            const data = await response.json();
+            
+            if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+              // Extract the route geometry (array of [lng, lat] coordinates)
+              const routeGeometry = data.routes[0].geometry.coordinates;
+              
+              // Convert from [lng, lat] to [lat, lng] for Leaflet
+              route = routeGeometry.map(coord => [coord[1], coord[0]]);
+              
+              // Check if route stays within campus bounds
+              routeStaysInCampus = route.every(point => isWithinCampus(point[0], point[1]));
+              
+              if (!routeStaysInCampus) {
+                console.warn('⚠️ OSRM route goes outside campus bounds, using campus-constrained path');
+                route = null; // Will use campus path instead
+              } else {
+                console.log('✅ Route calculated successfully and stays within campus:', route.length, 'points');
+              }
+            }
+          }
+        } catch (osrmError) {
+          console.warn('⚠️ OSRM routing failed, using campus-constrained path:', osrmError);
         }
       }
-    );
+      
+      // If OSRM route is not available or goes outside campus, use campus-constrained path
+      if (!route || !routeStaysInCampus) {
+        console.log('📍 Creating campus-constrained path');
+        route = createCampusPath(
+          { lat: startLat, lng: startLng },
+          { lat: endLat, lng: endLng }
+        );
+      }
+      
+      // Calculate bounds for the route
+      if (route.length > 0) {
+        const bounds = L.latLngBounds(route);
+        setRouteBounds(bounds);
+      }
+      
+      setDirections(route);
+      setShowDirections(true);
+      setDirectionsRequested(false);
+    } catch (error) {
+      console.error('❌ Error calculating route:', error);
+      setDirectionsRequested(false);
+      
+      // Fallback to straight line if routing fails
+      console.warn('⚠️ Falling back to straight line route');
+      const fallbackRoute = [
+        [userLocation.lat, userLocation.lng],
+        [destination.position.lat, destination.position.lng]
+      ];
+      
+      // Set bounds for fallback route
+      const fallbackBounds = L.latLngBounds(fallbackRoute);
+      setRouteBounds(fallbackBounds);
+      
+      setDirections(fallbackRoute);
+      setShowDirections(true);
+      
+      alert(`Unable to calculate road-based directions. Showing straight-line route.\n\nError: ${error.message}`);
+    }
   }, [userLocation]);
 
   // Handle directions request from BuildingDetails
@@ -180,16 +236,15 @@ const MapPage = () => {
 
   // Handle go to place request from BuildingDetails
   const handleGoToPlace = useCallback((building) => {
-    if (!mapRef.current || !building) {
+    if (!building) {
       return;
     }
     // Clear any existing directions
     setShowDirections(false);
     setDirections(null);
-    // Pan and zoom to the building
-    mapRef.current.panTo(building.position);
-    mapRef.current.setZoom(19);
-  }, []);
+    setSelected(building);
+    setSearchParams({ label: building.name });
+  }, [setSearchParams]);
 
   // Handle URL parameters and directions request
   useEffect(() => {
@@ -199,8 +254,6 @@ const MapPage = () => {
     console.log('🔄 URL params changed:', { 
       label, 
       showDir, 
-      isMapReady, 
-      isLoaded, 
       hasUserLocation: !!userLocation,
       buildingsCount: BUILDINGS.length 
     });
@@ -209,6 +262,7 @@ const MapPage = () => {
       setSelected(null); 
       setShowDirections(false);
       setDirections(null);
+      setRouteBounds(null);
       setDirectionsRequested(false);
       return; 
     }
@@ -225,33 +279,16 @@ const MapPage = () => {
       console.log('🏢 Setting selected building:', b.name, 'Position:', b.position);
       setSelected(b);
       
-      // Wait for map to be loaded before panning
-      if (mapRef.current && isLoaded && isMapReady) {
-        console.log('🗺️ Panning to building...');
-        mapRef.current.panTo(b.position);
-        mapRef.current.setZoom(19);
-      }
-      
       // If directions parameter is set, try to calculate directions
       if (showDir && !directionsRequested) {
         setDirectionsRequested(true);
         
         // Check if we have everything we need
-        if (userLocation && mapRef.current && isLoaded && isMapReady) {
+        if (userLocation) {
           console.log('✅ All prerequisites met, calculating directions...');
           setTimeout(() => calculateDirections(b), 500);
         } else {
-          console.log('⏳ Waiting for prerequisites...', {
-            hasUserLocation: !!userLocation,
-            hasMapRef: !!mapRef.current,
-            isLoaded,
-            isMapReady
-          });
-          
-          if (!userLocation) {
-            console.warn('⚠️ User location not available yet. Directions will be calculated when location is available.');
-            // Will retry when userLocation becomes available
-          }
+          console.warn('⚠️ User location not available yet. Directions will be calculated when location is available.');
         }
       }
     } else {
@@ -259,139 +296,146 @@ const MapPage = () => {
       console.error('Available buildings:', BUILDINGS.map(b => b.name));
       alert(`Building "${label}" not found. Please make sure the building name is correct.`);
     }
-  }, [searchParams, userLocation, calculateDirections, isLoaded, isMapReady, directionsRequested]);
+  }, [searchParams, userLocation, calculateDirections, directionsRequested]);
   
   // Retry directions calculation when user location becomes available
   useEffect(() => {
     const showDir = searchParams.get('directions') === 'true';
-    if (showDir && userLocation && selected && isMapReady && isLoaded && directionsRequested) {
+    if (showDir && userLocation && selected && directionsRequested) {
       console.log('🔄 User location now available, retrying directions...');
       setTimeout(() => calculateDirections(selected), 500);
     }
-  }, [userLocation, selected, isMapReady, isLoaded, directionsRequested, searchParams, calculateDirections]);
+  }, [userLocation, selected, directionsRequested, searchParams, calculateDirections]);
 
   const handleCloseDetails = () => {
     setSelected(null);
     setShowDirections(false);
     setDirections(null);
+    setRouteBounds(null);
     // Remove query params from URL
     setSearchParams({});
   };
 
-  if (loadError || !googleMapsApiKey)
-    return (
-      <div className="min-h-screen bg-black text-white relative">
-        <Navbar />
-
-        <div className="pt-24 px-6 flex items-center justify-center h-screen relative z-10">
-          <div className="bg-black/80 backdrop-blur-lg rounded-2xl p-8 border border-purple-500/30 max-w-2xl">
-            <p className="text-xl font-semibold text-purple-400 mb-4">
-              {!googleMapsApiKey ? '⚠️ Google Maps API Key Missing' : 'Failed to load map'}
-            </p>
-            <div className="text-sm text-gray-300 space-y-2">
-              {!googleMapsApiKey ? (
-                <>
-                  <p>The Google Maps API key is not configured in your deployment environment.</p>
-                  <p className="mt-3 font-mono text-xs bg-black/60 p-3 rounded border border-purple-500/20">
-                    Please set <span className="text-purple-400">VITE_GOOGLE_MAPS_API_KEY</span> in your Vercel environment variables.
-                  </p>
-                  <p className="mt-3">
-                    <a 
-                      href="https://vercel.com/docs/projects/environment-variables" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-purple-400 hover:text-purple-300 underline"
-                    >
-                      Learn how to add environment variables →
-                    </a>
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="text-red-300 mb-3">Error loading Google Maps: {loadError?.message || 'Unknown error'}</p>
-                  <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mt-4">
-                    <p className="font-semibold text-red-300 mb-2">Common fixes for "Do you own this website?" error:</p>
-                    <ol className="list-decimal list-inside space-y-2 text-sm text-gray-300">
-                      <li>Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline">Google Cloud Console → APIs & Services → Credentials</a></li>
-                      <li>Click on your API key</li>
-                      <li>Under "Application restrictions", select "HTTP referrers (web sites)"</li>
-                      <li>Add your domain(s): <code className="bg-black/60 px-2 py-1 rounded">*.vercel.app/*</code> and <code className="bg-black/60 px-2 py-1 rounded">yourdomain.com/*</code></li>
-                      <li>Under "API restrictions", ensure "Maps JavaScript API" and "Directions API" are enabled</li>
-                      <li>Make sure billing is enabled in your Google Cloud project</li>
-                      <li>Redeploy your frontend after updating the API key</li>
-                    </ol>
-                  </div>
-                </>
-              )}
-            </div>
+  // Create custom icon with label for buildings
+  const createBuildingIconWithLabel = useCallback((buildingName) => {
+    return L.divIcon({
+      className: 'custom-marker-label',
+      html: `
+        <div style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          transform: translateY(-10px);
+        ">
+          <img 
+            src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png" 
+            style="
+              width: 25px;
+              height: 41px;
+              filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            "
+            alt="marker"
+          />
+          <div style="
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.95), rgba(124, 58, 237, 0.95));
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+            margin-top: 4px;
+            border: 1px solid rgba(167, 139, 250, 0.5);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 150px;
+            word-wrap: break-word;
+          ">
+            ${buildingName}
           </div>
         </div>
-      </div>
-    );
-  if (!isLoaded)
-    return (
-      <div className="min-h-screen bg-black text-white relative">
-        <Navbar />
+      `,
+      iconSize: [25, 60],
+      iconAnchor: [12, 60],
+      popupAnchor: [0, -60]
+    });
+  }, []);
 
-        <div className="pt-24 px-6 flex items-center justify-center h-screen relative z-10">
-          <div className="bg-black/80 backdrop-blur-lg rounded-2xl p-8 border border-purple-500/30">
-            <div className="flex items-center gap-4">
-              <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-              <p className="text-xl font-semibold">Loading map…</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  // Create custom icons
+  const userLocationIcon = L.icon({
+    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
+    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
 
   return (
     <div className="h-screen bg-black text-white overflow-hidden relative flex flex-col">
       <Navbar />
 
       <div className="flex-1 relative overflow-hidden" style={{ height: 'calc(100vh - 80px)' }}>
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          options={options}
-          onLoad={handleMapLoad}
-          center={COLLEGE_CENTER}
+        <MapContainer
+          center={[COLLEGE_CENTER.lat, COLLEGE_CENTER.lng]}
           zoom={COLLEGE_ZOOM}
+          style={{ height: "100%", width: "100%", zIndex: 1 }}
+          scrollWheelZoom={true}
         >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          
+          <MapController 
+            center={COLLEGE_CENTER} 
+            zoom={COLLEGE_ZOOM} 
+            bounds={!selected && !showDirections ? CAMPUS_BOUNDS : null}
+            selectedBuilding={selected && !showDirections ? selected : null}
+            routeBounds={showDirections ? routeBounds : null}
+          />
+          
           {/* User location marker */}
           {userLocation && (
             <Marker
-              position={userLocation}
-              icon={{
-                url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-              }}
-              title="Your Location"
-            />
+              position={[userLocation.lat, userLocation.lng]}
+              icon={userLocationIcon}
+            >
+              <Popup>Your Location</Popup>
+            </Marker>
           )}
           
+          {/* Building markers with labels */}
           {BUILDINGS.map((b) => (
             <Marker
               key={b.id}
-              position={b.position}
-              label={{ text: b.name, className: "marker-label" }}
-              onClick={() => {
-                setSelected(b);
-                setShowDirections(false);
-                setDirections(null);
-                setSearchParams({ label: b.name });
+              position={[b.position.lat, b.position.lng]}
+              icon={createBuildingIconWithLabel(b.name)}
+              eventHandlers={{
+                click: () => {
+                  setSelected(b);
+                  setShowDirections(false);
+                  setDirections(null);
+                  setRouteBounds(null);
+                  setSearchParams({ label: b.name });
+                },
               }}
-            />
+            >
+              <Popup>{b.name}</Popup>
+            </Marker>
           ))}
           
           {/* Directions route */}
           {showDirections && directions && (
-            <DirectionsRenderer
-              directions={directions}
-              options={{
-                suppressMarkers: false,
-                preserveViewport: false,
-              }}
+            <Polyline
+              positions={directions}
+              color="purple"
+              weight={4}
+              opacity={0.7}
             />
           )}
-        </GoogleMap>
+        </MapContainer>
         
         {/* Building Details Panel */}
         <div 
@@ -418,5 +462,3 @@ const MapPage = () => {
 };
 
 export default MapPage;
-
-

@@ -123,8 +123,83 @@ const GEMINI_URL =
 // In-memory chat history
 let conversationHistory = [];
 
-// Function to call Gemini API
-async function callGemini(apiKey, prompt) {
+// Helper function to enhance "not found" responses with contextual suggestions
+function enhanceNotFoundResponse(response, query, campusText) {
+  const lowerResponse = response.toLowerCase();
+  const lowerQuery = query.toLowerCase();
+  
+  // Check if response indicates "not found"
+  const isNotFound = lowerResponse.includes("could not find") || 
+                     lowerResponse.includes("not in the campus records") ||
+                     lowerResponse.includes("not found") ||
+                     lowerResponse.includes("no information") ||
+                     (lowerResponse.includes("i could not") && lowerResponse.length < 100);
+  
+  if (!isNotFound) {
+    return response; // Return original response if it's not a "not found" message
+  }
+  
+  // Detect query type and provide contextual suggestions
+  let suggestion = "";
+  
+  // Food-related queries
+  if (lowerQuery.match(/\b(food|eat|meal|snack|breakfast|lunch|dinner|restaurant|cafe|pizza|burger|biryani|dosa|idli|coffee|tea|juice|milkshake|ice cream|sweet|dessert)\b/)) {
+    suggestion = `\n\nHowever, here are the food places available on campus:\n` +
+                `• Food Court (College Mess) - Located near the main entrance, serves breakfast, lunch, snacks, and dinner. Day scholars can pay ₹50 for a meal.\n` +
+                `• Canteen - Gopi's Kitchen - Popular canteen offering South Indian breakfast items, snacks, rice dishes, juices, and beverages. Also called Day Scholar's Canteen.\n` +
+                `• Bakery and Cake (Coca Cola Canteen) - Offers fresh baked goods, cakes, snacks, rolls, ice creams, milkshakes, and fresh fruit juices.`;
+  }
+  // Building/facility queries
+  else if (lowerQuery.match(/\b(building|facility|place|location|where|bhavan|hostel|lab|library|gym|parking|auditorium|hall)\b/)) {
+    suggestion = `\n\nHere are the main buildings and facilities on campus:\n` +
+                `• Ramanujacharya Bhavan - Main classroom and administrative building\n` +
+                `• Madhavacharya Bhavan - Library building with classrooms\n` +
+                `• Shankaracharya Bhavan - Lab building with various departments\n` +
+                `• Boys Hostel and Girls Hostel - Student accommodation\n` +
+                `• Food Court, Canteen - Gopi's Kitchen, and Bakery - Food facilities\n` +
+                `• Gym - Fitness facility\n` +
+                `• Parking - Vehicle parking area\n` +
+                `You can check the campus map for exact locations.`;
+  }
+  // Department queries
+  else if (lowerQuery.match(/\b(department|dept|hod|office|staff|faculty|professor|teacher)\b/)) {
+    suggestion = `\n\nThe main departments on campus include:\n` +
+                `• Computer Science and Engineering (CSE)\n` +
+                `• Information Science and Engineering (ISE)\n` +
+                `• Mechanical Engineering\n` +
+                `• Physics\n` +
+                `• Mathematics\n` +
+                `• Master of Computer Applications (MCA)\n` +
+                `Department offices are located in Ramanujacharya Bhavan and Shankaracharya Bhavan. You can check the campus map or visit the College Office for more specific information.`;
+  }
+  // Service queries
+  else if (lowerQuery.match(/\b(service|help|support|office|admin|account|fee|id card|lost|found|library|book|stationery|shop)\b/)) {
+    suggestion = `\n\nFor administrative services, visit the College Office located in Ramanujacharya Bhavan (Ground Floor, South side). ` +
+                `The office handles ID card reissue, lost and found, and other student services. ` +
+                `For library services, visit Madhavacharya Bhavan. ` +
+                `For stationery, there's a shop in Shankaracharya Bhavan (Ground Floor, South side near stairs).`;
+  }
+  // General fallback
+  else {
+    suggestion = `\n\nYou can find more information by:\n` +
+                `• Checking the campus map for building locations\n` +
+                `• Visiting the College Office in Ramanujacharya Bhavan for administrative queries\n` +
+                `• Exploring the main buildings: Ramanujacharya Bhavan, Madhavacharya Bhavan, and Shankaracharya Bhavan`;
+  }
+  
+  // Only add suggestion if response is truly a "not found" message
+  if (isNotFound && suggestion) {
+    return response + suggestion;
+  }
+  
+  return response;
+}
+
+// Helper function to sleep/delay
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Function to call Gemini API with retry logic for 503 errors
+async function callGemini(apiKey, prompt, retryCount = 0, maxRetries = 3) {
   try {
     const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
       method: "POST",
@@ -137,6 +212,16 @@ async function callGemini(apiKey, prompt) {
     // Check if response is OK
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      
+      // Retry logic for 503 (Service Unavailable / Overloaded) errors
+      if (response.status === 503 && retryCount < maxRetries) {
+        const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff: 1s, 2s, 4s
+        console.warn(`⚠️ Gemini API overloaded (503). Retrying in ${delay}ms... (Attempt ${retryCount + 1}/${maxRetries})`);
+        await sleep(delay);
+        return callGemini(apiKey, prompt, retryCount + 1, maxRetries);
+      }
+      
+      // For other errors or max retries reached, throw error
       console.error(`❌ Gemini API error (${response.status}):`, errorData);
       throw new Error(`Gemini API returned ${response.status}: ${JSON.stringify(errorData)}`);
     }
@@ -238,7 +323,7 @@ Question: "${q}"
 Only respond with one word: campus or general.
 `;
 
-        const classification = await callGemini(apiKey, classifierPrompt);
+        const classification = await callGemini(apiKey, classifierPrompt, 0, 2); // Fewer retries for classification
         intent = classification?.toLowerCase().includes("campus") ? "campus" : "general";
       } catch (error) {
         console.warn('⚠️ Classification failed, defaulting to campus for location-related queries:', error.message);
@@ -255,15 +340,20 @@ Only respond with one word: campus or general.
     let prompt;
     if (intent === "campus") {
       prompt = `
-You are a strict information assistant for the National Institute of Engineering, Mysore. Your ONLY job is to provide factual location and facility information from the knowledge base.
+You are a helpful information assistant for the National Institute of Engineering, Mysore. Your job is to provide factual location and facility information from the knowledge base.
 
 CRITICAL RULES:
-1. You MUST ONLY use the campus information provided below to answer questions.
+1. You MUST use the campus information provided below to answer questions.
 2. DO NOT give conversational responses like "I'll wait", "go ahead", "sure", etc.
 3. DO NOT engage in casual conversation for location queries.
 4. If the user asks about a location (e.g., "I need to go to washroom"), you MUST provide the actual location information from the knowledge base.
-5. If the information is not in the knowledge base, respond with: "I could not find this in the campus records."
+5. If the specific information is not in the knowledge base, provide helpful related information:
+   - For food items/restaurants: Mention the available food places on campus (Food Court, Canteen - Gopi's Kitchen, Bakery and Cake)
+   - For buildings/facilities: Mention similar buildings or related facilities available on campus
+   - For departments: Mention the departments that are available or suggest checking the main building
+   - For services: Mention where similar services might be available
 6. Be direct and factual - provide building names, locations, and directions when available.
+7. Always be helpful and provide contextually relevant alternatives when exact information isn't available.
 
 Here is the official campus information:
 ---
@@ -275,7 +365,7 @@ ${conversationHistory.map(m => `${m.role}: ${m.text}`).join("\n")}
 
 User question: "${q}"
 
-Provide ONLY factual location information from the campus knowledge base above. Do not give conversational responses.
+Provide factual location information from the campus knowledge base. If the exact information isn't available, provide helpful related information about similar facilities or services on campus.
 `;
     } else {
       prompt = `
@@ -298,6 +388,9 @@ User: "${q}"
         throw new Error('Empty response from Gemini API');
       }
       
+      // Post-process: Enhance "not found" responses with contextual suggestions
+      aiReply = enhanceNotFoundResponse(aiReply, q, campusText);
+      
       // Add Gemini's reply to memory
       conversationHistory.push({ role: "assistant", text: aiReply });
 
@@ -306,6 +399,9 @@ User: "${q}"
     } catch (error) {
       console.error('❌ Failed to get response from Gemini:', error.message);
       
+      // Check if it's a 503 error (overloaded) after all retries
+      const isOverloaded = error.message.includes('503') || error.message.includes('overloaded');
+      
       // If it's a campus query and we have campus text, provide a fallback
       if (intent === "campus" && campusText.trim().length > 0) {
         // Try to find basic information from campus text
@@ -313,12 +409,18 @@ User: "${q}"
         if (lowerQ.includes("shankaracharya") || lowerQ.includes("bhavan")) {
           aiReply = "Shankaracharya Bhavan is the Lab Building on campus. Please refer to the campus map for exact location details.";
         } else if (lowerQ.includes("building")) {
-          aiReply = "I'm having trouble accessing the campus database right now. Please try again in a moment or check the campus map.";
+          aiReply = isOverloaded 
+            ? "The AI service is currently busy. Please try again in a few moments or check the campus map for location details."
+            : "I'm having trouble accessing the campus database right now. Please try again in a moment or check the campus map.";
         } else {
-          aiReply = "I'm experiencing technical difficulties. Please try again in a moment.";
+          aiReply = isOverloaded
+            ? "The AI service is currently overloaded. Please try again in a few moments."
+            : "I'm experiencing technical difficulties. Please try again in a moment.";
         }
       } else {
-        aiReply = "I'm experiencing technical difficulties accessing the AI service. Please try again in a moment.";
+        aiReply = isOverloaded
+          ? "The AI service is currently busy. Please try again in a few moments."
+          : "I'm experiencing technical difficulties accessing the AI service. Please try again in a moment.";
       }
     }
 

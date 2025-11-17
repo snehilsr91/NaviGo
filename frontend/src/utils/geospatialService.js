@@ -1,14 +1,13 @@
-import { Loader } from '@googlemaps/js-api-loader';
 import * as THREE from 'three';
 
 class GeospatialService {
   constructor() {
-    this.apiKey = (import.meta?.env?.VITE_GOOGLE_MAPS_API_KEY) || '';
+    this.positionStackApiKey = (import.meta?.env?.VITE_POSITIONSTACK_API_KEY) || '';
     this.map = null;
     this.buildings = [];
     this.roads = [];
     this.isInitialized = false;
-    this.useFallback = false;
+    this.useFallback = true; // Always use fallback for now (PositionStack is for geocoding, not map rendering)
     this.origin = { lat: 0, lng: 0 };
   }
 
@@ -16,25 +15,11 @@ class GeospatialService {
     if (this.isInitialized) return;
 
     try {
-      const useMaps = (import.meta?.env?.VITE_USE_MAPS === 'true');
-      if (!useMaps || !this.apiKey) {
-        // No API key provided; use fallback mock data
-        this.useFallback = true;
-        this.isInitialized = true;
-        console.warn('Using fallback geospatial data (Maps disabled or API key missing).');
-        return;
-      }
-
-      // Load Google Maps API
-      const loader = new Loader({
-        apiKey: this.apiKey,
-        version: 'weekly',
-        libraries: ['places', 'visualization']
-      });
-
-      await loader.load();
+      // PositionStack is primarily for geocoding, not map rendering
+      // For AR features, we use fallback mock data
+      this.useFallback = true;
       this.isInitialized = true;
-      console.log('Google Maps API loaded successfully');
+      console.log('GeospatialService initialized with fallback mode (PositionStack available for geocoding if needed).');
     } catch (error) {
       console.warn('Error initializing GeospatialService, switching to fallback:', error);
       this.useFallback = true;
@@ -51,52 +36,21 @@ class GeospatialService {
     try {
       this.origin = { lat: latitude, lng: longitude };
 
-      if (this.useFallback) {
-        const buildings = this.mockBuildingsNear(latitude, longitude);
-        this.buildings = buildings;
-        return buildings;
-      }
-
-      // Create a map instance if not already created
-      if (!this.map) {
-        const mapDiv = document.createElement('div');
-        mapDiv.style.display = 'none';
-        document.body.appendChild(mapDiv);
-        
-        this.map = new google.maps.Map(mapDiv, {
-          center: { lat: latitude, lng: longitude },
-          zoom: 18,
-          mapTypeId: 'satellite',
-          disableDefaultUI: true,
-          gestureHandling: 'none',
-          zoomControl: false,
-          minZoom: 18,
-          maxZoom: 18
-        });
-      } else {
-        this.map.setCenter({ lat: latitude, lng: longitude });
-      }
-
-      // Use the Buildings API to get building data (placeholder; still using mock extraction)
-      return new Promise((resolve) => {
-        google.maps.event.addListenerOnce(this.map, 'idle', () => {
-          const buildings = this.extractBuildingsFromMap();
-          this.buildings = buildings;
-          resolve(buildings);
-        });
-      });
+      // Use fallback mock data (PositionStack is for geocoding, not building detection)
+      const buildings = this.mockBuildingsNear(latitude, longitude);
+      this.buildings = buildings;
+      return buildings;
     } catch (error) {
       console.error('Error detecting buildings:', error);
       return [];
     }
   }
 
-  // Extract building data from the map
+  // Extract building data from the map (deprecated - using mock data)
   extractBuildingsFromMap() {
-    // In a real implementation, we would use the Google Maps API to extract building data
-    // For now, we'll return mock data
-    const cLat = this.map ? this.map.getCenter().lat() : this.origin.lat;
-    const cLng = this.map ? this.map.getCenter().lng() : this.origin.lng;
+    // Using mock data for AR features
+    const cLat = this.origin.lat;
+    const cLng = this.origin.lng;
     return [
       {
         id: 'building-1',
@@ -166,39 +120,21 @@ class GeospatialService {
     try {
       this.origin = { lat: latitude, lng: longitude };
 
-      if (this.useFallback) {
-        const roads = this.mockRoadsNear(latitude, longitude);
-        this.roads = roads;
-        return roads;
-      }
-
-      // Ensure map is initialized
-      if (!this.map) {
-        await this.detectBuildings(latitude, longitude, radius);
-      } else {
-        this.map.setCenter({ lat: latitude, lng: longitude });
-      }
-
-      // Use the Roads API to get road data (placeholder; still using mock extraction)
-      return new Promise((resolve) => {
-        google.maps.event.addListenerOnce(this.map, 'idle', () => {
-          const roads = this.extractRoadsFromMap();
-          this.roads = roads;
-          resolve(roads);
-        });
-      });
+      // Use fallback mock data (PositionStack is for geocoding, not road detection)
+      const roads = this.mockRoadsNear(latitude, longitude);
+      this.roads = roads;
+      return roads;
     } catch (error) {
       console.error('Error detecting roads:', error);
       return [];
     }
   }
 
-  // Extract road data from the map
+  // Extract road data from the map (deprecated - using mock data)
   extractRoadsFromMap() {
-    // In a real implementation, we would use the Google Maps API to extract road data
-    // For now, we'll return mock data
-    const cLat = this.map ? this.map.getCenter().lat() : this.origin.lat;
-    const cLng = this.map ? this.map.getCenter().lng() : this.origin.lng;
+    // Using mock data for AR features
+    const cLat = this.origin.lat;
+    const cLng = this.origin.lng;
     return [
       {
         id: 'road-1',
@@ -257,9 +193,9 @@ class GeospatialService {
       
       // Position the mesh based on the building's position
       mesh.position.set(
-        building.position.lng - (this.map ? this.map.getCenter().lng() : this.origin.lng),
+        building.position.lng - this.origin.lng,
         building.height / 2,
-        building.position.lat - (this.map ? this.map.getCenter().lat() : this.origin.lat)
+        building.position.lat - this.origin.lat
       );
       
       return {
@@ -277,9 +213,9 @@ class GeospatialService {
       // Create a line for each road
       const points = road.path.map(point => 
         new THREE.Vector3(
-          point.lng - (this.map ? this.map.getCenter().lng() : this.origin.lng),
+          point.lng - this.origin.lng,
           0.1, // Slightly above ground
-          point.lat - (this.map ? this.map.getCenter().lat() : this.origin.lat)
+          point.lat - this.origin.lat
         )
       );
       
@@ -302,8 +238,8 @@ class GeospatialService {
   // Convert geospatial coordinates to AR coordinates
   geoToAR(latitude, longitude, altitude = 0) {
     // This is a simplified conversion - in a real app, you would use proper geospatial calculations
-    const centerLat = this.map ? this.map.getCenter().lat() : 0;
-    const centerLng = this.map ? this.map.getCenter().lng() : 0;
+    const centerLat = this.origin.lat || 0;
+    const centerLng = this.origin.lng || 0;
     
     // Convert to meters (very approximate)
     const latMeters = (latitude - centerLat) * 111000;

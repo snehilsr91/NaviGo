@@ -24,10 +24,10 @@
      - Make sure it includes the `/api` suffix if your backend routes are mounted at `/api`
      - No trailing slashes!
      - Example: `https://navigo-backend.vercel.app/api`
-   - `VITE_GOOGLE_MAPS_API_KEY` - **REQUIRED** Your Google Maps API key
-     - Get from Google Cloud Console
-     - Enable "Maps JavaScript API" and "Directions API"
-     - Example: `AIzaSyC...`
+   - `VITE_POSITIONSTACK_API_KEY` - **OPTIONAL** Your PositionStack API key (for geocoding features)
+     - Get from https://positionstack.com/
+     - Used for geocoding and reverse geocoding if needed
+     - Example: `be7fe0b6c8ea6a9b7a0405be45048fe8`
 
 3. **Routing:**
    The `vercel.json` file handles client-side routing for the React Router SPA.
