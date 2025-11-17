@@ -347,6 +347,9 @@ Menu:
 
 📌 Snacks & Rolls:
 - Parota Veg Roll
+- Samosa
+- Veg Puff
+- Egg Puff
 - Parota Paneer Roll
 - Maggie
 - Cheese Maggie
@@ -371,7 +374,7 @@ Menu:
 - Soup
 - Milkshakes (also available)
 
-📌 Chats Items:
+📌 Chaat/Chat Items:
 - Churumuri
 - Nippat Masala
 - Chips Masala
