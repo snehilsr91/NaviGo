@@ -68,6 +68,17 @@ const EventsPage = () => {
 
   const timeOptions = generateTimeOptions();
 
+  // Validate URL format
+  const isValidUrl = (urlString) => {
+    if (!urlString || urlString.trim() === '') return true; // Empty is valid (optional field)
+    try {
+      const url = new URL(urlString);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch (_) {
+      return false;
+    }
+  };
+
   // Handle image upload - convert to base64
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -238,6 +249,12 @@ const EventsPage = () => {
 
     if (startTime < new Date()) {
       setBookingError("Event date and time cannot be in the past");
+      return;
+    }
+
+    // Validate registration form URL if provided
+    if (bookingFormData.registrationFormUrl && !isValidUrl(bookingFormData.registrationFormUrl)) {
+      setBookingError("Please enter a valid registration form URL (must start with http:// or https://)");
       return;
     }
 
@@ -415,24 +432,18 @@ const EventsPage = () => {
           >
             📍 View Location
           </button>
+          {/* Only show register button if event has a registrationFormUrl */}
           {event.status === "upcoming" || event.status === "ongoing" ? (
-            <button
-              onClick={() => {
-                setSelectedEvent(event);
-                setShowRegisterModal(true);
-                setError("");
-              }}
-              disabled={
-                event.maxParticipants &&
-                event.registeredParticipants?.length >= event.maxParticipants
-              }
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-2 bg-gradient-to-r from-purple-600 to-purple-700 active:from-purple-500 active:to-purple-600 text-white text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation min-h-[44px]"
-            >
-              {event.maxParticipants &&
-              event.registeredParticipants?.length >= event.maxParticipants
-                ? "Event Full"
-                : "Register"}
-            </button>
+            event.registrationFormUrl ? (
+              <a
+                href={event.registrationFormUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-2 bg-gradient-to-r from-purple-600 to-purple-700 active:from-purple-500 active:to-purple-600 text-white text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 text-center touch-manipulation min-h-[44px] flex items-center justify-center"
+              >
+                Register
+              </a>
+            ) : null
           ) : null}
         </div>
       </>
@@ -855,10 +866,32 @@ const EventsPage = () => {
                 <input
                   type="url"
                   value={bookingFormData.registrationFormUrl}
-                  onChange={(e) => setBookingFormData({ ...bookingFormData, registrationFormUrl: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-black/60 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500/50"
+                  onChange={(e) => {
+                    const url = e.target.value;
+                    setBookingFormData({ ...bookingFormData, registrationFormUrl: url });
+                    // Validate URL format
+                    if (url && !isValidUrl(url)) {
+                      setBookingError("Please enter a valid URL (e.g., https://forms.google.com/...)");
+                    } else if (bookingError && url && isValidUrl(url)) {
+                      setBookingError("");
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const url = e.target.value;
+                    if (url && !isValidUrl(url)) {
+                      setBookingError("Please enter a valid URL (e.g., https://forms.google.com/...)");
+                    }
+                  }}
+                  className={`w-full px-4 py-2.5 bg-black/60 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500/50 ${
+                    bookingFormData.registrationFormUrl && !isValidUrl(bookingFormData.registrationFormUrl)
+                      ? 'border-red-500/50'
+                      : 'border-purple-500/30'
+                  }`}
                   placeholder="https://forms.google.com/..."
                 />
+                {bookingFormData.registrationFormUrl && !isValidUrl(bookingFormData.registrationFormUrl) && (
+                  <p className="text-red-400 text-xs mt-1">Please enter a valid URL starting with http:// or https://</p>
+                )}
               </div>
 
               {/* Announcement Content */}
